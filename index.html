@@ -3,424 +3,225 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <meta name="theme-color" content="#000000">
+  <meta name="theme-color" content="#87CEEB">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="DayCounter">
-
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icon-192.png">
-
   <title>Day Counter Dashboard</title>
   <style>
     :root {
-      --bg: #f5f5f7;
-      --card: #ffffff;
-      --text: #1c1c1e;
-      --text-secondary: #8e8e93;
-      --accent: #007aff;
-      --accent-light: #e5f2ff;
-      --border: #e5e5ea;
-      --danger: #ff3b30;
-      --positive: #34c759;
-      --warning: #ff9500;
-      --radius: 14px;
-      --shadow: 0 2px 12px rgba(0,0,0,0.08);
+      --bg: #f5f5f7; --card: #ffffff; --text: #1c1c1e; --text-secondary: #8e8e93;
+      --accent: #007aff; --accent-light: #e5f2ff; --border: #e5e5ea;
+      --danger: #ff3b30; --positive: #34c759; --warning: #ff9500;
+      --radius: 14px; --shadow: 0 2px 12px rgba(0,0,0,0.08);
+      --sky: #87CEEB; --sky-light: #B0E0E6; --brown: #8B4513;
     }
-
     @media (prefers-color-scheme: dark) {
       :root {
-        --bg: #000000;
-        --card: #1c1c1e;
-        --text: #ffffff;
-        --text-secondary: #8e8e93;
-        --accent: #0a84ff;
-        --accent-light: rgba(10,132,255,0.15);
-        --border: #38383a;
-        --shadow: 0 2px 12px rgba(0,0,0,0.3);
-        --danger: #ff453a;
-        --positive: #30d158;
-        --warning: #ff9f0a;
+        --bg: #000000; --card: #1c1c1e; --text: #ffffff; --text-secondary: #8e8e93;
+        --accent: #0a84ff; --accent-light: rgba(10,132,255,0.15); --border: #38383a;
+        --shadow: 0 2px 12px rgba(0,0,0,0.3); --danger: #ff453a; --positive: #30d158; --warning: #ff9f0a;
+        --sky: #1a3a5c; --sky-light: #2a4a6c; --brown: #cd853f;
       }
     }
-
     * { margin: 0; padding: 0; box-sizing: border-box; }
-
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      padding: 20px;
-      padding-top: max(20px, env(safe-area-inset-top));
-      padding-bottom: max(20px, env(safe-area-inset-bottom));
-      min-height: 100vh;
+      background: var(--bg); color: var(--text);
+      padding: 20px; padding-top: max(20px, env(safe-area-inset-top));
+      padding-bottom: max(20px, env(safe-area-inset-bottom)); min-height: 100vh;
     }
+    .container { max-width: 520px; margin: 0 auto; }
 
-    .container {
-      max-width: 520px;
-      margin: 0 auto;
+    #splash {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: linear-gradient(180deg, var(--sky) 0%, var(--sky-light) 100%);
+      z-index: 9999; display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      transition: opacity 0.8s ease, visibility 0.8s ease;
     }
+    #splash.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+    #splash .wheel { animation: spin 10s linear infinite; }
+    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    #splash h2 { margin-top: 24px; color: white; font-size: 22px; font-weight: 600; text-shadow: 0 1px 4px rgba(0,0,0,0.2); }
 
-    /* Navigation */
-    .nav-bar {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 20px;
-      background: var(--card);
-      padding: 6px;
-      border-radius: 12px;
-      box-shadow: var(--shadow);
+    .nav-bar { display: flex; gap: 8px; margin-bottom: 20px;
+      background: var(--card); padding: 6px; border-radius: 12px; box-shadow: var(--shadow); }
+    .nav-btn { flex: 1; padding: 10px 12px; border: none; border-radius: 8px;
+      font-size: 15px; font-weight: 600; cursor: pointer; background: transparent;
+      color: var(--text-secondary); transition: all 0.2s; font-family: inherit; }
+    .nav-btn.active { background: var(--accent); color: white; }
+
+    h1 { font-size: 26px; font-weight: 700; margin-bottom: 20px; letter-spacing: -0.5px; }
+
+    .card { background: var(--card); border-radius: var(--radius);
+      padding: 18px; margin-bottom: 14px; box-shadow: var(--shadow); }
+    .card-title { font-size: 12px; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 0.5px; color: var(--text-secondary); margin-bottom: 12px; }
+
+    .input-group { display: flex; flex-direction: column; gap: 10px; }
+    .input-row { display: flex; align-items: center; gap: 12px; }
+    .input-row label { font-size: 15px; font-weight: 500; min-width: 40px; color: var(--text-secondary); }
+    input[type="date"], input[type="text"], input[type="number"] {
+      flex: 1; padding: 12px 14px; border: 1px solid var(--border); border-radius: 10px;
+      font-size: 16px; background: var(--bg); color: var(--text); font-family: inherit; -webkit-appearance: none; }
+    input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-light); }
+
+    .target-box {
+      background: linear-gradient(135deg, var(--accent), #5856d6);
+      color: white; text-align: center; padding: 20px;
+      border-radius: var(--radius); margin-bottom: 14px;
     }
-
-    .nav-btn {
-      flex: 1;
-      padding: 10px 12px;
-      border: none;
-      border-radius: 8px;
-      font-size: 15px;
-      font-weight: 600;
-      cursor: pointer;
-      background: transparent;
-      color: var(--text-secondary);
-      transition: all 0.2s;
-      font-family: inherit;
+    .target-box label { font-size: 13px; opacity: 0.85; display: block; margin-bottom: 8px; }
+    .target-box input[type="number"] {
+      background: rgba(255,255,255,0.2); border: 2px solid rgba(255,255,255,0.4);
+      color: white; font-size: 28px; font-weight: 700; text-align: center;
+      width: 100%; border-radius: 12px; padding: 12px;
     }
+    .target-box input::placeholder { color: rgba(255,255,255,0.6); }
+    .target-box input:focus { border-color: white; box-shadow: none; }
 
-    .nav-btn.active {
-      background: var(--accent);
-      color: white;
-    }
-
-    h1 {
-      font-size: 26px;
-      font-weight: 700;
-      margin-bottom: 20px;
-      letter-spacing: -0.5px;
-    }
-
-    .card {
-      background: var(--card);
-      border-radius: var(--radius);
-      padding: 18px;
-      margin-bottom: 14px;
-      box-shadow: var(--shadow);
-    }
-
-    .card-title {
-      font-size: 12px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      color: var(--text-secondary);
-      margin-bottom: 12px;
-    }
-
-    .input-group {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .input-row {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .input-row label {
-      font-size: 15px;
-      font-weight: 500;
-      min-width: 40px;
-      color: var(--text-secondary);
-    }
-
-    input[type="date"], input[type="text"] {
-      flex: 1;
-      padding: 12px 14px;
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      font-size: 16px;
-      background: var(--bg);
-      color: var(--text);
-      font-family: inherit;
-      -webkit-appearance: none;
-    }
-
-    input:focus {
-      outline: none;
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px var(--accent-light);
-    }
-
-    .btn {
-      width: 100%;
-      padding: 14px;
-      background: var(--accent);
-      color: white;
-      border: none;
-      border-radius: 12px;
-      font-size: 17px;
-      font-weight: 600;
-      cursor: pointer;
-      margin-top: 4px;
-      transition: transform 0.15s, opacity 0.15s;
-      font-family: inherit;
-    }
-
+    .btn { width: 100%; padding: 14px; background: var(--accent); color: white;
+      border: none; border-radius: 12px; font-size: 17px; font-weight: 600;
+      cursor: pointer; margin-top: 4px; transition: transform 0.15s, opacity 0.15s; font-family: inherit; }
     .btn:active { transform: scale(0.98); opacity: 0.9; }
+    .btn-secondary { background: var(--positive); margin-top: 10px; }
+    .btn-danger { background: var(--danger); }
 
-    .btn-secondary {
-      background: var(--positive);
-      margin-top: 10px;
-    }
+    .total-box { text-align: center; padding: 24px 20px; }
+    .total-number { font-size: 52px; font-weight: 700; color: var(--accent); line-height: 1; letter-spacing: -1px; }
+    .total-label { font-size: 15px; color: var(--text-secondary); margin-top: 8px; }
 
-    .btn-danger {
-      background: var(--danger);
-      padding: 8px 14px;
-      font-size: 13px;
-      width: auto;
-      margin-top: 0;
-    }
-
-    .total-box {
-      text-align: center;
-      padding: 24px 20px;
-    }
-
-    .total-number {
-      font-size: 52px;
-      font-weight: 700;
-      color: var(--accent);
-      line-height: 1;
-      letter-spacing: -1px;
-    }
-
-    .total-label {
-      font-size: 15px;
-      color: var(--text-secondary);
-      margin-top: 8px;
-    }
-
-    .year-list {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .year-item {
-      display: flex;
-      flex-direction: column;
-      padding: 12px 14px;
-      background: var(--bg);
-      border-radius: 10px;
-      transition: transform 0.15s;
-    }
-
-    .year-item:active { transform: scale(0.98); }
-
-    .year-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .year-name {
-      font-size: 15px;
-      font-weight: 600;
-    }
-
-    .year-days {
-      font-size: 20px;
-      font-weight: 700;
-      color: var(--accent);
-    }
-
-    .year-bar-bg {
-      width: 100%;
-      height: 5px;
-      background: var(--border);
-      border-radius: 3px;
-      margin-top: 8px;
-      overflow: hidden;
-    }
-
-    .year-bar-fill {
-      height: 100%;
-      background: var(--accent);
-      border-radius: 3px;
-      width: 0%;
-      transition: width 0.7s cubic-bezier(0.22, 1, 0.36, 1);
-    }
-
-    /* Saved periods list */
-    .period-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 14px 16px;
-      background: var(--bg);
-      border-radius: 10px;
-      margin-bottom: 8px;
-      border: 1px solid var(--border);
-      transition: transform 0.15s;
-    }
-
-    .period-item:active { transform: scale(0.98); }
-
-    .period-info {
-      flex: 1;
-    }
-
-    .period-name {
-      font-size: 15px;
-      font-weight: 600;
-      margin-bottom: 2px;
-    }
-
-    .period-dates {
-      font-size: 12px;
-      color: var(--text-secondary);
-    }
-
-    .period-days {
-      font-size: 22px;
-      font-weight: 700;
-      color: var(--accent);
-      margin-right: 12px;
-    }
-
-    .period-actions {
-      display: flex;
-      gap: 6px;
-      align-items: center;
-    }
-
-    .icon-btn {
-      width: 32px;
-      height: 32px;
-      border: none;
-      border-radius: 8px;
-      background: transparent;
-      color: var(--text-secondary);
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.15s;
-    }
-
-    .icon-btn:hover { background: var(--border); color: var(--danger); }
+    .diff-box { text-align: center; padding: 14px; margin-top: 10px;
+      background: var(--bg); border-radius: 10px; border: 1px solid var(--border); }
+    .diff-number { font-size: 28px; font-weight: 700; }
+    .diff-number.positive { color: var(--positive); }
+    .diff-number.negative { color: var(--danger); }
+    .diff-label { font-size: 13px; color: var(--text-secondary); margin-top: 4px; }
 
     .grand-total {
       background: linear-gradient(135deg, var(--accent), #5856d6);
-      color: white;
-      text-align: center;
-      padding: 28px 20px;
+      color: white; text-align: center; padding: 28px 20px;
     }
+    .grand-total .total-number { color: white; font-size: 56px; }
+    .grand-total .total-label { color: rgba(255,255,255,0.8); }
 
-    .grand-total .total-number {
-      color: white;
-      font-size: 56px;
-    }
+    .year-list { display: flex; flex-direction: column; gap: 8px; }
+    .year-item { display: flex; flex-direction: column; padding: 12px 14px; background: var(--bg);
+      border-radius: 10px; border: 1px solid var(--border); cursor: pointer;
+      transition: transform 0.15s, background 0.15s; }
+    .year-item:active { transform: scale(0.98); }
+    .year-item.active-year { background: var(--card); border-color: var(--accent); }
+    .year-header { display: flex; justify-content: space-between; align-items: center; }
+    .year-name { font-size: 15px; font-weight: 600; }
+    .year-days { font-size: 20px; font-weight: 700; color: var(--accent); }
+    .year-bar-bg { width: 100%; height: 5px; background: var(--border); border-radius: 3px; margin-top: 7px; overflow: hidden; }
+    .year-bar-fill { height: 100%; background: var(--accent); border-radius: 3px; width: 0%;
+      transition: width 0.7s cubic-bezier(0.22,1,0.36,1); }
 
-    .grand-total .total-label {
-      color: rgba(255,255,255,0.8);
+    /* Inline detail panel */
+    .year-detail-inline {
+      margin-top: 10px; padding: 12px;
+      background: var(--bg); border-radius: 8px;
+      border: 1px solid var(--border);
+      animation: slideDown 0.25s ease;
     }
+    @keyframes slideDown { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
+    .year-detail-inline.hidden { display: none; }
+    .detail-title { font-size: 12px; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 0.4px; color: var(--text-secondary); margin-bottom: 8px; }
+    .detail-row { display: flex; justify-content: space-between; align-items: center;
+      padding: 8px 0; border-bottom: 1px solid var(--border); }
+    .detail-row:last-child { border-bottom: none; }
+    .detail-info { flex: 1; min-width: 0; }
+    .detail-name { font-size: 14px; font-weight: 500; }
+    .detail-days { font-size: 12px; color: var(--text-secondary); }
+    .detail-diff { text-align: right; }
+    .detail-diff .diff-val { font-size: 16px; font-weight: 700; }
+    .detail-diff .diff-val.positive { color: var(--positive); }
+    .detail-diff .diff-val.negative { color: var(--danger); }
+    .detail-diff .diff-lbl { font-size: 10px; color: var(--text-secondary); }
 
-    .empty-state {
-      text-align: center;
-      padding: 40px 20px;
-      color: var(--text-secondary);
-    }
+    .period-item { display: flex; justify-content: space-between; align-items: center; padding: 14px 16px;
+      background: var(--bg); border-radius: 10px; margin-bottom: 8px;
+      border: 1px solid var(--border); cursor: pointer; transition: transform 0.15s; }
+    .period-item:active { transform: scale(0.98); }
+    .period-info { flex: 1; min-width: 0; }
+    .period-name { font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .period-dates { font-size: 12px; color: var(--text-secondary); margin-top: 1px; }
+    .period-days { font-size: 20px; font-weight: 700; color: var(--accent); margin-right: 10px; flex-shrink: 0; }
 
-    .empty-state svg {
-      width: 56px;
-      height: 56px;
-      margin-bottom: 16px;
-      opacity: 0.35;
-    }
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); z-index: 1000;
+      display: flex; align-items: flex-end; justify-content: center;
+      opacity: 0; visibility: hidden; transition: opacity 0.3s, visibility 0.3s; }
+    .modal-overlay.show { opacity: 1; visibility: visible; }
+    .modal-content { background: var(--card); width: 100%; max-width: 520px;
+      border-radius: 20px 20px 0 0; padding: 24px 20px max(24px, env(safe-area-inset-bottom));
+      transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.22,1,0.36,1); }
+    .modal-overlay.show .modal-content { transform: translateY(0); }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+    .modal-title { font-size: 18px; font-weight: 700; }
+    .modal-close { width: 32px; height: 32px; border-radius: 50%; border: none;
+      background: var(--bg); color: var(--text-secondary); font-size: 20px;
+      cursor: pointer; display: flex; align-items: center; justify-content: center; }
+    .modal-actions { display: flex; gap: 10px; margin-top: 16px; }
+    .modal-actions .btn { margin-top: 0; flex: 1; }
+
+    .empty-state { text-align: center; padding: 32px 16px; color: var(--text-secondary); }
+    .empty-state svg { width: 48px; height: 48px; margin-bottom: 10px; opacity: 0.35; }
 
     .hidden { display: none !important; }
+    .fade-in { animation: fadeIn 0.35s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    .badge { display: inline-block; padding: 2px 6px; border-radius: 5px; font-size: 10px; font-weight: 600; margin-left: 5px;
+      background: color-mix(in srgb, var(--warning) 15%, transparent); color: var(--warning); }
+    .section-title { font-size: 18px; font-weight: 700; margin-bottom: 10px; margin-top: 2px; }
 
-    .fade-in {
-      animation: fadeIn 0.35s ease;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(8px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .badge {
-      display: inline-block;
-      padding: 3px 8px;
-      border-radius: 6px;
-      font-size: 11px;
-      font-weight: 600;
-      margin-left: 6px;
-    }
-
-    .badge-leap {
-      background: color-mix(in srgb, var(--warning) 15%, transparent);
-      color: var(--warning);
-    }
-
-    .section-title {
-      font-size: 18px;
-      font-weight: 700;
-      margin-bottom: 12px;
-      margin-top: 4px;
-    }
-
-    .toast {
-      position: fixed;
-      bottom: max(24px, env(safe-area-inset-bottom));
-      left: 50%;
-      transform: translateX(-50%) translateY(100px);
-      background: var(--text);
-      color: var(--card);
-      padding: 12px 24px;
-      border-radius: 12px;
-      font-size: 15px;
-      font-weight: 500;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-      z-index: 1000;
-      transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
-      pointer-events: none;
-    }
-
-    .toast.show {
-      transform: translateX(-50%) translateY(0);
-    }
+    .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(80px);
+      background: var(--text); color: var(--card); padding: 10px 20px; border-radius: 10px;
+      font-size: 14px; font-weight: 500; box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+      z-index: 1001; transition: transform 0.3s cubic-bezier(0.22,1,0.36,1); pointer-events: none; }
+    .toast.show { transform: translateX(-50%) translateY(0); }
   </style>
 </head>
 <body>
+  <div id="splash">
+    <svg class="wheel" width="140" height="140" viewBox="0 0 200 200">
+      <circle cx="100" cy="100" r="85" fill="none" stroke="var(--brown)" stroke-width="7"/>
+      <line x1="100" y1="15" x2="100" y2="185" stroke="var(--brown)" stroke-width="6" stroke-linecap="round"/>
+      <line x1="15" y1="100" x2="185" y2="100" stroke="var(--brown)" stroke-width="6" stroke-linecap="round"/>
+      <line x1="36" y1="36" x2="164" y2="164" stroke="var(--brown)" stroke-width="6" stroke-linecap="round"/>
+      <line x1="164" y1="36" x2="36" y2="164" stroke="var(--brown)" stroke-width="6" stroke-linecap="round"/>
+      <circle cx="100" cy="100" r="18" fill="var(--brown)"/>
+      <rect x="94" y="185" width="12" height="45" fill="var(--brown)" rx="6"/>
+    </svg>
+    <h2>Day Counter</h2>
+  </div>
+
   <div class="container">
-    <!-- Navigation -->
     <div class="nav-bar">
       <button class="nav-btn active" onclick="showPage('calculator')" id="nav-calc">Calcola</button>
       <button class="nav-btn" onclick="showPage('dashboard')" id="nav-dash">Dashboard</button>
     </div>
 
-    <!-- ===== CALCULATOR PAGE ===== -->
     <div id="page-calculator">
-      <h1>📅 Conta Giorni</h1>
+      <h1>Conta Giorni</h1>
+
+      <div class="target-box">
+        <label>Giorni target</label>
+        <input type="number" id="targetDays" placeholder="0" min="0" onchange="saveTarget()">
+      </div>
 
       <div class="card">
         <div class="card-title">Seleziona il periodo</div>
         <div class="input-group">
-          <div class="input-row">
-            <label>Da</label>
-            <input type="date" id="startDate">
-          </div>
-          <div class="input-row">
-            <label>A</label>
-            <input type="date" id="endDate">
-          </div>
-          <div class="input-row">
-            <label style="min-width:40px">Nome</label>
-            <input type="text" id="periodName" placeholder="Es. Progetto Alpha, Vacanza...">
-          </div>
+          <div class="input-row"><label>Da</label><input type="date" id="startDate"></div>
+          <div class="input-row"><label>A</label><input type="date" id="endDate"></div>
+          <div class="input-row"><label style="min-width:40px">Nome</label>
+            <input type="text" id="periodName" placeholder="Es. Progetto Alpha, Vacanza..."></div>
           <button class="btn" onclick="calculate()">Calcola</button>
         </div>
       </div>
@@ -429,32 +230,31 @@
         <div class="card total-box">
           <div class="total-number" id="totalDays">0</div>
           <div class="total-label">giorni totali</div>
+          <div id="diffBox" class="diff-box hidden">
+            <div class="diff-number" id="diffNumber">0</div>
+            <div class="diff-label" id="diffLabel"></div>
+          </div>
         </div>
-
         <div class="card">
           <div class="card-title">Ripartizione per anno</div>
           <div id="yearList" class="year-list"></div>
         </div>
-
-        <button class="btn btn-secondary" onclick="saveCurrentPeriod()">
-          💾 Salva questo periodo
-        </button>
+        <button class="btn btn-secondary" onclick="saveCurrentPeriod()">Salva questo periodo</button>
       </div>
 
       <div id="calcEmpty" class="card empty-state">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+          <rect x="3" y="4" width="18" height="18" rx="2"></rect>
           <line x1="16" y1="2" x2="16" y2="6"></line>
           <line x1="8" y1="2" x2="8" y2="6"></line>
           <line x1="3" y1="10" x2="21" y2="10"></line>
         </svg>
-        <p>Seleziona un periodo e premi "Calcola"</p>
+        <p style="font-size:13px">Seleziona un periodo e premi "Calcola"</p>
       </div>
     </div>
 
-    <!-- ===== DASHBOARD PAGE ===== -->
     <div id="page-dashboard" class="hidden">
-      <h1>📊 Dashboard</h1>
+      <h1>Dashboard</h1>
 
       <div class="card grand-total">
         <div class="total-number" id="grandTotalDays">0</div>
@@ -462,22 +262,31 @@
       </div>
 
       <div class="card">
-        <div class="section-title">Periodi salvati</div>
-        <div id="savedPeriodsList">
-          <div class="empty-state">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-              <polyline points="7 10 12 15 17 10"></polyline>
-              <line x1="12" y1="15" x2="12" y2="3"></line>
-            </svg>
-            <p>Nessun periodo salvato</p>
-          </div>
-        </div>
+        <div class="card-title">Ripartizione annuale globale</div>
+        <div id="globalYearList" class="year-list"></div>
       </div>
 
       <div class="card">
-        <div class="section-title">Ripartizione annuale globale</div>
-        <div id="globalYearList" class="year-list"></div>
+        <div class="section-title">Periodi salvati</div>
+        <div id="savedPeriodsList"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="editModal" onclick="closeEditModal(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <div class="modal-title">Modifica periodo</div>
+        <button class="modal-close" onclick="closeEditModal()">&times;</button>
+      </div>
+      <div class="input-group">
+        <div class="input-row"><label style="min-width:40px">Nome</label><input type="text" id="editName"></div>
+        <div class="input-row"><label>Da</label><input type="date" id="editStart"></div>
+        <div class="input-row"><label>A</label><input type="date" id="editEnd"></div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-danger" onclick="deleteEditPeriod()">Elimina</button>
+        <button class="btn" onclick="saveEditPeriod()">Salva</button>
       </div>
     </div>
   </div>
@@ -487,292 +296,312 @@
   <script>
     // ===== STATE =====
     let currentCalculation = null;
-    const STORAGE_KEY = 'daycounter_periods';
+    let editingId = null;
+    let openYear = null;
+    const STORAGE_KEY = 'daycounter_periods_v2';
+    const TARGET_KEY = 'daycounter_target';
 
     // ===== UTILS =====
     function isLeapYear(year) {
       return (year % 4 === 0 && year % 100 !== 0) || (year % 400 === 0);
     }
-
     function formatDateIT(dateStr) {
       const d = new Date(dateStr + 'T00:00:00');
       return d.toLocaleDateString('it-IT', { day: 'numeric', month: 'short', year: 'numeric' });
     }
-
-    function showToast(msg) {
+    function toast(msg) {
       const t = document.getElementById('toast');
-      t.textContent = msg;
-      t.classList.add('show');
-      setTimeout(() => t.classList.remove('show'), 2500);
+      t.textContent = msg; t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2200);
+    }
+    function anim(el, target, dur) {
+      const s = performance.now();
+      (function tick(now) {
+        const p = Math.min((now - s) / dur, 1);
+        const ease = 1 - Math.pow(1 - p, 3);
+        el.textContent = Math.floor(target * ease).toLocaleString('it-IT');
+        if (p < 1) requestAnimationFrame(tick);
+      })(s);
+    }
+    function getSavedPeriods() {
+      try { const data = localStorage.getItem(STORAGE_KEY); return data ? JSON.parse(data) : []; }
+      catch (e) { return []; }
+    }
+    function savePeriods(periods) { localStorage.setItem(STORAGE_KEY, JSON.stringify(periods)); }
+    function getTarget() {
+      try { const t = localStorage.getItem(TARGET_KEY); return t ? parseInt(t, 10) : 0; }
+      catch (e) { return 0; }
+    }
+    function saveTarget() {
+      const val = document.getElementById('targetDays').value;
+      localStorage.setItem(TARGET_KEY, val || '0');
+    }
+    function recalcPeriod(p) {
+      const start = new Date(p.start + 'T00:00:00'), end = new Date(p.end + 'T00:00:00');
+      const years = []; let total = 0;
+      const sy = start.getFullYear(), ey = end.getFullYear();
+      for (let y = sy; y <= ey; y++) {
+        let ys, ye;
+        if (y === sy && y === ey) { ys = new Date(start); ye = new Date(end); }
+        else if (y === sy) { ys = new Date(start); ye = new Date(y, 11, 31); }
+        else if (y === ey) { ys = new Date(y, 0, 1); ye = new Date(end); }
+        else { ys = new Date(y, 0, 1); ye = new Date(y, 11, 31); }
+        const days = Math.floor((ye - ys) / 86400000) + 1;
+        years.push({ year: y, days: days, leap: isLeapYear(y) });
+        total += days;
+      }
+      const maxD = Math.max(...years.map(x => x.days));
+      years.forEach(x => x.pct = (x.days / maxD) * 100);
+      p.total = total; p.years = years;
+      return p;
     }
 
-    // ===== NAVIGATION =====
+    // ===== SPLASH =====
+    setTimeout(() => { document.getElementById('splash').classList.add('hidden'); }, 2500);
+
+    // ===== NAV =====
     function showPage(page) {
       document.getElementById('page-calculator').classList.add('hidden');
       document.getElementById('page-dashboard').classList.add('hidden');
       document.getElementById('nav-calc').classList.remove('active');
       document.getElementById('nav-dash').classList.remove('active');
-
       document.getElementById('page-' + page).classList.remove('hidden');
       document.getElementById('nav-' + (page === 'calculator' ? 'calc' : 'dash')).classList.add('active');
-
-      if (page === 'dashboard') {
-        renderDashboard();
-      }
+      if (page === 'dashboard') renderDashboard();
     }
 
-    // ===== CALCULATION =====
+    // ===== CALCULATOR =====
     function getDaysInRange(startStr, endStr) {
       const start = new Date(startStr + 'T00:00:00');
       const end = new Date(endStr + 'T00:00:00');
-
-      if (end < start) {
-        return { error: "La data di fine deve essere successiva alla data di inizio" };
-      }
-
-      const result = [];
-      let totalDays = 0;
-      const startYear = start.getFullYear();
-      const endYear = end.getFullYear();
-
+      if (end < start) return { error: "La data di fine deve essere successiva alla data di inizio" };
+      const result = []; let totalDays = 0;
+      const startYear = start.getFullYear(), endYear = end.getFullYear();
       for (let year = startYear; year <= endYear; year++) {
         let yearStart, yearEnd;
-
-        if (year === startYear && year === endYear) {
-          yearStart = new Date(start);
-          yearEnd = new Date(end);
-        } else if (year === startYear) {
-          yearStart = new Date(start);
-          yearEnd = new Date(year, 11, 31);
-        } else if (year === endYear) {
-          yearStart = new Date(year, 0, 1);
-          yearEnd = new Date(end);
-        } else {
-          yearStart = new Date(year, 0, 1);
-          yearEnd = new Date(year, 11, 31);
-        }
-
+        if (year === startYear && year === endYear) { yearStart = new Date(start); yearEnd = new Date(end); }
+        else if (year === startYear) { yearStart = new Date(start); yearEnd = new Date(year, 11, 31); }
+        else if (year === endYear) { yearStart = new Date(year, 0, 1); yearEnd = new Date(end); }
+        else { yearStart = new Date(year, 0, 1); yearEnd = new Date(year, 11, 31); }
         const days = Math.floor((yearEnd - yearStart) / 86400000) + 1;
-
         result.push({ year: year, days: days, isLeap: isLeapYear(year) });
         totalDays += days;
       }
-
       const maxDays = Math.max(...result.map(r => r.days));
       result.forEach(r => { r.percentage = (r.days / maxDays) * 100; });
-
       return { years: result, total: totalDays };
     }
 
     function calculate() {
       const start = document.getElementById('startDate').value;
       const end = document.getElementById('endDate').value;
-
-      if (!start || !end) {
-        showToast("Seleziona entrambe le date");
-        return;
-      }
-
+      if (!start || !end) { toast("Seleziona entrambe le date"); return; }
       const data = getDaysInRange(start, end);
-
-      if (data.error) {
-        showToast(data.error);
-        return;
-      }
+      if (data.error) { toast(data.error); return; }
 
       currentCalculation = {
         id: Date.now(),
         name: document.getElementById('periodName').value.trim() || ('Periodo ' + new Date().toLocaleDateString('it-IT')),
-        start: start,
-        end: end,
-        total: data.total,
-        years: data.years
+        start: start, end: end, total: data.total, years: data.years
       };
 
       document.getElementById('calcEmpty').classList.add('hidden');
-      const results = document.getElementById('calcResults');
-      results.classList.remove('hidden');
-      results.classList.remove('fade-in');
-      void results.offsetWidth;
-      results.classList.add('fade-in');
+      const r = document.getElementById('calcResults');
+      r.classList.remove('hidden'); r.classList.remove('fade-in');
+      void r.offsetWidth; r.classList.add('fade-in');
 
-      animateNumber(document.getElementById('totalDays'), data.total);
+      anim(document.getElementById('totalDays'), data.total, 700);
+
+      const target = getTarget();
+      const diffBox = document.getElementById('diffBox');
+      if (target > 0) {
+        const diff = target - data.total;
+        const diffNum = document.getElementById('diffNumber');
+        const diffLbl = document.getElementById('diffLabel');
+        diffNum.textContent = (diff >= 0 ? '+' : '') + diff;
+        diffNum.className = 'diff-number ' + (diff >= 0 ? 'positive' : 'negative');
+        diffLbl.textContent = diff >= 0 ? 'giorni mancanti al target' : 'giorni oltre il target';
+        diffBox.classList.remove('hidden');
+      } else {
+        diffBox.classList.add('hidden');
+      }
 
       const list = document.getElementById('yearList');
       list.innerHTML = '';
-
       data.years.forEach((y, i) => {
         const item = document.createElement('div');
         item.className = 'year-item';
-        item.innerHTML = `
-          <div class="year-header">
-            <span class="year-name">${y.year}${y.isLeap ? '<span class="badge badge-leap">bisestile</span>' : ''}</span>
-            <span class="year-days">${y.days}</span>
-          </div>
-          <div class="year-bar-bg">
-            <div class="year-bar-fill" style="width:0%" data-width="${y.percentage.toFixed(1)}%"></div>
-          </div>
-        `;
+        item.innerHTML = `<div class="year-header">
+          <span class="year-name">${y.year}${y.isLeap ? '<span class="badge">bisestile</span>' : ''}</span>
+          <span class="year-days">${y.days}</span>
+        </div>
+        <div class="year-bar-bg"><div class="year-bar-fill" style="width:0%" data-width="${y.percentage.toFixed(1)}%"></div></div>`;
         list.appendChild(item);
       });
-
       setTimeout(() => {
-        document.querySelectorAll('#yearList .year-bar-fill').forEach(bar => {
-          bar.style.width = bar.dataset.width;
-        });
-      }, 50);
-    }
-
-    function animateNumber(el, target) {
-      const duration = 700;
-      const startTime = performance.now();
-
-      function update(currentTime) {
-        const elapsed = currentTime - startTime;
-        const progress = Math.min(elapsed / duration, 1);
-        const ease = 1 - Math.pow(1 - progress, 3);
-        const current = Math.floor(target * ease);
-        el.textContent = current.toLocaleString('it-IT');
-
-        if (progress < 1) requestAnimationFrame(update);
-      }
-
-      requestAnimationFrame(update);
-    }
-
-    // ===== STORAGE =====
-    function getSavedPeriods() {
-      try {
-        const data = localStorage.getItem(STORAGE_KEY);
-        return data ? JSON.parse(data) : [];
-      } catch (e) {
-        return [];
-      }
-    }
-
-    function savePeriods(periods) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(periods));
+        document.querySelectorAll('#yearList .year-bar-fill').forEach(b => b.style.width = b.dataset.width);
+      }, 60);
     }
 
     function saveCurrentPeriod() {
       if (!currentCalculation) return;
-
       const periods = getSavedPeriods();
       periods.push(currentCalculation);
       savePeriods(periods);
-
-      showToast('Periodo salvato!');
+      toast('Periodo salvato!');
       document.getElementById('periodName').value = '';
-
-      // Reset calc view
       document.getElementById('calcResults').classList.add('hidden');
       document.getElementById('calcEmpty').classList.remove('hidden');
       currentCalculation = null;
     }
 
-    function deletePeriod(id) {
-      if (!confirm('Eliminare questo periodo?')) return;
-      const periods = getSavedPeriods().filter(p => p.id !== id);
-      savePeriods(periods);
-      renderDashboard();
-      showToast('Periodo eliminato');
-    }
-
     // ===== DASHBOARD =====
     function renderDashboard() {
       const periods = getSavedPeriods();
-      const listEl = document.getElementById('savedPeriodsList');
+      const target = getTarget();
 
       // Grand total
       const grandTotal = periods.reduce((sum, p) => sum + p.total, 0);
-      animateNumber(document.getElementById('grandTotalDays'), grandTotal);
+      anim(document.getElementById('grandTotalDays'), grandTotal, 700);
 
-      // Periods list
-      if (periods.length === 0) {
-        listEl.innerHTML = `
-          <div class="empty-state">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-              <polyline points="7 10 12 15 17 10"></polyline>
-              <line x1="12" y1="15" x2="12" y2="3"></line>
-            </svg>
-            <p>Nessun periodo salvato</p>
+      // Global year breakdown with inline detail
+      const yearTotals = {};
+      periods.forEach(p => p.years.forEach(y => { yearTotals[y.year] = (yearTotals[y.year] || 0) + y.days; }));
+      const globalList = document.getElementById('globalYearList');
+      const yrs = Object.keys(yearTotals).map(Number).sort((a, b) => a - b);
+      globalList.innerHTML = '';
+
+      if (yrs.length === 0) {
+        globalList.innerHTML = '<div class="empty-state" style="padding:16px"><p style="font-size:13px">Nessun dato disponibile</p></div>';
+      } else {
+        const maxY = Math.max(...yrs.map(y => yearTotals[y]));
+        yrs.forEach(y => {
+          const days = yearTotals[y]; const pct = (days / maxY) * 100;
+          const isOpen = openYear === y;
+
+          const wrapper = document.createElement('div');
+
+          const item = document.createElement('div');
+          item.className = 'year-item' + (isOpen ? ' active-year' : '');
+          item.onclick = () => { openYear = isOpen ? null : y; renderDashboard(); };
+          item.innerHTML = `<div class="year-header">
+            <span class="year-name">${y}${isLeapYear(y) ? '<span class="badge">bisestile</span>' : ''}</span>
+            <span class="year-days">${days}</span>
           </div>
-        `;
+          <div class="year-bar-bg"><div class="year-bar-fill" style="width:0%" data-width="${pct.toFixed(1)}%"></div></div>`;
+          wrapper.appendChild(item);
+
+          if (isOpen) {
+            const detail = document.createElement('div');
+            detail.className = 'year-detail-inline';
+            let detailHtml = `<div class="detail-title">Periodi in ${y}</div>`;
+            let hasData = false;
+            periods.forEach(p => {
+              const py = p.years.find(x => x.year === y);
+              if (py) {
+                hasData = true;
+                const diff = target - p.total;
+                const diffClass = diff >= 0 ? 'positive' : 'negative';
+                const diffText = diff >= 0 ? 'mancano' : 'oltre';
+                detailHtml += `<div class="detail-row">
+                  <div class="detail-info">
+                    <div class="detail-name">${escapeHtml(p.name)}</div>
+                    <div class="detail-days">${py.days} gg in ${y} · totale ${p.total} gg</div>
+                  </div>
+                  <div class="detail-diff">
+                    <div class="diff-val ${diffClass}">${Math.abs(diff)}</div>
+                    <div class="diff-lbl">${diffText}</div>
+                  </div>
+                </div>`;
+              }
+            });
+            if (!hasData) detailHtml += '<div style="font-size:13px;color:var(--text-secondary);padding:4px 0">Nessun periodo</div>';
+            detail.innerHTML = detailHtml;
+            wrapper.appendChild(detail);
+          }
+
+          globalList.appendChild(wrapper);
+        });
+        setTimeout(() => {
+          document.querySelectorAll('#globalYearList .year-bar-fill').forEach(b => b.style.width = b.dataset.width);
+        }, 60);
+      }
+
+      // Saved periods (chronological, editable)
+      const listEl = document.getElementById('savedPeriodsList');
+      if (periods.length === 0) {
+        listEl.innerHTML = `<div class="empty-state">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          <p style="font-size:13px">Nessun periodo salvato</p>
+        </div>`;
       } else {
         listEl.innerHTML = '';
-        periods.slice().reverse().forEach(p => {
+        const sorted = periods.slice().sort((a, b) => new Date(b.end) - new Date(a.end));
+        sorted.forEach(p => {
           const div = document.createElement('div');
           div.className = 'period-item';
-          div.innerHTML = `
-            <div class="period-info">
-              <div class="period-name">${escapeHtml(p.name)}</div>
-              <div class="period-dates">${formatDateIT(p.start)} → ${formatDateIT(p.end)}</div>
-            </div>
-            <div class="period-days">${p.total}</div>
-            <div class="period-actions">
-              <button class="icon-btn" onclick="deletePeriod(${p.id})" title="Elimina">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <polyline points="3 6 5 6 21 6"></polyline>
-                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                </svg>
-              </button>
-            </div>
-          `;
+          div.onclick = () => openEditModal(p.id);
+          div.innerHTML = `<div class="period-info">
+            <div class="period-name">${escapeHtml(p.name)}</div>
+            <div class="period-dates">${formatDateIT(p.start)} → ${formatDateIT(p.end)}</div>
+          </div>
+          <div class="period-days">${p.total}</div>`;
           listEl.appendChild(div);
         });
       }
-
-      // Global year breakdown
-      const yearTotals = {};
-      periods.forEach(p => {
-        p.years.forEach(y => {
-          yearTotals[y.year] = (yearTotals[y.year] || 0) + y.days;
-        });
-      });
-
-      const globalList = document.getElementById('globalYearList');
-      const years = Object.keys(yearTotals).map(Number).sort((a, b) => a - b);
-
-      if (years.length === 0) {
-        globalList.innerHTML = '<div class="empty-state" style="padding:20px"><p style="font-size:14px">Nessun dato disponibile</p></div>';
-      } else {
-        globalList.innerHTML = '';
-        const maxY = Math.max(...years.map(y => yearTotals[y]));
-        years.forEach(y => {
-          const days = yearTotals[y];
-          const pct = (days / maxY) * 100;
-          const div = document.createElement('div');
-          div.className = 'year-item';
-          div.innerHTML = `
-            <div class="year-header">
-              <span class="year-name">${y}${isLeapYear(y) ? '<span class="badge badge-leap">bisestile</span>' : ''}</span>
-              <span class="year-days">${days}</span>
-            </div>
-            <div class="year-bar-bg">
-              <div class="year-bar-fill" style="width:0%" data-width="${pct.toFixed(1)}%"></div>
-            </div>
-          `;
-          globalList.appendChild(div);
-        });
-
-        setTimeout(() => {
-          document.querySelectorAll('#globalYearList .year-bar-fill').forEach(bar => {
-            bar.style.width = bar.dataset.width;
-          });
-        }, 50);
-      }
     }
 
+    // ===== EDIT MODAL =====
+    function openEditModal(id) {
+      const periods = getSavedPeriods();
+      const p = periods.find(x => x.id === id);
+      if (!p) return;
+      editingId = id;
+      document.getElementById('editName').value = p.name;
+      document.getElementById('editStart').value = p.start;
+      document.getElementById('editEnd').value = p.end;
+      document.getElementById('editModal').classList.add('show');
+    }
+    function closeEditModal(e) {
+      if (e && e.target !== e.currentTarget) return;
+      document.getElementById('editModal').classList.remove('show');
+      editingId = null;
+    }
+    function saveEditPeriod() {
+      if (!editingId) return;
+      const periods = getSavedPeriods();
+      const idx = periods.findIndex(x => x.id === editingId);
+      if (idx === -1) return;
+      const name = document.getElementById('editName').value.trim();
+      const start = document.getElementById('editStart').value;
+      const end = document.getElementById('editEnd').value;
+      if (!start || !end) { toast('Inserisci entrambe le date'); return; }
+      if (new Date(end) < new Date(start)) { toast("La fine deve essere dopo l'inizio"); return; }
+      periods[idx].name = name || periods[idx].name;
+      periods[idx].start = start; periods[idx].end = end;
+      recalcPeriod(periods[idx]);
+      savePeriods(periods);
+      closeEditModal(); renderDashboard(); toast('Periodo aggiornato');
+    }
+    function deleteEditPeriod() {
+      if (!editingId) return;
+      if (!confirm('Eliminare questo periodo?')) return;
+      let periods = getSavedPeriods().filter(x => x.id !== editingId);
+      savePeriods(periods);
+      closeEditModal(); renderDashboard(); toast('Periodo eliminato');
+    }
     function escapeHtml(text) {
-      const div = document.createElement('div');
-      div.textContent = text;
-      return div.innerHTML;
+      const div = document.createElement('div'); div.textContent = text; return div.innerHTML;
     }
 
     // ===== INIT =====
     document.getElementById('endDate').value = new Date().toISOString().split('T')[0];
     document.getElementById('startDate').value = '2023-01-01';
+    document.getElementById('targetDays').value = getTarget() || '';
 
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('sw.js').catch(() => {});
