@@ -108,7 +108,7 @@
     .grand-total .total-number { color: white; font-size: 56px; }
     .grand-total .total-label { color: rgba(255,255,255,0.8); }
 
-    .year-list { display: flex; flex-direction: column; gap: 8px; }
+    .year-wrap { margin-bottom: 8px; }
     .year-item { display: flex; flex-direction: column; padding: 12px 14px; background: var(--bg);
       border-radius: 10px; border: 1px solid var(--border); cursor: pointer;
       transition: transform 0.15s, background 0.15s; }
@@ -121,28 +121,26 @@
     .year-bar-fill { height: 100%; background: var(--accent); border-radius: 3px; width: 0%;
       transition: width 0.7s cubic-bezier(0.22,1,0.36,1); }
 
-    /* Inline detail panel */
-    .year-detail-inline {
-      margin-top: 10px; padding: 12px;
-      background: var(--bg); border-radius: 8px;
-      border: 1px solid var(--border);
-      animation: slideDown 0.25s ease;
-    }
+    .detail-inline { margin-top: 10px; padding: 14px;
+      background: var(--bg); border-radius: 10px; border: 1px solid var(--border);
+      animation: slideDown 0.25s ease; }
     @keyframes slideDown { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
-    .year-detail-inline.hidden { display: none; }
-    .detail-title { font-size: 12px; font-weight: 600; text-transform: uppercase;
-      letter-spacing: 0.4px; color: var(--text-secondary); margin-bottom: 8px; }
+    .detail-header { display: flex; justify-content: space-between; align-items: center;
+      padding-bottom: 10px; border-bottom: 1px solid var(--border); margin-bottom: 10px; }
+    .detail-header-title { font-size: 12px; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 0.4px; color: var(--text-secondary); }
+    .detail-header-diff { text-align: right; }
+    .detail-header-diff .dh-val { font-size: 20px; font-weight: 700; }
+    .detail-header-diff .dh-val.positive { color: var(--positive); }
+    .detail-header-diff .dh-val.negative { color: var(--danger); }
+    .detail-header-diff .dh-lbl { font-size: 11px; color: var(--text-secondary); }
     .detail-row { display: flex; justify-content: space-between; align-items: center;
       padding: 8px 0; border-bottom: 1px solid var(--border); }
     .detail-row:last-child { border-bottom: none; }
     .detail-info { flex: 1; min-width: 0; }
     .detail-name { font-size: 14px; font-weight: 500; }
     .detail-days { font-size: 12px; color: var(--text-secondary); }
-    .detail-diff { text-align: right; }
-    .detail-diff .diff-val { font-size: 16px; font-weight: 700; }
-    .detail-diff .diff-val.positive { color: var(--positive); }
-    .detail-diff .diff-val.negative { color: var(--danger); }
-    .detail-diff .diff-lbl { font-size: 10px; color: var(--text-secondary); }
+    .detail-period-total { font-size: 15px; font-weight: 600; color: var(--accent); }
 
     .period-item { display: flex; justify-content: space-between; align-items: center; padding: 14px 16px;
       background: var(--bg); border-radius: 10px; margin-bottom: 8px;
@@ -263,7 +261,7 @@
 
       <div class="card">
         <div class="card-title">Ripartizione annuale globale</div>
-        <div id="globalYearList" class="year-list"></div>
+        <div id="globalYearList"></div>
       </div>
 
       <div class="card">
@@ -325,30 +323,25 @@
     }
     function getSavedPeriods() {
       try {
-        // Migration: if old v2 data exists, import it and keep it
-        const v2Data = localStorage.getItem('daycounter_periods_v2');
+        // Merge data from all possible keys to recover everything
         const currentData = localStorage.getItem(STORAGE_KEY);
+        const v2Data = localStorage.getItem('daycounter_periods_v2');
+
+        let periods = currentData ? JSON.parse(currentData) : [];
 
         if (v2Data) {
           const v2Periods = JSON.parse(v2Data);
-          if (Array.isArray(v2Periods) && v2Periods.length > 0) {
-            const currentPeriods = currentData ? JSON.parse(currentData) : [];
-            // Merge: add v2 periods that don't already exist (by id)
-            const existingIds = new Set(currentPeriods.map(p => p.id));
+          if (Array.isArray(v2Periods)) {
+            const existingIds = new Set(periods.map(p => p.id));
             v2Periods.forEach(p => {
-              if (!existingIds.has(p.id)) {
-                currentPeriods.push(p);
-              }
+              if (!existingIds.has(p.id)) periods.push(p);
             });
-            // Save merged data back to main key
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(currentPeriods));
-            // Clear v2 key to avoid re-importing
-            localStorage.removeItem('daycounter_periods_v2');
-            return currentPeriods;
+            // Save merged back to main key
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(periods));
           }
         }
 
-        return currentData ? JSON.parse(currentData) : [];
+        return periods;
       } catch (e) { return []; }
     }
     function savePeriods(periods) { localStorage.setItem(STORAGE_KEY, JSON.stringify(periods)); }
@@ -503,7 +496,8 @@
           const days = yearTotals[y]; const pct = (days / maxY) * 100;
           const isOpen = openYear === y;
 
-          const wrapper = document.createElement('div');
+          const wrap = document.createElement('div');
+          wrap.className = 'year-wrap';
 
           const item = document.createElement('div');
           item.className = 'year-item' + (isOpen ? ' active-year' : '');
@@ -512,42 +506,56 @@
             <span class="year-name">${y}${isLeapYear(y) ? '<span class="badge">bisestile</span>' : ''}</span>
             <span class="year-days">${days}</span>
           </div>
-          <div class="year-bar-bg"><div class="year-bar-fill" style="width:0%" data-width="${pct.toFixed(1)}%"></div></div>`;
-          wrapper.appendChild(item);
+          <div class="year-bar-bg"><div class="year-bar-fill" style="width:0%" data-pct="${pct.toFixed(1)}%"></div></div>`;
+          wrap.appendChild(item);
 
           if (isOpen) {
             const detail = document.createElement('div');
-            detail.className = 'year-detail-inline';
-            let detailHtml = `<div class="detail-title">Periodi in ${y}</div>`;
+            detail.className = 'detail-inline';
+
+            // Header: total year + diff vs target (calculated on YEAR total)
+            let detailHtml = '';
+            if (target > 0) {
+              const yearDiff = target - days;
+              const diffClass = yearDiff >= 0 ? 'positive' : 'negative';
+              const diffText = yearDiff >= 0 ? 'mancano al target' : 'oltre il target';
+              detailHtml += `<div class="detail-header">
+                <div class="detail-header-title">Totale anno ${y}: ${days} gg</div>
+                <div class="detail-header-diff">
+                  <div class="dh-val ${diffClass}">${Math.abs(yearDiff)}</div>
+                  <div class="dh-lbl">${diffText}</div>
+                </div>
+              </div>`;
+            } else {
+              detailHtml += `<div class="detail-header">
+                <div class="detail-header-title">Totale anno ${y}: ${days} gg</div>
+              </div>`;
+            }
+
+            // Periods list (just name and days in this year, no per-period diff)
             let hasData = false;
             periods.forEach(p => {
               const py = p.years.find(x => x.year === y);
               if (py) {
                 hasData = true;
-                const diff = target - p.total;
-                const diffClass = diff >= 0 ? 'positive' : 'negative';
-                const diffText = diff >= 0 ? 'mancano' : 'oltre';
                 detailHtml += `<div class="detail-row">
                   <div class="detail-info">
                     <div class="detail-name">${escapeHtml(p.name)}</div>
-                    <div class="detail-days">${py.days} gg in ${y} · totale ${p.total} gg</div>
+                    <div class="detail-days">${formatDateIT(p.start)} → ${formatDateIT(p.end)}</div>
                   </div>
-                  <div class="detail-diff">
-                    <div class="diff-val ${diffClass}">${Math.abs(diff)}</div>
-                    <div class="diff-lbl">${diffText}</div>
-                  </div>
+                  <div class="detail-period-total">${py.days} gg</div>
                 </div>`;
               }
             });
             if (!hasData) detailHtml += '<div style="font-size:13px;color:var(--text-secondary);padding:4px 0">Nessun periodo</div>';
             detail.innerHTML = detailHtml;
-            wrapper.appendChild(detail);
+            wrap.appendChild(detail);
           }
 
-          globalList.appendChild(wrapper);
+          globalList.appendChild(wrap);
         });
         setTimeout(() => {
-          document.querySelectorAll('#globalYearList .year-bar-fill').forEach(b => b.style.width = b.dataset.width);
+          document.querySelectorAll('#globalYearList .year-bar-fill').forEach(b => b.style.width = b.dataset.pct);
         }, 60);
       }
 
