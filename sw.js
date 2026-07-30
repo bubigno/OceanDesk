@@ -1,5 +1,5 @@
 const CACHE_NAME = 'day-counter-v2';
-const urlsToCache = ['/', '/index.html', '/manifest.json'];
+const urlsToCache = ['./', './index.html', './manifest.json'];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
