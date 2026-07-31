@@ -513,26 +513,28 @@
             const detail = document.createElement('div');
             detail.className = 'detail-inline';
 
-            // Header: total year + diff vs target (calculated on YEAR total)
             let detailHtml = '';
+
+            // BOX DIFF VISIBILE SOLO SUL TOTALE ANNO
             if (target > 0) {
               const yearDiff = target - days;
-              const diffClass = yearDiff >= 0 ? 'positive' : 'negative';
-              const diffText = yearDiff >= 0 ? 'mancano al target' : 'oltre il target';
-              detailHtml += `<div class="detail-header">
-                <div class="detail-header-title">Totale anno ${y}: ${days} gg</div>
-                <div class="detail-header-diff">
-                  <div class="dh-val ${diffClass}">${Math.abs(yearDiff)}</div>
-                  <div class="dh-lbl">${diffText}</div>
-                </div>
+              const isPositive = yearDiff >= 0;
+              const diffClass = isPositive ? 'positive' : 'negative';
+              const diffText = isPositive ? 'giorni mancanti al target' : 'giorni oltre il target';
+              const diffBoxBg = isPositive
+                ? 'background: rgba(52,199,89,0.10); border-color: var(--positive);'
+                : 'background: rgba(255,59,48,0.10); border-color: var(--danger);';
+
+              detailHtml += `<div style="padding:14px 16px; border-radius:12px; border:1.5px solid; margin-bottom:14px; ${diffBoxBg} text-align:center;">
+                <div style="font-size:13px; color:var(--text-secondary); margin-bottom:4px;">Target ${target} gg — Totale anno ${y}: ${days} gg</div>
+                <div style="font-size:32px; font-weight:700; color:var(--${diffClass}); line-height:1;">${Math.abs(yearDiff)}</div>
+                <div style="font-size:13px; color:var(--text-secondary); margin-top:4px;">${diffText}</div>
               </div>`;
             } else {
-              detailHtml += `<div class="detail-header">
-                <div class="detail-header-title">Totale anno ${y}: ${days} gg</div>
-              </div>`;
+              detailHtml += `<div style="padding:10px 0 14px; font-size:13px; color:var(--text-secondary); font-weight:600;">Totale anno ${y}: ${days} giorni</div>`;
             }
 
-            // Periods list (just name and days in this year, no per-period diff)
+            // Lista periodi — NESSUN diff qui, solo nome/date/giorni
             let hasData = false;
             periods.forEach(p => {
               const py = p.years.find(x => x.year === y);
