@@ -219,6 +219,7 @@
           <div class="input-row"><label style="min-width:40px">Nome</label>
             <input type="text" id="periodName" placeholder="Es. Progetto Alpha, Vacanza..."></div>
           <button class="btn" onclick="calculate()">Calcola</button>
+          <button class="btn" onclick="resetCalculator()" style="background:var(--text-secondary); margin-top:8px;">Reset</button>
         </div>
       </div>
 
@@ -263,6 +264,12 @@
       </div>
 
       <div class="card">
+        <div class="section-title">Periodi salvati</div>
+        <div id="savedPeriodsList"></div>
+      </div>
+    </div>
+
+<div class="card">
         <div class="section-title">Backup dati</div>
         <div class="ios-notice">
           <strong>Nota iOS:</strong> salvando la PWA sulla schermata Home, i dati del browser non si trasferiscono automaticamente. Usa "Esporta" dal browser, poi "Importa" dall'app installata.
@@ -274,11 +281,7 @@
         <input type="file" id="importFile" accept=".json" onchange="importData(event)">
       </div>
 
-      <div class="card">
-        <div class="section-title">Periodi salvati</div>
-        <div id="savedPeriodsList"></div>
-      </div>
-    </div>
+      
   </div>
 
   <div class="modal-overlay" id="editModal" onclick="closeEditModal(event)">
@@ -470,6 +473,15 @@
       }, 60);
     }
 
+    function resetCalculator() {
+      document.getElementById('startDate').value = '';
+      document.getElementById('endDate').value = '';
+      document.getElementById('periodName').value = '';
+      document.getElementById('calcResults').classList.add('hidden');
+      document.getElementById('calcEmpty').classList.remove('hidden');
+      currentCalculation = null;
+      toast('Campi resettati');
+    }
     function saveCurrentPeriod() {
       if (!currentCalculation) return;
       const periods = getSavedPeriods();
@@ -528,12 +540,12 @@
             // BOX DIFF VISIBILE SOLO SUL TOTALE ANNO
             if (target > 0) {
               const yearDiff = target - days;
-              const isPositive = yearDiff >= 0;
-              const diffClass = isPositive ? 'positive' : 'negative';
-              const diffText = isPositive ? 'giorni mancanti al target' : 'giorni oltre il target';
-              const diffBoxBg = isPositive
-                ? 'background: rgba(52,199,89,0.10); border-color: var(--positive);'
-                : 'background: rgba(255,59,48,0.10); border-color: var(--danger);';
+              const isMissing = yearDiff >= 0; // mancano giorni
+              const diffClass = isMissing ? 'negative' : 'positive'; // rosso se mancano, verde se oltre
+              const diffText = isMissing ? 'giorni mancanti al target' : 'giorni oltre il target';
+              const diffBoxBg = isMissing
+                ? 'background: rgba(255,59,48,0.10); border-color: var(--danger);'
+                : 'background: rgba(52,199,89,0.10); border-color: var(--positive);';
 
               detailHtml += `<div style="padding:14px 16px; border-radius:12px; border:1.5px solid; margin-bottom:14px; ${diffBoxBg} text-align:center;">
                 <div style="font-size:13px; color:var(--text-secondary); margin-bottom:4px;">Target ${target} gg — Totale anno ${y}: ${days} gg</div>
