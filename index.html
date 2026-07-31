@@ -183,6 +183,12 @@
       font-size: 14px; font-weight: 500; box-shadow: 0 4px 16px rgba(0,0,0,0.15);
       z-index: 1001; transition: transform 0.3s cubic-bezier(0.22,1,0.36,1); pointer-events: none; }
     .toast.show { transform: translateX(-50%) translateY(0); }
+    .backup-row { display: flex; gap: 10px; margin-top: 10px; }
+    .backup-row .btn { flex: 1; font-size: 15px; padding: 12px; margin-top: 0; }
+    .backup-row .btn-secondary { background: var(--positive); }
+    .backup-row .btn-warning { background: var(--warning); }
+    .ios-notice { background: var(--accent-light); color: var(--accent); padding: 12px 14px; border-radius: 10px; font-size: 13px; line-height: 1.5; margin-bottom: 14px; border: 1px solid var(--accent); }
+    #importFile { display: none; }
   </style>
 </head>
 <body>
@@ -254,6 +260,18 @@
       <div class="card">
         <div class="card-title">Ripartizione annuale globale</div>
         <div id="globalYearList"></div>
+      </div>
+
+      <div class="card">
+        <div class="section-title">Backup dati</div>
+        <div class="ios-notice">
+          <strong>Nota iOS:</strong> salvando la PWA sulla schermata Home, i dati del browser non si trasferiscono automaticamente. Usa "Esporta" dal browser, poi "Importa" dall'app installata.
+        </div>
+        <div class="backup-row">
+          <button class="btn btn-secondary" onclick="exportData()">Esporta dati</button>
+          <button class="btn btn-warning" onclick="document.getElementById('importFile').click()">Importa dati</button>
+        </div>
+        <input type="file" id="importFile" accept=".json" onchange="importData(event)">
       </div>
 
       <div class="card">
@@ -619,6 +637,47 @@
       let periods = getSavedPeriods().filter(x => x.id !== editingId);
       savePeriods(periods);
       closeEditModal(); renderDashboard(); toast('Periodo eliminato');
+    }
+    function exportData() {
+      const periods = getSavedPeriods();
+      const target = getTarget();
+      const data = { periods: periods, target: target, exportedAt: new Date().toISOString() };
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'daycounter-backup-' + new Date().toISOString().split('T')[0] + '.json';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      toast('Backup scaricato!');
+    }
+    function importData(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const data = JSON.parse(e.target.result);
+          if (!data.periods || !Array.isArray(data.periods)) {
+            toast('File non valido'); return;
+          }
+          if (confirm('Importare ' + data.periods.length + ' periodi? I dati attuali verranno sostituiti.')) {
+            savePeriods(data.periods);
+            if (data.target !== undefined) {
+              localStorage.setItem(TARGET_KEY, String(data.target));
+              document.getElementById('targetDays').value = data.target || '';
+            }
+            renderDashboard();
+            toast('Dati importati con successo!');
+          }
+        } catch (err) {
+          toast('Errore nel file JSON');
+        }
+      };
+      reader.readAsText(file);
+      event.target.value = '';
     }
     function escapeHtml(text) {
       const div = document.createElement('div'); div.textContent = text; return div.innerHTML;
