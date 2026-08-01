@@ -89,7 +89,7 @@
     .year-select-wrap select {
       background: rgba(255,255,255,0.2); border: 2px solid rgba(255,255,255,0.4);
       color: white; font-size: 16px; font-weight: 600; text-align: center;
-      width: auto; min-width: 140px; border-radius: 10px; padding: 8px 32px 8px 14px;
+      width: auto; min-width: 160px; border-radius: 10px; padding: 8px 32px 8px 14px;
       background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
       background-repeat: no-repeat; background-position: right 10px center;
     }
@@ -168,6 +168,14 @@
     .cert-days.warning { color: var(--warning); }
     .cert-days.expired { color: var(--danger); }
 
+    .summary-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 14px; }
+    .summary-cell { background: var(--card); border-radius: var(--radius); padding: 16px 10px; text-align: center; box-shadow: var(--shadow); }
+    .summary-cell .num { font-size: 28px; font-weight: 700; }
+    .summary-cell .lbl { font-size: 11px; color: var(--text-secondary); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.3px; }
+    .summary-cell.valid .num { color: var(--positive); }
+    .summary-cell.warning .num { color: var(--warning); }
+    .summary-cell.expired .num { color: var(--danger); }
+
     .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%;
       background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); z-index: 1000;
       display: flex; align-items: flex-end; justify-content: center;
@@ -218,14 +226,14 @@
     <div class="nav-bar">
       <button class="nav-btn active" onclick="showPage('dashboard')" id="nav-dash">Dashboard</button>
       <button class="nav-btn" onclick="showPage('calculator')" id="nav-calc">Calcola</button>
-      <button class="nav-btn" onclick="showPage('certificates')" id="nav-cert">Certificati</button>
       <button class="nav-btn menu-btn" onclick="openMenu()" id="nav-menu">☰</button>
     </div>
 
-    <!-- ========== DASHBOARD (resoconto giorni con filtro anno) ========== -->
+    <!-- ========== DASHBOARD (giorni + certificati) ========== -->
     <div id="page-dashboard">
       <h1>Dashboard</h1>
 
+      <!-- Giorni con selettore anno -->
       <div class="card grand-total">
         <div class="year-select-wrap">
           <select id="dashYearSelect" onchange="renderDashboard()">
@@ -234,6 +242,33 @@
         </div>
         <div class="total-number" id="dashTotalDays">0</div>
         <div class="total-label" id="dashTotalLabel">giorni totali salvati</div>
+      </div>
+
+      <!-- Riepilogo certificati -->
+      <div class="card">
+        <div class="card-title">Riepilogo certificati</div>
+        <div class="summary-grid" id="certSummary">
+          <div class="summary-cell valid"><div class="num" id="dashCertValid">0</div><div class="lbl">Validi</div></div>
+          <div class="summary-cell warning"><div class="num" id="dashCertWarn">0</div><div class="lbl">In scadenza</div></div>
+          <div class="summary-cell expired"><div class="num" id="dashCertExp">0</div><div class="lbl">Scaduti</div></div>
+        </div>
+      </div>
+
+      <!-- Aggiungi certificato -->
+      <div class="card">
+        <div class="card-title">Aggiungi certificato</div>
+        <div class="input-group">
+          <div class="input-row"><label style="min-width:50px">Nome</label><input type="text" id="certName" placeholder="Es. Brevetto nautico..."></div>
+          <div class="input-row"><label style="min-width:50px">Codice</label><input type="text" id="certCode" placeholder="Es. ABC-12345"></div>
+          <div class="input-row"><label style="min-width:50px">Scad.</label><input type="date" id="certExpiry"></div>
+          <button class="btn" onclick="addCertificate()">Aggiungi</button>
+        </div>
+      </div>
+
+      <!-- Lista certificati -->
+      <div class="card">
+        <div class="section-title">Certificati salvati</div>
+        <div id="dashCertList"></div>
       </div>
     </div>
 
@@ -271,26 +306,6 @@
       <div class="card">
         <div class="section-title">Periodi salvati</div>
         <div id="calcSavedPeriodsList"></div>
-      </div>
-    </div>
-
-    <!-- ========== CERTIFICATI ========== -->
-    <div id="page-certificates" class="hidden">
-      <h1>Certificati</h1>
-
-      <div class="card">
-        <div class="card-title">Aggiungi certificato</div>
-        <div class="input-group">
-          <div class="input-row"><label style="min-width:50px">Nome</label><input type="text" id="certName" placeholder="Es. Brevetto nautico..."></div>
-          <div class="input-row"><label style="min-width:50px">Codice</label><input type="text" id="certCode" placeholder="Es. ABC-12345"></div>
-          <div class="input-row"><label style="min-width:50px">Scad.</label><input type="date" id="certExpiry"></div>
-          <button class="btn" onclick="addCertificate()">Aggiungi</button>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="section-title">Certificati salvati</div>
-        <div id="certificatesList"></div>
       </div>
     </div>
   </div>
@@ -450,17 +465,14 @@
     // ===== NAV =====
     function showPage(page) {
       closeMenu();
-      ['dashboard','calculator','certificates'].forEach(p => {
-        document.getElementById('page-' + p).classList.add('hidden');
-        const navId = p === 'dashboard' ? 'nav-dash' : p === 'calculator' ? 'nav-calc' : 'nav-cert';
-        document.getElementById(navId).classList.remove('active');
-      });
+      document.getElementById('page-dashboard').classList.add('hidden');
+      document.getElementById('page-calculator').classList.add('hidden');
+      document.getElementById('nav-dash').classList.remove('active');
+      document.getElementById('nav-calc').classList.remove('active');
       document.getElementById('page-' + page).classList.remove('hidden');
-      const activeNavId = page === 'dashboard' ? 'nav-dash' : page === 'calculator' ? 'nav-calc' : 'nav-cert';
-      document.getElementById(activeNavId).classList.add('active');
+      document.getElementById('nav-' + (page === 'dashboard' ? 'dash' : 'calc')).classList.add('active');
       if (page === 'dashboard') renderDashboard();
       if (page === 'calculator') renderCalcData();
-      if (page === 'certificates') renderCertificates();
     }
 
     // ===== MENU =====
@@ -472,28 +484,25 @@
       document.getElementById('menuOverlay').classList.remove('show');
     }
 
-    // ===== DASHBOARD (resoconto giorni con selettore anno) =====
+    // ===== DASHBOARD (giorni + certificati) =====
     function renderDashboard() {
       const periods = getSavedPeriods();
+      const certs = getCertificates();
+
+      // --- GIORNI ---
       const select = document.getElementById('dashYearSelect');
       const currentVal = select.value;
 
-      // Calcola anni disponibili
       const yearSet = new Set();
       periods.forEach(p => p.years.forEach(y => yearSet.add(y.year)));
       const years = Array.from(yearSet).sort((a, b) => a - b);
 
-      // Ricostruisci opzioni mantenendo selezione
       let opts = '<option value="all">Tutti gli anni</option>';
-      years.forEach(y => {
-        opts += `<option value="${y}">Anno ${y}</option>`;
-      });
+      years.forEach(y => { opts += `<option value="${y}">Anno ${y}</option>`; });
       select.innerHTML = opts;
       if (currentVal && (currentVal === 'all' || yearSet.has(parseInt(currentVal)))) {
         select.value = currentVal;
-      } else {
-        select.value = 'all';
-      }
+      } else { select.value = 'all'; }
 
       const selected = select.value;
       let total = 0;
@@ -511,6 +520,89 @@
       }
       anim(document.getElementById('dashTotalDays'), total, 700);
       document.getElementById('dashTotalLabel').textContent = label;
+
+      // --- CERTIFICATI ---
+      let valid = 0, warn = 0, exp = 0;
+      certs.forEach(c => {
+        const s = getCertStatus(c.expiry);
+        if (s.class === 'valid') valid++;
+        else if (s.class === 'warning') warn++;
+        else exp++;
+      });
+      document.getElementById('dashCertValid').textContent = valid;
+      document.getElementById('dashCertWarn').textContent = warn;
+      document.getElementById('dashCertExp').textContent = exp;
+
+      const list = document.getElementById('dashCertList');
+      if (certs.length === 0) {
+        list.innerHTML = '<div class="empty-state" style="padding:16px"><p style="font-size:13px">Nessun certificato salvato</p></div>';
+      } else {
+        const sorted = certs.slice().sort((a, b) => new Date(a.expiry) - new Date(b.expiry));
+        list.innerHTML = '';
+        sorted.forEach(c => {
+          const s = getCertStatus(c.expiry);
+          const div = document.createElement('div');
+          div.className = 'cert-item ' + s.class;
+          div.onclick = () => openCertModal(c.id);
+          div.innerHTML = `<div class="cert-info">
+            <div class="cert-name">${escapeHtml(c.name)} <span class="cert-status ${s.class}">${s.label}</span></div>
+            <div class="cert-code">Codice: ${escapeHtml(c.code)} — Scadenza: ${formatDateIT(c.expiry)}</div>
+          </div>
+          <div class="cert-days ${s.class}">${s.days >= 0 ? 'tra ' + s.days + ' gg' : Math.abs(s.days) + ' gg fa'}</div>`;
+          list.appendChild(div);
+        });
+      }
+    }
+
+    function addCertificate() {
+      const name = document.getElementById('certName').value.trim();
+      const code = document.getElementById('certCode').value.trim();
+      const expiry = document.getElementById('certExpiry').value;
+      if (!name || !code || !expiry) { toast('Compila tutti i campi'); return; }
+      const certs = getCertificates();
+      certs.push({ id: Date.now(), name, code, expiry });
+      saveCertificates(certs);
+      document.getElementById('certName').value = '';
+      document.getElementById('certCode').value = '';
+      document.getElementById('certExpiry').value = '';
+      renderDashboard();
+      toast('Certificato aggiunto');
+    }
+
+    function openCertModal(id) {
+      const certs = getCertificates();
+      const c = certs.find(x => x.id === id);
+      if (!c) return;
+      editingCertId = id;
+      document.getElementById('editCertName').value = c.name;
+      document.getElementById('editCertCode').value = c.code;
+      document.getElementById('editCertExpiry').value = c.expiry;
+      document.getElementById('certModal').classList.add('show');
+    }
+    function closeCertModal(e) {
+      if (e && e.target !== e.currentTarget) return;
+      document.getElementById('certModal').classList.remove('show');
+      editingCertId = null;
+    }
+    function saveEditCert() {
+      if (!editingCertId) return;
+      const certs = getCertificates();
+      const idx = certs.findIndex(x => x.id === editingCertId);
+      if (idx === -1) return;
+      const name = document.getElementById('editCertName').value.trim();
+      const code = document.getElementById('editCertCode').value.trim();
+      const expiry = document.getElementById('editCertExpiry').value;
+      if (!name || !code || !expiry) { toast('Compila tutti i campi'); return; }
+      certs[idx] = { ...certs[idx], name, code, expiry };
+      saveCertificates(certs);
+      closeCertModal(); renderDashboard(); toast('Certificato aggiornato');
+    }
+    function deleteEditCert() {
+      if (!editingCertId) return;
+      if (!confirm('Eliminare questo certificato?')) return;
+      const certs = getCertificates().filter(x => x.id !== editingCertId);
+      saveCertificates(certs);
+      closeCertModal(); renderDashboard(); toast('Certificato eliminato');
     }
 
     // ===== CALCULATOR (con dati) =====
@@ -671,81 +763,6 @@
           listEl.appendChild(div);
         });
       }
-    }
-
-    // ===== CERTIFICATES =====
-    function addCertificate() {
-      const name = document.getElementById('certName').value.trim();
-      const code = document.getElementById('certCode').value.trim();
-      const expiry = document.getElementById('certExpiry').value;
-      if (!name || !code || !expiry) { toast('Compila tutti i campi'); return; }
-      const certs = getCertificates();
-      certs.push({ id: Date.now(), name, code, expiry });
-      saveCertificates(certs);
-      document.getElementById('certName').value = '';
-      document.getElementById('certCode').value = '';
-      document.getElementById('certExpiry').value = '';
-      renderCertificates();
-      toast('Certificato aggiunto');
-    }
-
-    function renderCertificates() {
-      const list = document.getElementById('certificatesList');
-      const certs = getCertificates();
-      if (certs.length === 0) {
-        list.innerHTML = '<div class="empty-state"><p style="font-size:13px">Nessun certificato salvato</p></div>';
-        return;
-      }
-      const sorted = certs.slice().sort((a, b) => new Date(a.expiry) - new Date(b.expiry));
-      list.innerHTML = '';
-      sorted.forEach(c => {
-        const s = getCertStatus(c.expiry);
-        const div = document.createElement('div');
-        div.className = 'cert-item ' + s.class;
-        div.onclick = () => openCertModal(c.id);
-        div.innerHTML = `<div class="cert-info">
-          <div class="cert-name">${escapeHtml(c.name)} <span class="cert-status ${s.class}">${s.label}</span></div>
-          <div class="cert-code">Codice: ${escapeHtml(c.code)} — Scadenza: ${formatDateIT(c.expiry)}</div>
-        </div>
-        <div class="cert-days ${s.class}">${s.days >= 0 ? 'tra ' + s.days + ' gg' : Math.abs(s.days) + ' gg fa'}</div>`;
-        list.appendChild(div);
-      });
-    }
-
-    function openCertModal(id) {
-      const certs = getCertificates();
-      const c = certs.find(x => x.id === id);
-      if (!c) return;
-      editingCertId = id;
-      document.getElementById('editCertName').value = c.name;
-      document.getElementById('editCertCode').value = c.code;
-      document.getElementById('editCertExpiry').value = c.expiry;
-      document.getElementById('certModal').classList.add('show');
-    }
-    function closeCertModal(e) {
-      if (e && e.target !== e.currentTarget) return;
-      document.getElementById('certModal').classList.remove('show');
-      editingCertId = null;
-    }
-    function saveEditCert() {
-      if (!editingCertId) return;
-      const certs = getCertificates();
-      const idx = certs.findIndex(x => x.id === editingCertId);
-      if (idx === -1) return;
-      const name = document.getElementById('editCertName').value.trim();
-      const code = document.getElementById('editCertCode').value.trim();
-      const expiry = document.getElementById('editCertExpiry').value;
-      if (!name || !code || !expiry) { toast('Compila tutti i campi'); return; }
-      certs[idx] = { ...certs[idx], name, code, expiry };
-      saveCertificates(certs);
-      closeCertModal(); renderCertificates(); toast('Certificato aggiornato');
-    }
-    function deleteEditCert() {
-      if (!editingCertId) return;
-      if (!confirm('Eliminare questo certificato?')) return;
-      const certs = getCertificates().filter(x => x.id !== editingCertId);
-      saveCertificates(certs);
-      closeCertModal(); renderCertificates(); toast('Certificato eliminato');
     }
 
     // ===== EDIT MODAL (periods) =====
