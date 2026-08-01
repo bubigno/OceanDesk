@@ -48,11 +48,12 @@
     #splash h2 { margin-top: 24px; color: white; font-size: 22px; font-weight: 600; text-shadow: 0 1px 4px rgba(0,0,0,0.2); }
 
     .nav-bar { display: flex; gap: 6px; margin-bottom: 20px;
-      background: var(--card); padding: 6px; border-radius: 12px; box-shadow: var(--shadow); }
+      background: var(--card); padding: 6px; border-radius: 12px; box-shadow: var(--shadow); align-items:center; }
     .nav-btn { flex: 1; padding: 10px 8px; border: none; border-radius: 8px;
       font-size: 14px; font-weight: 600; cursor: pointer; background: transparent;
       color: var(--text-secondary); transition: all 0.2s; font-family: inherit; }
     .nav-btn.active { background: var(--accent); color: white; }
+    .nav-btn.menu-btn { flex: 0 0 auto; padding: 10px 14px; font-size: 18px; line-height: 1; }
 
     h1 { font-size: 26px; font-weight: 700; margin-bottom: 20px; letter-spacing: -0.5px; }
 
@@ -95,13 +96,6 @@
     .total-number { font-size: 52px; font-weight: 700; color: var(--accent); line-height: 1; letter-spacing: -1px; }
     .total-label { font-size: 15px; color: var(--text-secondary); margin-top: 8px; }
 
-    .diff-box { text-align: center; padding: 14px; margin-top: 10px;
-      background: var(--bg); border-radius: 10px; border: 1px solid var(--border); }
-    .diff-number { font-size: 28px; font-weight: 700; }
-    .diff-number.positive { color: var(--positive); }
-    .diff-number.negative { color: var(--danger); }
-    .diff-label { font-size: 13px; color: var(--text-secondary); margin-top: 4px; }
-
     .grand-total {
       background: linear-gradient(135deg, var(--accent), #5856d6);
       color: white; text-align: center; padding: 28px 20px;
@@ -128,13 +122,6 @@
     @keyframes slideDown { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
     .detail-header { display: flex; justify-content: space-between; align-items: center;
       padding-bottom: 10px; border-bottom: 1px solid var(--border); margin-bottom: 10px; }
-    .detail-header-title { font-size: 12px; font-weight: 600; text-transform: uppercase;
-      letter-spacing: 0.4px; color: var(--text-secondary); }
-    .detail-header-diff { text-align: right; }
-    .detail-header-diff .dh-val { font-size: 20px; font-weight: 700; }
-    .detail-header-diff .dh-val.positive { color: var(--positive); }
-    .detail-header-diff .dh-val.negative { color: var(--danger); }
-    .detail-header-diff .dh-lbl { font-size: 11px; color: var(--text-secondary); }
     .detail-row { display: flex; justify-content: space-between; align-items: center;
       padding: 8px 0; border-bottom: 1px solid var(--border); }
     .detail-row:last-child { border-bottom: none; }
@@ -156,6 +143,14 @@
     .cert-status.valid { background: rgba(52,199,89,0.15); color: var(--positive); }
     .cert-status.warning { background: rgba(255,149,0,0.15); color: var(--warning); }
     .cert-status.expired { background: rgba(255,59,48,0.15); color: var(--danger); }
+
+    .summary-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 14px; }
+    .summary-cell { background: var(--card); border-radius: var(--radius); padding: 16px 10px; text-align: center; box-shadow: var(--shadow); }
+    .summary-cell .num { font-size: 28px; font-weight: 700; }
+    .summary-cell .lbl { font-size: 11px; color: var(--text-secondary); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.3px; }
+    .summary-cell.valid .num { color: var(--positive); }
+    .summary-cell.warning .num { color: var(--warning); }
+    .summary-cell.expired .num { color: var(--danger); }
 
     .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%;
       background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); z-index: 1000;
@@ -205,91 +200,28 @@
 
   <div class="container">
     <div class="nav-bar">
-      <button class="nav-btn active" onclick="showPage('calculator')" id="nav-calc">Calcola</button>
-      <button class="nav-btn" onclick="showPage('dashboard')" id="nav-dash">Dashboard</button>
-      <button class="nav-btn" onclick="showPage('certificates')" id="nav-cert">Certificati</button>
+      <button class="nav-btn active" onclick="showPage('dashboard')" id="nav-dash">Dashboard</button>
+      <button class="nav-btn" onclick="showPage('calculator')" id="nav-calc">Calcola</button>
+      <button class="nav-btn menu-btn" onclick="openMenu()" id="nav-menu">☰</button>
     </div>
 
-    <div id="page-calculator">
-      <h1>Conta Giorni</h1>
-
-      <div class="target-box">
-        <label>Giorni target</label>
-        <input type="number" id="targetDays" placeholder="0" min="0" onchange="saveTarget()">
-      </div>
-
-      <div class="card">
-        <div class="card-title">Seleziona il periodo</div>
-        <div class="input-group">
-          <div class="input-row"><label>Da</label><input type="date" id="startDate"></div>
-          <div class="input-row"><label>A</label><input type="date" id="endDate"></div>
-          <div class="input-row"><label style="min-width:40px">Nome</label>
-            <input type="text" id="periodName" placeholder="Es. Progetto Alpha, Vacanza..."></div>
-          <button class="btn" onclick="calculate()">Calcola</button>
-          <button class="btn" onclick="resetCalculator()" style="background:var(--text-secondary); margin-top:8px;">Reset</button>
-        </div>
-      </div>
-
-      <div id="calcResults" class="hidden">
-        <div class="card total-box">
-          <div class="total-number" id="totalDays">0</div>
-          <div class="total-label">giorni totali</div>
-          <div id="diffBox" class="diff-box hidden">
-            <div class="diff-number" id="diffNumber">0</div>
-            <div class="diff-label" id="diffLabel"></div>
-          </div>
-        </div>
-        <div class="card">
-          <div class="card-title">Ripartizione per anno</div>
-          <div id="yearList" class="year-list"></div>
-        </div>
-        <button class="btn btn-secondary" onclick="saveCurrentPeriod()">Salva questo periodo</button>
-      </div>
-
-      <div id="calcEmpty" class="card empty-state hidden">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="3" y="4" width="18" height="18" rx="2"></rect>
-          <line x1="16" y1="2" x2="16" y2="6"></line>
-          <line x1="8" y1="2" x2="8" y2="6"></line>
-          <line x1="3" y1="10" x2="21" y2="10"></line>
-        </svg>
-        <p style="font-size:13px">Seleziona un periodo e premi "Calcola"</p>
-      </div>
-    </div>
-
-    <div id="page-dashboard" class="hidden">
+    <!-- ========== DASHBOARD (riassunto + certificati) ========== -->
+    <div id="page-dashboard">
       <h1>Dashboard</h1>
 
       <div class="card grand-total">
-        <div class="total-number" id="grandTotalDays">0</div>
+        <div class="total-number" id="dashTotalDays">0</div>
         <div class="total-label">giorni totali salvati</div>
       </div>
 
       <div class="card">
-        <div class="card-title">Ripartizione annuale globale</div>
-        <div id="globalYearList"></div>
-      </div>
-
-      <div class="card">
-        <div class="section-title">Periodi salvati</div>
-        <div id="savedPeriodsList"></div>
-      </div>
-
-      <div class="card">
-        <div class="section-title">Backup dati</div>
-        <div class="ios-notice">
-          <strong>Nota iOS:</strong> salvando la PWA sulla schermata Home, i dati del browser non si trasferiscono automaticamente. Usa "Esporta" dal browser, poi "Importa" dall'app installata.
+        <div class="card-title">Riepilogo certificati</div>
+        <div class="summary-grid" id="certSummary">
+          <div class="summary-cell valid"><div class="num" id="dashCertValid">0</div><div class="lbl">Validi</div></div>
+          <div class="summary-cell warning"><div class="num" id="dashCertWarn">0</div><div class="lbl">In scadenza</div></div>
+          <div class="summary-cell expired"><div class="num" id="dashCertExp">0</div><div class="lbl">Scaduti</div></div>
         </div>
-        <div class="backup-row">
-          <button class="btn btn-secondary" onclick="exportData()">Esporta dati</button>
-          <button class="btn btn-warning" onclick="document.getElementById('importFile').click()">Importa dati</button>
-        </div>
-        <input type="file" id="importFile" accept=".json" onchange="importData(event)">
       </div>
-    </div>
-
-    <div id="page-certificates" class="hidden">
-      <h1>Certificates</h1>
 
       <div class="card">
         <div class="card-title">Aggiungi certificato</div>
@@ -303,11 +235,66 @@
 
       <div class="card">
         <div class="section-title">Certificati salvati</div>
-        <div id="certificatesList"></div>
+        <div id="dashCertList"></div>
+      </div>
+    </div>
+
+    <!-- ========== CALCOLA (form + dati storici) ========== -->
+    <div id="page-calculator" class="hidden">
+      <h1>Calcola</h1>
+
+      <div class="target-box">
+        <label>Giorni target</label>
+        <input type="number" id="targetDays" placeholder="0" min="0" onchange="saveTarget()">
+      </div>
+
+      <div class="card">
+        <div class="card-title">Seleziona il periodo</div>
+        <div class="input-group">
+          <div class="input-row"><label>Da</label><input type="date" id="startDate"></div>
+          <div class="input-row"><label>A</label><input type="date" id="endDate"></div>
+          <div class="input-row"><label style="min-width:40px">Nome</label>
+            <input type="text" id="periodName" placeholder="Es. Progetto Alpha, Vacanza..."></div>
+          <button class="btn" onclick="calculate()">Calcola e salva</button>
+          <button class="btn" onclick="resetCalculator()" style="background:var(--text-secondary); margin-top:8px;">Reset</button>
+        </div>
+      </div>
+
+      <div class="card grand-total">
+        <div class="total-number" id="calcTotalDays">0</div>
+        <div class="total-label">giorni totali salvati</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Ripartizione annuale globale</div>
+        <div id="calcGlobalYearList"></div>
+      </div>
+
+      <div class="card">
+        <div class="section-title">Periodi salvati</div>
+        <div id="calcSavedPeriodsList"></div>
       </div>
     </div>
   </div>
 
+  <!-- ========== MENU OVERLAY ========== -->
+  <div class="modal-overlay" id="menuOverlay" onclick="closeMenu(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <div class="modal-title">Menu</div>
+        <button class="modal-close" onclick="closeMenu()">&times;</button>
+      </div>
+      <div class="ios-notice">
+        <strong>Nota iOS:</strong> salvando la PWA sulla schermata Home, i dati del browser non si trasferiscono automaticamente. Usa "Esporta" dal browser, poi "Importa" dall'app installata.
+      </div>
+      <div class="backup-row">
+        <button class="btn btn-secondary" onclick="exportData()">Esporta dati</button>
+        <button class="btn btn-warning" onclick="document.getElementById('importFile').click()">Importa dati</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== EDIT PERIOD MODAL ========== -->
   <div class="modal-overlay" id="editModal" onclick="closeEditModal(event)">
     <div class="modal-content" onclick="event.stopPropagation()">
       <div class="modal-header">
@@ -326,6 +313,7 @@
     </div>
   </div>
 
+  <!-- ========== EDIT CERT MODAL ========== -->
   <div class="modal-overlay" id="certModal" onclick="closeCertModal(event)">
     <div class="modal-content" onclick="event.stopPropagation()">
       <div class="modal-header">
@@ -345,10 +333,10 @@
   </div>
 
   <div class="toast" id="toast"></div>
+  <input type="file" id="importFile" accept=".json" onchange="importData(event)">
 
   <script>
     // ===== STATE =====
-    let currentCalculation = null;
     let editingId = null;
     let editingCertId = null;
     let openYear = null;
@@ -387,9 +375,7 @@
           const v2Periods = JSON.parse(v2Data);
           if (Array.isArray(v2Periods)) {
             const existingIds = new Set(periods.map(p => p.id));
-            v2Periods.forEach(p => {
-              if (!existingIds.has(p.id)) periods.push(p);
-            });
+            v2Periods.forEach(p => { if (!existingIds.has(p.id)) periods.push(p); });
             localStorage.setItem(STORAGE_KEY, JSON.stringify(periods));
           }
         }
@@ -445,19 +431,121 @@
 
     // ===== NAV =====
     function showPage(page) {
-      ['calculator', 'dashboard', 'certificates'].forEach(p => {
-        document.getElementById('page-' + p).classList.add('hidden');
-        const navId = p === 'calculator' ? 'nav-calc' : p === 'dashboard' ? 'nav-dash' : 'nav-cert';
-        document.getElementById(navId).classList.remove('active');
-      });
+      closeMenu();
+      document.getElementById('page-dashboard').classList.add('hidden');
+      document.getElementById('page-calculator').classList.add('hidden');
+      document.getElementById('nav-dash').classList.remove('active');
+      document.getElementById('nav-calc').classList.remove('active');
       document.getElementById('page-' + page).classList.remove('hidden');
-      const activeNavId = page === 'calculator' ? 'nav-calc' : page === 'dashboard' ? 'nav-dash' : 'nav-cert';
-      document.getElementById(activeNavId).classList.add('active');
+      document.getElementById('nav-' + (page === 'dashboard' ? 'dash' : 'calc')).classList.add('active');
       if (page === 'dashboard') renderDashboard();
-      if (page === 'certificates') renderCertificates();
+      if (page === 'calculator') renderCalcData();
     }
 
-    // ===== CALCULATOR =====
+    // ===== MENU =====
+    function openMenu() {
+      document.getElementById('menuOverlay').classList.add('show');
+    }
+    function closeMenu(e) {
+      if (e && e.target !== e.currentTarget) return;
+      document.getElementById('menuOverlay').classList.remove('show');
+    }
+
+    // ===== DASHBOARD (sintetica + certificati) =====
+    function renderDashboard() {
+      const periods = getSavedPeriods();
+      const certs = getCertificates();
+
+      // Giorni totali
+      const grandTotal = periods.reduce((sum, p) => sum + p.total, 0);
+      anim(document.getElementById('dashTotalDays'), grandTotal, 700);
+
+      // Certificati summary
+      let valid = 0, warn = 0, exp = 0;
+      certs.forEach(c => {
+        const s = getCertStatus(c.expiry);
+        if (s.class === 'valid') valid++;
+        else if (s.class === 'warning') warn++;
+        else exp++;
+      });
+      document.getElementById('dashCertValid').textContent = valid;
+      document.getElementById('dashCertWarn').textContent = warn;
+      document.getElementById('dashCertExp').textContent = exp;
+
+      // Lista certificati
+      const list = document.getElementById('dashCertList');
+      if (certs.length === 0) {
+        list.innerHTML = '<div class="empty-state" style="padding:16px"><p style="font-size:13px">Nessun certificato salvato</p></div>';
+      } else {
+        const sorted = certs.slice().sort((a, b) => new Date(a.expiry) - new Date(b.expiry));
+        list.innerHTML = '';
+        sorted.forEach(c => {
+          const s = getCertStatus(c.expiry);
+          const div = document.createElement('div');
+          div.className = 'period-item';
+          div.onclick = () => openCertModal(c.id);
+          div.innerHTML = `<div class="period-info">
+            <div class="period-name">${escapeHtml(c.name)} <span class="cert-status ${s.class}">${s.label}</span></div>
+            <div class="period-dates">Codice: ${escapeHtml(c.code)}</div>
+          </div>
+          <div class="period-days" style="font-size:14px; color:var(--text-secondary);">${s.days >= 0 ? 'tra ' + s.days + ' gg' : Math.abs(s.days) + ' gg fa'}</div>`;
+          list.appendChild(div);
+        });
+      }
+    }
+
+    function addCertificate() {
+      const name = document.getElementById('certName').value.trim();
+      const code = document.getElementById('certCode').value.trim();
+      const expiry = document.getElementById('certExpiry').value;
+      if (!name || !code || !expiry) { toast('Compila tutti i campi'); return; }
+      const certs = getCertificates();
+      certs.push({ id: Date.now(), name, code, expiry });
+      saveCertificates(certs);
+      document.getElementById('certName').value = '';
+      document.getElementById('certCode').value = '';
+      document.getElementById('certExpiry').value = '';
+      renderDashboard();
+      toast('Certificato aggiunto');
+    }
+
+    function openCertModal(id) {
+      const certs = getCertificates();
+      const c = certs.find(x => x.id === id);
+      if (!c) return;
+      editingCertId = id;
+      document.getElementById('editCertName').value = c.name;
+      document.getElementById('editCertCode').value = c.code;
+      document.getElementById('editCertExpiry').value = c.expiry;
+      document.getElementById('certModal').classList.add('show');
+    }
+    function closeCertModal(e) {
+      if (e && e.target !== e.currentTarget) return;
+      document.getElementById('certModal').classList.remove('show');
+      editingCertId = null;
+    }
+    function saveEditCert() {
+      if (!editingCertId) return;
+      const certs = getCertificates();
+      const idx = certs.findIndex(x => x.id === editingCertId);
+      if (idx === -1) return;
+      const name = document.getElementById('editCertName').value.trim();
+      const code = document.getElementById('editCertCode').value.trim();
+      const expiry = document.getElementById('editCertExpiry').value;
+      if (!name || !code || !expiry) { toast('Compila tutti i campi'); return; }
+      certs[idx] = { ...certs[idx], name, code, expiry };
+      saveCertificates(certs);
+      closeCertModal(); renderDashboard(); toast('Certificato aggiornato');
+    }
+    function deleteEditCert() {
+      if (!editingCertId) return;
+      if (!confirm('Eliminare questo certificato?')) return;
+      const certs = getCertificates().filter(x => x.id !== editingCertId);
+      saveCertificates(certs);
+      closeCertModal(); renderDashboard(); toast('Certificato eliminato');
+    }
+
+    // ===== CALCULATOR (con dati) =====
     function getDaysInRange(startStr, endStr) {
       const start = new Date(startStr + 'T00:00:00');
       const end = new Date(endStr + 'T00:00:00');
@@ -486,82 +574,39 @@
       const data = getDaysInRange(start, end);
       if (data.error) { toast(data.error); return; }
 
-      currentCalculation = {
+      const period = {
         id: Date.now(),
         name: document.getElementById('periodName').value.trim() || ('Periodo ' + new Date().toLocaleDateString('it-IT')),
         start: start, end: end, total: data.total, years: data.years
       };
 
-      document.getElementById('calcEmpty').classList.add('hidden');
-      const r = document.getElementById('calcResults');
-      r.classList.remove('hidden'); r.classList.remove('fade-in');
-      void r.offsetWidth; r.classList.add('fade-in');
-
-      anim(document.getElementById('totalDays'), data.total, 700);
-
-      const target = getTarget();
-      const diffBox = document.getElementById('diffBox');
-      if (target > 0) {
-        const diff = target - data.total;
-        const diffNum = document.getElementById('diffNumber');
-        const diffLbl = document.getElementById('diffLabel');
-        diffNum.textContent = (diff >= 0 ? '+' : '') + diff;
-        diffNum.className = 'diff-number ' + (diff >= 0 ? 'positive' : 'negative');
-        diffLbl.textContent = diff >= 0 ? 'giorni mancanti al target' : 'giorni oltre il target';
-        diffBox.classList.remove('hidden');
-      } else {
-        diffBox.classList.add('hidden');
-      }
-
-      const list = document.getElementById('yearList');
-      list.innerHTML = '';
-      data.years.forEach((y, i) => {
-        const item = document.createElement('div');
-        item.className = 'year-item';
-        item.innerHTML = `<div class="year-header">
-          <span class="year-name">${y.year}${y.isLeap ? '<span class="badge">bisestile</span>' : ''}</span>
-          <span class="year-days">${y.days}</span>
-        </div>
-        <div class="year-bar-bg"><div class="year-bar-fill" style="width:0%" data-width="${y.percentage.toFixed(1)}%"></div></div>`;
-        list.appendChild(item);
-      });
-      setTimeout(() => {
-        document.querySelectorAll('#yearList .year-bar-fill').forEach(b => b.style.width = b.dataset.width);
-      }, 60);
+      const periods = getSavedPeriods();
+      periods.push(period);
+      savePeriods(periods);
+      toast('Periodo salvato!');
+      document.getElementById('periodName').value = '';
+      renderCalcData();
     }
 
     function resetCalculator() {
       document.getElementById('startDate').value = '';
       document.getElementById('endDate').value = '';
       document.getElementById('periodName').value = '';
-      document.getElementById('calcResults').classList.add('hidden');
-      document.getElementById('calcEmpty').classList.add('hidden');
-      currentCalculation = null;
       toast('Campi resettati');
     }
-    function saveCurrentPeriod() {
-      if (!currentCalculation) return;
-      const periods = getSavedPeriods();
-      periods.push(currentCalculation);
-      savePeriods(periods);
-      toast('Periodo salvato!');
-      document.getElementById('periodName').value = '';
-      document.getElementById('calcResults').classList.add('hidden');
-      document.getElementById('calcEmpty').classList.add('hidden');
-      currentCalculation = null;
-    }
 
-    // ===== DASHBOARD =====
-    function renderDashboard() {
+    function renderCalcData() {
       const periods = getSavedPeriods();
       const target = getTarget();
 
+      // Grand total
       const grandTotal = periods.reduce((sum, p) => sum + p.total, 0);
-      anim(document.getElementById('grandTotalDays'), grandTotal, 700);
+      anim(document.getElementById('calcTotalDays'), grandTotal, 700);
 
+      // Global year breakdown
       const yearTotals = {};
       periods.forEach(p => p.years.forEach(y => { yearTotals[y.year] = (yearTotals[y.year] || 0) + y.days; }));
-      const globalList = document.getElementById('globalYearList');
+      const globalList = document.getElementById('calcGlobalYearList');
       const yrs = Object.keys(yearTotals).map(Number).sort((a, b) => a - b);
       globalList.innerHTML = '';
 
@@ -578,7 +623,7 @@
 
           const item = document.createElement('div');
           item.className = 'year-item' + (isOpen ? ' active-year' : '');
-          item.onclick = () => { openYear = isOpen ? null : y; renderDashboard(); };
+          item.onclick = () => { openYear = isOpen ? null : y; renderCalcData(); };
           item.innerHTML = `<div class="year-header">
             <span class="year-name">${y}${isLeapYear(y) ? '<span class="badge">bisestile</span>' : ''}</span>
             <span class="year-days">${days}</span>
@@ -591,7 +636,6 @@
             detail.className = 'detail-inline';
 
             let detailHtml = '';
-
             if (target > 0) {
               const yearDiff = target - days;
               const isMissing = yearDiff >= 0;
@@ -632,11 +676,12 @@
           globalList.appendChild(wrap);
         });
         setTimeout(() => {
-          document.querySelectorAll('#globalYearList .year-bar-fill').forEach(b => b.style.width = b.dataset.pct);
+          document.querySelectorAll('#calcGlobalYearList .year-bar-fill').forEach(b => b.style.width = b.dataset.pct);
         }, 60);
       }
 
-      const listEl = document.getElementById('savedPeriodsList');
+      // Saved periods list
+      const listEl = document.getElementById('calcSavedPeriodsList');
       if (periods.length === 0) {
         listEl.innerHTML = `<div class="empty-state">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
@@ -661,81 +706,6 @@
           listEl.appendChild(div);
         });
       }
-    }
-
-    // ===== CERTIFICATES =====
-    function addCertificate() {
-      const name = document.getElementById('certName').value.trim();
-      const code = document.getElementById('certCode').value.trim();
-      const expiry = document.getElementById('certExpiry').value;
-      if (!name || !code || !expiry) { toast('Compila tutti i campi'); return; }
-      const certs = getCertificates();
-      certs.push({ id: Date.now(), name, code, expiry });
-      saveCertificates(certs);
-      document.getElementById('certName').value = '';
-      document.getElementById('certCode').value = '';
-      document.getElementById('certExpiry').value = '';
-      renderCertificates();
-      toast('Certificato aggiunto');
-    }
-
-    function renderCertificates() {
-      const list = document.getElementById('certificatesList');
-      const certs = getCertificates();
-      if (certs.length === 0) {
-        list.innerHTML = '<div class="empty-state"><p style="font-size:13px">Nessun certificato salvato</p></div>';
-        return;
-      }
-      const sorted = certs.slice().sort((a, b) => new Date(a.expiry) - new Date(b.expiry));
-      list.innerHTML = '';
-      sorted.forEach(c => {
-        const status = getCertStatus(c.expiry);
-        const div = document.createElement('div');
-        div.className = 'period-item';
-        div.onclick = () => openCertModal(c.id);
-        div.innerHTML = `<div class="period-info">
-          <div class="period-name">${escapeHtml(c.name)} <span class="cert-status ${status.class}">${status.label}</span></div>
-          <div class="period-dates">Codice: ${escapeHtml(c.code)} — Scadenza: ${formatDateIT(c.expiry)}</div>
-        </div>
-        <div class="period-days" style="font-size:14px; color:var(--text-secondary);">${status.days >= 0 ? 'tra ' + status.days + ' gg' : Math.abs(status.days) + ' gg fa'}</div>`;
-        list.appendChild(div);
-      });
-    }
-
-    function openCertModal(id) {
-      const certs = getCertificates();
-      const c = certs.find(x => x.id === id);
-      if (!c) return;
-      editingCertId = id;
-      document.getElementById('editCertName').value = c.name;
-      document.getElementById('editCertCode').value = c.code;
-      document.getElementById('editCertExpiry').value = c.expiry;
-      document.getElementById('certModal').classList.add('show');
-    }
-    function closeCertModal(e) {
-      if (e && e.target !== e.currentTarget) return;
-      document.getElementById('certModal').classList.remove('show');
-      editingCertId = null;
-    }
-    function saveEditCert() {
-      if (!editingCertId) return;
-      const certs = getCertificates();
-      const idx = certs.findIndex(x => x.id === editingCertId);
-      if (idx === -1) return;
-      const name = document.getElementById('editCertName').value.trim();
-      const code = document.getElementById('editCertCode').value.trim();
-      const expiry = document.getElementById('editCertExpiry').value;
-      if (!name || !code || !expiry) { toast('Compila tutti i campi'); return; }
-      certs[idx] = { ...certs[idx], name, code, expiry };
-      saveCertificates(certs);
-      closeCertModal(); renderCertificates(); toast('Certificato aggiornato');
-    }
-    function deleteEditCert() {
-      if (!editingCertId) return;
-      if (!confirm('Eliminare questo certificato?')) return;
-      const certs = getCertificates().filter(x => x.id !== editingCertId);
-      saveCertificates(certs);
-      closeCertModal(); renderCertificates(); toast('Certificato eliminato');
     }
 
     // ===== EDIT MODAL (periods) =====
@@ -768,15 +738,17 @@
       periods[idx].start = start; periods[idx].end = end;
       recalcPeriod(periods[idx]);
       savePeriods(periods);
-      closeEditModal(); renderDashboard(); toast('Periodo aggiornato');
+      closeEditModal(); renderCalcData(); toast('Periodo aggiornato');
     }
     function deleteEditPeriod() {
       if (!editingId) return;
       if (!confirm('Eliminare questo periodo?')) return;
       let periods = getSavedPeriods().filter(x => x.id !== editingId);
       savePeriods(periods);
-      closeEditModal(); renderDashboard(); toast('Periodo eliminato');
+      closeEditModal(); renderCalcData(); toast('Periodo eliminato');
     }
+
+    // ===== BACKUP =====
     function exportData() {
       const periods = getSavedPeriods();
       const target = getTarget();
