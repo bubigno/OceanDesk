@@ -1,12 +1,15 @@
-const CACHE_NAME = 'day-counter-v7-modern';
-const urlsToCache = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png', './timone.png',
-  'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js',
-  'https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js'
-];
+const CACHE_NAME = 'day-counter-v8-stable';
+const urlsToCache = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png', './timone.png'];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(urlsToCache))
+    caches.open(CACHE_NAME).then((cache) => {
+      return Promise.all(
+        urlsToCache.map(url =>
+          cache.add(url).catch(err => console.warn('Cache fallita per:', url, err))
+        )
+      );
+    })
   );
   self.skipWaiting();
 });
