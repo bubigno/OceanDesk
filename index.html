@@ -223,6 +223,8 @@
       background-repeat: no-repeat; background-position: right 10px center;
     }
   </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
 </head>
 <body>
   <div id="splash">
@@ -275,12 +277,15 @@
           <button class="btn" onclick="resetCalculator()" style="background:var(--text-secondary); margin-top:8px;" data-i18n="reset">Reset</button>
         </div>
       </div>
-      <div class="card grand-total">
-        <div class="total-number" id="calcTotalDays">0</div>
-        <div class="total-label" data-i18n="giorniTotali">giorni totali salvati</div>
-      </div>
+
       <div class="card">
-        <div class="card-title" data-i18n="ripartizioneGlobale">Ripartizione annuale globale</div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+          <div class="card-title" data-i18n="ripartizioneGlobale" style="margin-bottom:0;">Ripartizione annuale globale</div>
+          <div style="text-align:right;">
+            <div id="calcTotalDays" style="font-size:28px; font-weight:700; color:var(--accent); line-height:1;">0</div>
+            <div style="font-size:11px; color:var(--text-secondary); text-transform:uppercase; letter-spacing:0.3px;" data-i18n="giorniTotali">giorni totali salvati</div>
+          </div>
+        </div>
         <div id="calcGlobalYearList"></div>
       </div>
       <div class="card">
@@ -297,6 +302,7 @@
           <div class="input-row"><label style="min-width:50px" data-i18n="nome">Nome</label><input type="text" id="certName" placeholder="Es. Brevetto nautico..."></div>
           <div class="input-row"><label style="min-width:50px" data-i18n="codice">Codice</label><input type="text" id="certCode" placeholder="Es. ABC-12345"></div>
           <div class="input-row"><label style="min-width:50px" data-i18n="scad">Scad.</label><input type="date" id="certExpiry"></div>
+          <div class="input-row"><label style="min-width:50px" data-i18n="allegato">Allegato</label><input type="file" id="certFile" accept="image/*,application/pdf" style="padding:8px 0; border:none; background:transparent; font-size:14px;"></div>
           <button class="btn" onclick="addCertificate()" data-i18n="aggiungi">Aggiungi</button>
         </div>
       </div>
@@ -326,6 +332,11 @@
       <div class="backup-row">
         <button class="btn btn-secondary" onclick="exportData()" data-i18n="esporta">Esporta dati</button>
         <button class="btn btn-warning" onclick="document.getElementById('importFile').click()" data-i18n="importa">Importa dati</button>
+      </div>
+      <div class="backup-row" style="margin-top:10px;">
+        <button class="btn" style="background:var(--accent);" onclick="downloadPDF('all')" data-i18n="pdfTutto">PDF completo</button>
+        <button class="btn btn-secondary" onclick="downloadPDF('days')" data-i18n="pdfGiorni">PDF giorni</button>
+        <button class="btn btn-warning" onclick="downloadPDF('certs')" data-i18n="pdfCert">PDF certificati</button>
       </div>
     </div>
   </div>
@@ -358,6 +369,14 @@
         <div class="input-row"><label style="min-width:50px" data-i18n="nome">Nome</label><input type="text" id="editCertName"></div>
         <div class="input-row"><label style="min-width:50px" data-i18n="codice">Codice</label><input type="text" id="editCertCode"></div>
         <div class="input-row"><label style="min-width:50px" data-i18n="scad">Scad.</label><input type="date" id="editCertExpiry"></div>
+        <div class="input-row" id="editCertFileRow"><label style="min-width:50px" data-i18n="allegato">Allegato</label>
+          <div style="flex:1; display:flex; align-items:center; gap:8px;">
+            <span id="editCertFileName" style="font-size:14px; color:var(--text-secondary); flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;"></span>
+            <button type="button" class="btn" style="flex:0 0 auto; width:auto; padding:6px 12px; font-size:13px; margin-top:0;" onclick="downloadEditAttachment()" data-i18n="scarica">Scarica</button>
+            <button type="button" class="btn btn-danger" style="flex:0 0 auto; width:auto; padding:6px 12px; font-size:13px; margin-top:0;" onclick="removeEditAttachment()" data-i18n="rimuovi">Rimuovi</button>
+          </div>
+        </div>
+        <div class="input-row" id="editCertFileNewRow"><label style="min-width:50px" data-i18n="nuovoAllegato">Nuovo</label><input type="file" id="editCertFile" accept="image/*,application/pdf" style="padding:8px 0; border:none; background:transparent; font-size:14px;"></div>
       </div>
       <div class="modal-actions">
         <button class="btn btn-danger" onclick="deleteEditCert()" data-i18n="elimina">Elimina</button>
@@ -399,6 +418,8 @@
         inserisciDate: 'Inserisci entrambe le date', fineDopoInizio2: "La fine deve essere dopo l'inizio",
         importaPeriodi: (n) => `Importare ${n} periodi?`, datiSostituiti: 'I dati attuali verranno sostituiti.',
         eliminaCert: 'Eliminare questo certificato?', eliminaPeriodo: 'Eliminare questo periodo?',
+        allegato: 'Allegato', nuovoAllegato: 'Nuovo allegato', scarica: 'Scarica', rimuovi: 'Rimuovi',
+        pdfTutto: 'PDF completo', pdfGiorni: 'PDF giorni', pdfCert: 'PDF certificati',
         bisestile: 'bisestile', giorniAnno: (y) => `giorni nell'anno ${y}`,
         target: 'Target', giorniMancanti: 'giorni mancanti al target',
         giorniOltre: 'giorni oltre il target', totaleAnno: (y) => `Totale anno ${y}`,
@@ -430,6 +451,8 @@
         inserisciDate: 'Enter both dates', fineDopoInizio2: 'End must be after start',
         importaPeriodi: (n) => `Import ${n} periods?`, datiSostituiti: 'Current data will be replaced.',
         eliminaCert: 'Delete this certificate?', eliminaPeriodo: 'Delete this period?',
+        allegato: 'Attachment', nuovoAllegato: 'New attachment', scarica: 'Download', rimuovi: 'Remove',
+        pdfTutto: 'Full PDF', pdfGiorni: 'PDF days', pdfCert: 'PDF certificates',
         bisestile: 'leap year', giorniAnno: (y) => `days in year ${y}`,
         target: 'Target', giorniMancanti: 'days missing to target',
         giorniOltre: 'days over target', totaleAnno: (y) => `Year ${y} total`,
@@ -444,6 +467,7 @@
     function setLang(lang) {
       localStorage.setItem(LANG_KEY, lang);
       applyLang();
+    renderDashboard();
       renderDashboard();
       renderCalcData();
       renderCertificates();
@@ -478,6 +502,8 @@
     // ===== STATE =====
     let editingId = null;
     let editingCertId = null;
+    let editingCertAttachment = null;
+    let editingCertRemoveAttachment = false;
     let openYear = null;
     const STORAGE_KEY = 'daycounter_periods';
     const TARGET_KEY = 'daycounter_target';
@@ -643,14 +669,29 @@
       const code = document.getElementById('certCode').value.trim();
       const expiry = document.getElementById('certExpiry').value;
       if (!name || !code || !expiry) { toast(t('compilaTutti')); return; }
-      const certs = getCertificates();
-      certs.push({ id: Date.now(), name, code, expiry });
-      saveCertificates(certs);
-      document.getElementById('certName').value = '';
-      document.getElementById('certCode').value = '';
-      document.getElementById('certExpiry').value = '';
-      renderCertificates();
-      toast(t('certAggiunto'));
+      const fileInput = document.getElementById('certFile');
+
+      function doSave(attachment) {
+        const certs = getCertificates();
+        certs.push({ id: Date.now(), name, code, expiry, attachment });
+        saveCertificates(certs);
+        document.getElementById('certName').value = '';
+        document.getElementById('certCode').value = '';
+        document.getElementById('certExpiry').value = '';
+        document.getElementById('certFile').value = '';
+        renderCertificates();
+        toast(t('certAggiunto'));
+      }
+
+      if (fileInput.files && fileInput.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          doSave({ name: fileInput.files[0].name, type: fileInput.files[0].type, data: e.target.result });
+        };
+        reader.readAsDataURL(fileInput.files[0]);
+      } else {
+        doSave(null);
+      }
     }
 
     function renderCertificates() {
@@ -668,8 +709,9 @@
         div.className = 'cert-item ' + s.class;
         div.onclick = () => openCertModal(c.id);
         const daysText = s.days >= 0 ? `${t('tra')} ${s.days} ${t('gg')}` : `${Math.abs(s.days)} ${t('ggFa')}`;
+        const attachIcon = c.attachment ? `<span style="margin-left:6px;opacity:0.6;">📎</span>` : '';
         div.innerHTML = `<div class="cert-info">
-          <div class="cert-name">${escapeHtml(c.name)} <span class="cert-status ${s.class}">${s.label}</span></div>
+          <div class="cert-name">${escapeHtml(c.name)}${attachIcon} <span class="cert-status ${s.class}">${s.label}</span></div>
           <div class="cert-code">${t('codice')}: ${escapeHtml(c.code)} — ${t('scad')}: ${formatDateIT(c.expiry)}</div>
         </div>
         <div class="cert-days ${s.class}">${daysText}</div>`;
@@ -682,15 +724,21 @@
       const c = certs.find(x => x.id === id);
       if (!c) return;
       editingCertId = id;
+      editingCertAttachment = c.attachment || null;
+      editingCertRemoveAttachment = false;
       document.getElementById('editCertName').value = c.name;
       document.getElementById('editCertCode').value = c.code;
       document.getElementById('editCertExpiry').value = c.expiry;
+      document.getElementById('editCertFile').value = '';
+      updateEditAttachmentUI();
       document.getElementById('certModal').classList.add('show');
     }
     function closeCertModal(e) {
       if (e && e.target !== e.currentTarget) return;
       document.getElementById('certModal').classList.remove('show');
       editingCertId = null;
+      editingCertAttachment = null;
+      editingCertRemoveAttachment = false;
     }
     function saveEditCert() {
       if (!editingCertId) return;
@@ -701,7 +749,24 @@
       const code = document.getElementById('editCertCode').value.trim();
       const expiry = document.getElementById('editCertExpiry').value;
       if (!name || !code || !expiry) { toast(t('compilaTutti')); return; }
-      certs[idx] = { ...certs[idx], name, code, expiry };
+
+      let newAttachment = editingCertAttachment;
+      if (editingCertRemoveAttachment) newAttachment = null;
+
+      const fileInput = document.getElementById('editCertFile');
+      if (fileInput.files && fileInput.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          newAttachment = { name: fileInput.files[0].name, type: fileInput.files[0].type, data: e.target.result };
+          certs[idx] = { ...certs[idx], name, code, expiry, attachment: newAttachment };
+          saveCertificates(certs);
+          closeCertModal(); renderCertificates(); toast(t('certAggiornato'));
+        };
+        reader.readAsDataURL(fileInput.files[0]);
+        return;
+      }
+
+      certs[idx] = { ...certs[idx], name, code, expiry, attachment: newAttachment };
       saveCertificates(certs);
       closeCertModal(); renderCertificates(); toast(t('certAggiornato'));
     }
@@ -961,10 +1026,128 @@
       const div = document.createElement('div'); div.textContent = text; return div.innerHTML;
     }
 
+    function openAttachment(data, name) {
+      const a = document.createElement('a');
+      a.href = data;
+      a.download = name;
+      a.target = '_blank';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }
+    function updateEditAttachmentUI() {
+      const rowExisting = document.getElementById('editCertFileRow');
+      const rowNew = document.getElementById('editCertFileNewRow');
+      const nameEl = document.getElementById('editCertFileName');
+      if (editingCertAttachment && !editingCertRemoveAttachment) {
+        nameEl.textContent = editingCertAttachment.name;
+        rowExisting.style.display = 'flex';
+        rowNew.style.display = 'none';
+      } else {
+        rowExisting.style.display = 'none';
+        rowNew.style.display = 'flex';
+      }
+    }
+    function downloadEditAttachment() {
+      if (editingCertAttachment) {
+        openAttachment(editingCertAttachment.data, editingCertAttachment.name);
+      }
+    }
+    function removeEditAttachment() {
+      editingCertRemoveAttachment = true;
+      updateEditAttachmentUI();
+    }
+    async function downloadPDF(type) {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      const lang = getLang();
+      const isEn = lang === 'en';
+
+      doc.setFontSize(18);
+      doc.text('Day Counter Dashboard', 14, 20);
+      doc.setFontSize(10);
+      doc.text(new Date().toLocaleDateString(isEn ? 'en-US' : 'it-IT'), 14, 26);
+
+      let y = 35;
+
+      if (type === 'all' || type === 'days') {
+        const periods = getSavedPeriods();
+        const grandTotal = periods.reduce((sum, p) => sum + p.total, 0);
+
+        doc.setFontSize(14);
+        doc.text(isEn ? 'Saved Periods' : 'Periodi salvati', 14, y);
+        y += 8;
+
+        if (periods.length === 0) {
+          doc.setFontSize(11);
+          doc.text(isEn ? 'No periods saved' : 'Nessun periodo salvato', 14, y);
+          y += 10;
+        } else {
+          const body = periods.map(p => [
+            p.name,
+            formatDateIT(p.start),
+            formatDateIT(p.end),
+            p.total.toString()
+          ]);
+          doc.autoTable({
+            startY: y,
+            head: [[isEn ? 'Name' : 'Nome', isEn ? 'From' : 'Da', isEn ? 'To' : 'A', isEn ? 'Days' : 'Giorni']],
+            body: body,
+            theme: 'grid',
+            styles: { fontSize: 10 },
+            headStyles: { fillColor: [29, 89, 143] }
+          });
+          y = doc.lastAutoTable.finalY + 8;
+          doc.setFontSize(12);
+          doc.text((isEn ? 'Total: ' : 'Totale: ') + grandTotal + ' ' + (isEn ? 'days' : 'giorni'), 14, y);
+          y += 10;
+        }
+      }
+
+      if (type === 'all') {
+        y += 5;
+      }
+
+      if (type === 'all' || type === 'certs') {
+        const certs = getCertificates();
+        doc.setFontSize(14);
+        doc.text(isEn ? 'Certificates' : 'Certificati', 14, y);
+        y += 8;
+
+        if (certs.length === 0) {
+          doc.setFontSize(11);
+          doc.text(isEn ? 'No certificates saved' : 'Nessun certificato salvato', 14, y);
+        } else {
+          const body = certs.map(c => {
+            const s = getCertStatus(c.expiry);
+            const statusText = s.label;
+            return [
+              c.name,
+              c.code,
+              formatDateIT(c.expiry),
+              statusText,
+              c.attachment ? (isEn ? 'Yes' : 'Si') : (isEn ? 'No' : 'No')
+            ];
+          });
+          doc.autoTable({
+            startY: y,
+            head: [[isEn ? 'Name' : 'Nome', isEn ? 'Code' : 'Codice', isEn ? 'Expiry' : 'Scadenza', isEn ? 'Status' : 'Stato', isEn ? 'Attachment' : 'Allegato']],
+            body: body,
+            theme: 'grid',
+            styles: { fontSize: 10 },
+            headStyles: { fillColor: [29, 89, 143] }
+          });
+        }
+      }
+
+      doc.save('daycounter-report-' + new Date().toISOString().split('T')[0] + '.pdf');
+    }
+
     document.getElementById('endDate').value = new Date().toISOString().split('T')[0];
     document.getElementById('startDate').value = '2023-01-01';
     document.getElementById('targetDays').value = getTarget() || '';
     applyLang();
+    renderDashboard();
 
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('sw.js').then(reg => {
