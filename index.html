@@ -317,10 +317,7 @@
           <div class="input-row"><label style="min-width:50px" data-i18n="codice">Codice</label><input type="text" id="certCode" placeholder="Es. ABC-12345"></div>
           <div class="input-row"><label style="min-width:50px" data-i18n="scad">Scad.</label><input type="date" id="certExpiry"></div>
           <div class="input-row"><label style="min-width:50px" data-i18n="allegato">Allegato</label>
-            <div style="flex:1; display:flex; align-items:center; gap:8px;">
-              <input type="file" id="certFile" accept="image/*,application/pdf" style="flex:1; padding:8px 0; border:none; background:transparent; font-size:14px;">
-              <span id="certSpinner" class="spinner"></span>
-            </div>
+            <input type="file" id="certFile" accept="image/*,application/pdf" style="flex:1; padding:8px 0; border:none; background:transparent; font-size:14px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:100%;">
           </div>
           <button class="btn" onclick="addCertificate()" data-i18n="aggiungi">Aggiungi</button>
         </div>
@@ -739,10 +736,8 @@
       const name = document.getElementById('certName').value.trim();
       const code = document.getElementById('certCode').value.trim();
       const expiry = document.getElementById('certExpiry').value;
-      if (!name || !code || !expiry) { toast(t('compilaTutti')); return; }
+      if (!name || !expiry) { toast(t('compilaTutti')); return; }
       const fileInput = document.getElementById('certFile');
-      const spinner = document.getElementById('certSpinner');
-
       async function doSave(hasAttachment, attachmentData) {
         const certs = getCertificates();
         const newId = Date.now();
@@ -756,20 +751,17 @@
         document.getElementById('certCode').value = '';
         document.getElementById('certExpiry').value = '';
         document.getElementById('certFile').value = '';
-        spinner.classList.remove('show');
         renderCertificates();
         toast(t('certAggiunto'));
       }
 
       if (fileInput.files && fileInput.files[0]) {
-        spinner.classList.add('show');
         const file = fileInput.files[0];
         const reader = new FileReader();
         reader.onload = function(e) {
           doSave(true, { name: file.name, type: file.type, data: e.target.result });
         };
         reader.onerror = function() {
-          spinner.classList.remove('show');
           toast(t('erroreSalvataggio'));
         };
         reader.readAsDataURL(file);
@@ -840,7 +832,7 @@
       const name = document.getElementById('editCertName').value.trim();
       const code = document.getElementById('editCertCode').value.trim();
       const expiry = document.getElementById('editCertExpiry').value;
-      if (!name || !code || !expiry) { toast(t('compilaTutti')); return; }
+      if (!name || !expiry) { toast(t('compilaTutti')); return; }
 
       let hasAttachment = editingCertHasAttachment && !editingCertRemoveAttachment;
       let attachmentName = editingCertAttachmentName;
