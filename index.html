@@ -222,6 +222,20 @@
       background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238e8e93' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
       background-repeat: no-repeat; background-position: right 10px center;
     }
+    .spinner {
+      display: inline-block;
+      width: 16px; height: 16px;
+      border: 2.5px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin-loader 0.7s linear infinite;
+      vertical-align: middle;
+      margin-left: 6px;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+    .spinner.show { opacity: 1; }
+    @keyframes spin-loader { to { transform: rotate(360deg); } }
   </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
@@ -302,7 +316,12 @@
           <div class="input-row"><label style="min-width:50px" data-i18n="nome">Nome</label><input type="text" id="certName" placeholder="Es. Brevetto nautico..."></div>
           <div class="input-row"><label style="min-width:50px" data-i18n="codice">Codice</label><input type="text" id="certCode" placeholder="Es. ABC-12345"></div>
           <div class="input-row"><label style="min-width:50px" data-i18n="scad">Scad.</label><input type="date" id="certExpiry"></div>
-          <div class="input-row"><label style="min-width:50px" data-i18n="allegato">Allegato</label><input type="file" id="certFile" accept="image/*,application/pdf" style="padding:8px 0; border:none; background:transparent; font-size:14px;"></div>
+          <div class="input-row"><label style="min-width:50px" data-i18n="allegato">Allegato</label>
+            <div style="flex:1; display:flex; align-items:center; gap:8px;">
+              <input type="file" id="certFile" accept="image/*,application/pdf" style="flex:1; padding:8px 0; border:none; background:transparent; font-size:14px;">
+              <span id="certSpinner" class="spinner"></span>
+            </div>
+          </div>
           <button class="btn" onclick="addCertificate()" data-i18n="aggiungi">Aggiungi</button>
         </div>
       </div>
@@ -413,7 +432,7 @@
         campiResettati: 'Campi resettati', periodoAggiornato: 'Periodo aggiornato',
         periodoEliminato: 'Periodo eliminato', backupScaricato: 'Backup scaricato!',
         fileNonValido: 'File non valido', erroreJSON: 'Errore nel file JSON',
-        datiImportati: 'Dati importati con successo!', selezionaDate: 'Seleziona entrambe le date',
+        datiImportati: 'Dati importati con successo!', erroreSalvataggio: 'Errore nel salvataggio allegato', selezionaDate: 'Seleziona entrambe le date',
         fineDopoInizio: 'La data di fine deve essere successiva alla data di inizio',
         inserisciDate: 'Inserisci entrambe le date', fineDopoInizio2: "La fine deve essere dopo l'inizio",
         importaPeriodi: (n) => `Importare ${n} periodi?`, datiSostituiti: 'I dati attuali verranno sostituiti.',
@@ -446,7 +465,7 @@
         campiResettati: 'Fields reset', periodoAggiornato: 'Period updated',
         periodoEliminato: 'Period deleted', backupScaricato: 'Backup downloaded!',
         fileNonValido: 'Invalid file', erroreJSON: 'JSON file error',
-        datiImportati: 'Data imported successfully!', selezionaDate: 'Select both dates',
+        datiImportati: 'Data imported successfully!', erroreSalvataggio: 'Error saving attachment', selezionaDate: 'Select both dates',
         fineDopoInizio: 'End date must be after start date',
         inserisciDate: 'Enter both dates', fineDopoInizio2: 'End must be after start',
         importaPeriodi: (n) => `Import ${n} periods?`, datiSostituiti: 'Current data will be replaced.',
@@ -503,8 +522,60 @@
     let editingId = null;
     let editingCertId = null;
     let editingCertAttachment = null;
+    let editingCertHasAttachment = false;
+    let editingCertAttachmentName = '';
     let editingCertRemoveAttachment = false;
     let openYear = null;
+
+    // ===== INDEXEDDB ATTACHMENTS =====
+    const ATTACHMENT_DB = 'daycounter_attachments';
+    const ATTACHMENT_STORE = 'attachments';
+    let attachmentDB = null;
+
+    function openAttachmentDB() {
+      return new Promise((resolve, reject) => {
+        if (attachmentDB) return resolve(attachmentDB);
+        const req = indexedDB.open(ATTACHMENT_DB, 1);
+        req.onupgradeneeded = (e) => {
+          const db = e.target.result;
+          if (!db.objectStoreNames.contains(ATTACHMENT_STORE)) {
+            db.createObjectStore(ATTACHMENT_STORE, { keyPath: 'id' });
+          }
+        };
+        req.onsuccess = (e) => { attachmentDB = e.target.result; resolve(attachmentDB); };
+        req.onerror = (e) => reject(e);
+      });
+    }
+    async function saveAttachment(id, attachment) {
+      const db = await openAttachmentDB();
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(ATTACHMENT_STORE, 'readwrite');
+        const store = tx.objectStore(ATTACHMENT_STORE);
+        const req = store.put({ id, attachment });
+        req.onsuccess = () => resolve();
+        req.onerror = () => reject(req.error);
+      });
+    }
+    async function getAttachment(id) {
+      const db = await openAttachmentDB();
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(ATTACHMENT_STORE, 'readonly');
+        const store = tx.objectStore(ATTACHMENT_STORE);
+        const req = store.get(id);
+        req.onsuccess = () => resolve(req.result?.attachment || null);
+        req.onerror = () => reject(req.error);
+      });
+    }
+    async function deleteAttachment(id) {
+      const db = await openAttachmentDB();
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(ATTACHMENT_STORE, 'readwrite');
+        const store = tx.objectStore(ATTACHMENT_STORE);
+        const req = store.delete(id);
+        req.onsuccess = () => resolve();
+        req.onerror = () => reject(req.error);
+      });
+    }
     const STORAGE_KEY = 'daycounter_periods';
     const TARGET_KEY = 'daycounter_target';
     const CERT_KEY = 'daycounter_certificates';
@@ -670,27 +741,40 @@
       const expiry = document.getElementById('certExpiry').value;
       if (!name || !code || !expiry) { toast(t('compilaTutti')); return; }
       const fileInput = document.getElementById('certFile');
+      const spinner = document.getElementById('certSpinner');
 
-      function doSave(attachment) {
+      async function doSave(hasAttachment, attachmentData) {
         const certs = getCertificates();
-        certs.push({ id: Date.now(), name, code, expiry, attachment });
+        const newId = Date.now();
+        certs.push({ id: newId, name, code, expiry, hasAttachment, attachmentName: attachmentData?.name || '' });
         saveCertificates(certs);
+        if (hasAttachment && attachmentData) {
+          try { await saveAttachment(newId, attachmentData); }
+          catch(err) { toast(t('erroreSalvataggio')); }
+        }
         document.getElementById('certName').value = '';
         document.getElementById('certCode').value = '';
         document.getElementById('certExpiry').value = '';
         document.getElementById('certFile').value = '';
+        spinner.classList.remove('show');
         renderCertificates();
         toast(t('certAggiunto'));
       }
 
       if (fileInput.files && fileInput.files[0]) {
+        spinner.classList.add('show');
+        const file = fileInput.files[0];
         const reader = new FileReader();
         reader.onload = function(e) {
-          doSave({ name: fileInput.files[0].name, type: fileInput.files[0].type, data: e.target.result });
+          doSave(true, { name: file.name, type: file.type, data: e.target.result });
         };
-        reader.readAsDataURL(fileInput.files[0]);
+        reader.onerror = function() {
+          spinner.classList.remove('show');
+          toast(t('erroreSalvataggio'));
+        };
+        reader.readAsDataURL(file);
       } else {
-        doSave(null);
+        doSave(false, null);
       }
     }
 
@@ -709,7 +793,7 @@
         div.className = 'cert-item ' + s.class;
         div.onclick = () => openCertModal(c.id);
         const daysText = s.days >= 0 ? `${t('tra')} ${s.days} ${t('gg')}` : `${Math.abs(s.days)} ${t('ggFa')}`;
-        const attachIcon = c.attachment ? `<span style="margin-left:6px;opacity:0.6;">📎</span>` : '';
+        const attachIcon = c.hasAttachment ? `<span style="margin-left:6px;opacity:0.6;">📎</span>` : '';
         div.innerHTML = `<div class="cert-info">
           <div class="cert-name">${escapeHtml(c.name)}${attachIcon} <span class="cert-status ${s.class}">${s.label}</span></div>
           <div class="cert-code">${t('codice')}: ${escapeHtml(c.code)} — ${t('scad')}: ${formatDateIT(c.expiry)}</div>
@@ -719,12 +803,18 @@
       });
     }
 
-    function openCertModal(id) {
+    async function openCertModal(id) {
       const certs = getCertificates();
       const c = certs.find(x => x.id === id);
       if (!c) return;
       editingCertId = id;
-      editingCertAttachment = c.attachment || null;
+      editingCertHasAttachment = c.hasAttachment || false;
+      editingCertAttachmentName = c.attachmentName || '';
+      editingCertAttachment = null;
+      if (editingCertHasAttachment) {
+        try { editingCertAttachment = await getAttachment(id); }
+        catch(e) { editingCertAttachment = null; }
+      }
       editingCertRemoveAttachment = false;
       document.getElementById('editCertName').value = c.name;
       document.getElementById('editCertCode').value = c.code;
@@ -738,9 +828,11 @@
       document.getElementById('certModal').classList.remove('show');
       editingCertId = null;
       editingCertAttachment = null;
+      editingCertHasAttachment = false;
+      editingCertAttachmentName = '';
       editingCertRemoveAttachment = false;
     }
-    function saveEditCert() {
+    async function saveEditCert() {
       if (!editingCertId) return;
       const certs = getCertificates();
       const idx = certs.findIndex(x => x.id === editingCertId);
@@ -750,31 +842,44 @@
       const expiry = document.getElementById('editCertExpiry').value;
       if (!name || !code || !expiry) { toast(t('compilaTutti')); return; }
 
-      let newAttachment = editingCertAttachment;
-      if (editingCertRemoveAttachment) newAttachment = null;
+      let hasAttachment = editingCertHasAttachment && !editingCertRemoveAttachment;
+      let attachmentName = editingCertAttachmentName;
 
       const fileInput = document.getElementById('editCertFile');
       if (fileInput.files && fileInput.files[0]) {
+        const file = fileInput.files[0];
         const reader = new FileReader();
-        reader.onload = function(e) {
-          newAttachment = { name: fileInput.files[0].name, type: fileInput.files[0].type, data: e.target.result };
-          certs[idx] = { ...certs[idx], name, code, expiry, attachment: newAttachment };
+        reader.onload = async function(e) {
+          const att = { name: file.name, type: file.type, data: e.target.result };
+          try { await saveAttachment(editingCertId, att); } catch(err) { toast(t('erroreSalvataggio')); }
+          certs[idx] = { ...certs[idx], name, code, expiry, hasAttachment: true, attachmentName: file.name };
           saveCertificates(certs);
           closeCertModal(); renderCertificates(); toast(t('certAggiornato'));
         };
-        reader.readAsDataURL(fileInput.files[0]);
+        reader.readAsDataURL(file);
         return;
       }
 
-      certs[idx] = { ...certs[idx], name, code, expiry, attachment: newAttachment };
+      if (editingCertRemoveAttachment) {
+        try { await deleteAttachment(editingCertId); } catch(e) {}
+        hasAttachment = false;
+        attachmentName = '';
+      }
+
+      certs[idx] = { ...certs[idx], name, code, expiry, hasAttachment, attachmentName };
       saveCertificates(certs);
       closeCertModal(); renderCertificates(); toast(t('certAggiornato'));
     }
-    function deleteEditCert() {
+    async function deleteEditCert() {
       if (!editingCertId) return;
       if (!confirm(t('eliminaCert'))) return;
-      const certs = getCertificates().filter(x => x.id !== editingCertId);
-      saveCertificates(certs);
+      const certs = getCertificates();
+      const cert = certs.find(x => x.id === editingCertId);
+      if (cert && cert.hasAttachment) {
+        try { await deleteAttachment(editingCertId); } catch(e) {}
+      }
+      const filtered = certs.filter(x => x.id !== editingCertId);
+      saveCertificates(filtered);
       closeCertModal(); renderCertificates(); toast(t('certEliminato'));
     }
 
@@ -977,10 +1082,16 @@
       closeEditModal(); renderCalcData(); toast(t('periodoEliminato'));
     }
 
-    function exportData() {
+    async function exportData() {
       const periods = getSavedPeriods();
       const target = getTarget();
       const certs = getCertificates();
+      for (const c of certs) {
+        if (c.hasAttachment) {
+          try { c.attachment = await getAttachment(c.id); }
+          catch(e) { c.attachment = null; }
+        }
+      }
       const data = { periods: periods, target: target, certificates: certs, exportedAt: new Date().toISOString() };
       const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
@@ -991,13 +1102,14 @@
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
+      for (const c of certs) { delete c.attachment; }
       toast(t('backupScaricato'));
     }
-    function importData(event) {
+    async function importData(event) {
       const file = event.target.files[0];
       if (!file) return;
       const reader = new FileReader();
-      reader.onload = function(e) {
+      reader.onload = async function(e) {
         try {
           const data = JSON.parse(e.target.result);
           if (!data.periods || !Array.isArray(data.periods)) {
@@ -1010,6 +1122,13 @@
               document.getElementById('targetDays').value = data.target || '';
             }
             if (data.certificates && Array.isArray(data.certificates)) {
+              for (const c of data.certificates) {
+                if (c.attachment) {
+                  try { await saveAttachment(c.id, c.attachment); c.hasAttachment = true; c.attachmentName = c.attachment.name; }
+                  catch(err) { c.hasAttachment = false; c.attachmentName = ''; }
+                  delete c.attachment;
+                }
+              }
               saveCertificates(data.certificates);
             }
             renderDashboard();
@@ -1039,8 +1158,8 @@
       const rowExisting = document.getElementById('editCertFileRow');
       const rowNew = document.getElementById('editCertFileNewRow');
       const nameEl = document.getElementById('editCertFileName');
-      if (editingCertAttachment && !editingCertRemoveAttachment) {
-        nameEl.textContent = editingCertAttachment.name;
+      if (editingCertHasAttachment && !editingCertRemoveAttachment) {
+        nameEl.textContent = editingCertAttachmentName || editingCertAttachment?.name || '';
         rowExisting.style.display = 'flex';
         rowNew.style.display = 'none';
       } else {
@@ -1048,7 +1167,11 @@
         rowNew.style.display = 'flex';
       }
     }
-    function downloadEditAttachment() {
+    async function downloadEditAttachment() {
+      if (!editingCertAttachment && editingCertHasAttachment) {
+        try { editingCertAttachment = await getAttachment(editingCertId); }
+        catch(e) { editingCertAttachment = null; }
+      }
       if (editingCertAttachment) {
         openAttachment(editingCertAttachment.data, editingCertAttachment.name);
       }
