@@ -1,4 +1,4 @@
-const CACHE_NAME = 'day-counter-v8-stable';
+const CACHE_NAME = 'day-counter-v9-clean';
 const urlsToCache = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png', './timone.png'];
 
 self.addEventListener('install', (event) => {
