@@ -1,72 +1,41 @@
-const CACHE_NAME = 'day-counter-v9';
-const urlsToCache = [
-  './',
-  './index.html',
-  './manifest.json',
-  './icon-192.png',
-  './icon-512.png',
-  './timone.png'
+const CACHE_NAME = 'day-counter-v6';
+const urlsToCache = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png', './timone.png',
+  'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js',
+  'https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js'
 ];
 
-self.addEventListener('install', function(event) {
+self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then(function(cache) {
-      return cache.addAll(urlsToCache);
-    }).catch(function(err) {
-      console.warn('Cache install failed:', err);
-    })
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(urlsToCache))
   );
   self.skipWaiting();
 });
 
-self.addEventListener('activate', function(event) {
+self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then(function(cacheNames) {
+    caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames
-          .filter(function(name) { return name !== CACHE_NAME; })
-          .map(function(name) { return caches.delete(name); })
+          .filter((name) => name !== CACHE_NAME)
+          .map((name) => caches.delete(name))
       );
-    }).then(function() {
-      return self.clients.claim();
-    })
+    }).then(() => self.clients.claim())
   );
 });
 
-self.addEventListener('fetch', function(event) {
-  if (event.request.method !== 'GET') return;
-
+self.addEventListener('fetch', (event) => {
   event.respondWith(
-    caches.match(event.request).then(function(cachedResponse) {
-      if (cachedResponse) {
-        // Return cached immediately, update in background
-        fetch(event.request).then(function(networkResponse) {
-          if (networkResponse && networkResponse.status === 200) {
-            caches.open(CACHE_NAME).then(function(cache) {
-              cache.put(event.request, networkResponse.clone());
-            });
-          }
-        }).catch(function() {});
-        return cachedResponse;
-      }
-
-      return fetch(event.request).then(function(networkResponse) {
+    caches.match(event.request).then((response) => {
+      const fetchPromise = fetch(event.request).then((networkResponse) => {
         if (networkResponse && networkResponse.status === 200) {
-          var clone = networkResponse.clone();
-          caches.open(CACHE_NAME).then(function(cache) {
-            cache.put(event.request, clone);
+          const responseClone = networkResponse.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, responseClone);
           });
         }
         return networkResponse;
-      }).catch(function() {
-        if (event.request.mode === 'navigate') {
-          return new Response(
-            '<html><body style="background:#0f0f11;color:#fff;font-family:sans-serif;text-align:center;padding-top:40vh;"><h1>Day Counter</h1><p>Offline. Check your connection.</p></body></html>',
-            { headers: { 'Content-Type': 'text/html' } }
-          );
-        }
-        return new Response('Offline', { status: 503 });
-      });
+      }).catch(() => response);
+      return response || fetchPromise;
     })
   );
 });
