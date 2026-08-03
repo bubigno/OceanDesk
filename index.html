@@ -11,12 +11,9 @@
   <link rel="apple-touch-icon" href="icon-192.png">
   <title>Day Counter Dashboard</title>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
     :root {
       --bg: #f8f9fb;
-      --bg-grad: radial-gradient(1200px 800px at 10% -10%, rgba(99,102,241,0.08) 0%, transparent 60%),
-                 radial-gradient(800px 600px at 90% 10%, rgba(14,165,233,0.06) 0%, transparent 50%),
-                 #f8f9fb;
+      --bg-grad: #f8f9fb;
       --surface: rgba(255,255,255,0.72);
       --surface-solid: #ffffff;
       --text: #0f0f11;
@@ -39,9 +36,7 @@
     @media (prefers-color-scheme: dark) {
       :root {
         --bg: #0a0a0c;
-        --bg-grad: radial-gradient(1200px 800px at 10% -10%, rgba(99,102,241,0.15) 0%, transparent 60%),
-                   radial-gradient(800px 600px at 90% 10%, rgba(14,165,233,0.10) 0%, transparent 50%),
-                   #0a0a0c;
+        --bg-grad: #0a0a0c;
         --surface: rgba(28,28,32,0.55);
         --surface-solid: #1c1c20;
         --text: #f3f4f6;
@@ -63,7 +58,6 @@
     body {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
       background: var(--bg-grad);
-      background-attachment: fixed;
       color: var(--text);
       padding: 20px; padding-top: max(20px, env(safe-area-inset-top));
       padding-bottom: max(20px, env(safe-area-inset-bottom));
@@ -85,16 +79,11 @@
     }
     #splash h2 { 
       margin-top: 28px; 
-      background: linear-gradient(90deg, #818cf8, #38bdf8, #818cf8);
-      background-size: 200% auto;
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+      color: #818cf8;
       font-size: 24px; font-weight: 700; 
       letter-spacing: -0.5px;
-      animation: shimmer 3s linear infinite;
     }
     @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-    @keyframes shimmer { to { background-position: 200% center; } }
     .nav-bar { 
       display: flex; gap: 4px; margin-bottom: 24px;
       background: var(--surface);
@@ -170,27 +159,16 @@
       position: relative; overflow: hidden;
       box-shadow: 0 8px 32px rgba(99,102,241,0.3);
     }
-    .target-box::before {
-      content: ''; position: absolute; top: -50%; left: -50%;
-      width: 200%; height: 200%;
-      background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 60%);
-      animation: pulse-glow 4s ease-in-out infinite;
-    }
-    @keyframes pulse-glow {
-      0%, 100% { transform: scale(1); opacity: 0.5; }
-      50% { transform: scale(1.1); opacity: 0.8; }
-    }
+
     .target-box label { 
       font-size: 12px; font-weight: 700; text-transform: uppercase;
       letter-spacing: 1px; opacity: 0.9; display: block; margin-bottom: 10px;
-      position: relative; z-index: 1;
     }
     .target-box input[type="number"] {
       background: rgba(255,255,255,0.15); 
       border: 2px solid rgba(255,255,255,0.3);
       color: white; font-size: 32px; font-weight: 800; text-align: center;
       width: 100%; border-radius: 14px; padding: 14px;
-      position: relative; z-index: 1;
       backdrop-filter: blur(10px);
     }
     .target-box input::placeholder { color: rgba(255,255,255,0.5); }
@@ -198,7 +176,7 @@
       border-color: rgba(255,255,255,0.6); 
       box-shadow: 0 0 0 4px rgba(255,255,255,0.15);
     }
-    .year-select-wrap { text-align: center; margin-bottom: 12px; position: relative; z-index: 1; }
+    .year-select-wrap { text-align: center; margin-bottom: 12px; }
     .year-select-wrap select {
       background: rgba(255,255,255,0.15); border: 2px solid rgba(255,255,255,0.3);
       color: white; font-size: 15px; font-weight: 700; text-align: center;
@@ -254,20 +232,14 @@
       position: relative; overflow: hidden;
       box-shadow: 0 8px 32px rgba(49,46,129,0.4);
     }
-    .grand-total::before {
-      content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-      background: radial-gradient(circle at 30% 20%, rgba(99,102,241,0.3) 0%, transparent 50%),
-                  radial-gradient(circle at 70% 80%, rgba(14,165,233,0.2) 0%, transparent 50%);
-    }
+
     .grand-total .total-number { 
       color: white; font-size: 64px; 
       -webkit-text-fill-color: white;
-      position: relative; z-index: 1;
       text-shadow: 0 0 40px rgba(129,140,248,0.3);
     }
     .grand-total .total-label { 
       color: rgba(255,255,255,0.7); 
-      position: relative; z-index: 1;
       font-weight: 600;
     }
     .year-wrap { margin-bottom: 10px; }
@@ -529,6 +501,9 @@
     ::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 3px; }
     ::-webkit-scrollbar-thumb:hover { background: var(--text-tertiary); }
   </style>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
 </head>
