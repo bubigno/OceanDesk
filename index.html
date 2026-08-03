@@ -1,0 +1,1577 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#0f0f11">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="DayCounter">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <title>Day Counter Dashboard</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+    :root {
+      --bg: #f8f9fb;
+      --bg-grad: radial-gradient(1200px 800px at 10% -10%, rgba(99,102,241,0.08) 0%, transparent 60%),
+                 radial-gradient(800px 600px at 90% 10%, rgba(14,165,233,0.06) 0%, transparent 50%),
+                 #f8f9fb;
+      --surface: rgba(255,255,255,0.72);
+      --surface-solid: #ffffff;
+      --text: #0f0f11;
+      --text-secondary: #6b7280;
+      --text-tertiary: #9ca3af;
+      --accent: #6366f1;
+      --accent-light: rgba(99,102,241,0.12);
+      --accent-glow: rgba(99,102,241,0.25);
+      --border: rgba(0,0,0,0.06);
+      --border-strong: rgba(0,0,0,0.10);
+      --danger: #ef4444;
+      --positive: #10b981;
+      --warning: #f59e0b;
+      --radius: 20px;
+      --radius-sm: 14px;
+      --shadow: 0 1px 3px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.04);
+      --shadow-lg: 0 4px 6px rgba(0,0,0,0.02), 0 16px 40px rgba(0,0,0,0.06);
+      --glass: saturate(180%) blur(20px);
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0a0a0c;
+        --bg-grad: radial-gradient(1200px 800px at 10% -10%, rgba(99,102,241,0.15) 0%, transparent 60%),
+                   radial-gradient(800px 600px at 90% 10%, rgba(14,165,233,0.10) 0%, transparent 50%),
+                   #0a0a0c;
+        --surface: rgba(28,28,32,0.55);
+        --surface-solid: #1c1c20;
+        --text: #f3f4f6;
+        --text-secondary: #9ca3af;
+        --text-tertiary: #6b7280;
+        --accent: #818cf8;
+        --accent-light: rgba(129,140,248,0.15);
+        --accent-glow: rgba(129,140,248,0.30);
+        --border: rgba(255,255,255,0.06);
+        --border-strong: rgba(255,255,255,0.10);
+        --danger: #f87171;
+        --positive: #34d399;
+        --warning: #fbbf24;
+        --shadow: 0 1px 3px rgba(0,0,0,0.2), 0 8px 24px rgba(0,0,0,0.25);
+        --shadow-lg: 0 4px 6px rgba(0,0,0,0.15), 0 16px 40px rgba(0,0,0,0.3);
+      }
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+      background: var(--bg-grad);
+      background-attachment: fixed;
+      color: var(--text);
+      padding: 20px; padding-top: max(20px, env(safe-area-inset-top));
+      padding-bottom: max(20px, env(safe-area-inset-bottom));
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+    .container { max-width: 560px; margin: 0 auto; }
+    #splash {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: linear-gradient(135deg, #0f0f11 0%, #1a1a2e 50%, #0f0f11 100%);
+      z-index: 9999; display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      transition: opacity 0.8s cubic-bezier(0.22,1,0.36,1), visibility 0.8s;
+    }
+    #splash.splash-done { opacity: 0; visibility: hidden; pointer-events: none; }
+    #splash .wheel { 
+      animation: spin 12s linear infinite; 
+      filter: drop-shadow(0 0 40px rgba(99,102,241,0.4));
+    }
+    #splash h2 { 
+      margin-top: 28px; 
+      background: linear-gradient(90deg, #818cf8, #38bdf8, #818cf8);
+      background-size: 200% auto;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-size: 24px; font-weight: 700; 
+      letter-spacing: -0.5px;
+      animation: shimmer 3s linear infinite;
+    }
+    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    @keyframes shimmer { to { background-position: 200% center; } }
+    .nav-bar { 
+      display: flex; gap: 4px; margin-bottom: 24px;
+      background: var(--surface);
+      backdrop-filter: var(--glass);
+      -webkit-backdrop-filter: var(--glass);
+      padding: 6px; border-radius: 16px; 
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+      align-items: center;
+      position: sticky; top: max(12px, env(safe-area-inset-top));
+      z-index: 100;
+    }
+    .nav-btn { 
+      flex: 1; padding: 10px 6px; border: none; border-radius: 12px;
+      font-size: 13px; font-weight: 600; cursor: pointer; 
+      background: transparent; color: var(--text-secondary); 
+      transition: all 0.25s cubic-bezier(0.22,1,0.36,1); 
+      font-family: inherit; letter-spacing: -0.2px;
+    }
+    .nav-btn:hover { color: var(--text); background: rgba(255,255,255,0.05); }
+    .nav-btn.active { 
+      background: linear-gradient(135deg, var(--accent), #8b5cf6); 
+      color: white; 
+      box-shadow: 0 4px 14px var(--accent-glow);
+    }
+    .nav-btn.menu-btn { 
+      flex: 0 0 auto; padding: 10px 14px; font-size: 16px; line-height: 1;
+      border-radius: 12px;
+    }
+    h1 { 
+      font-size: 28px; font-weight: 800; margin-bottom: 20px; 
+      letter-spacing: -1px; line-height: 1.2;
+    }
+    .card { 
+      background: var(--surface);
+      backdrop-filter: var(--glass);
+      -webkit-backdrop-filter: var(--glass);
+      border-radius: var(--radius);
+      padding: 20px; margin-bottom: 16px; 
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .card:hover { box-shadow: var(--shadow-lg); }
+    .card-title { 
+      font-size: 11px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.8px; color: var(--text-tertiary); margin-bottom: 14px;
+    }
+    .input-group { display: flex; flex-direction: column; gap: 12px; }
+    .input-row { display: flex; align-items: center; gap: 12px; }
+    .input-row label { 
+      font-size: 14px; font-weight: 600; min-width: 44px; 
+      color: var(--text-secondary); letter-spacing: -0.2px;
+    }
+    input[type="date"], input[type="text"], input[type="number"], select {
+      flex: 1; padding: 12px 16px; border: 1.5px solid var(--border); 
+      border-radius: 12px;
+      font-size: 15px; font-weight: 500;
+      background: var(--surface-solid); color: var(--text); 
+      font-family: inherit; -webkit-appearance: none;
+      transition: all 0.2s;
+    }
+    select { cursor: pointer; }
+    input:focus, select:focus { 
+      outline: none; border-color: var(--accent); 
+      box-shadow: 0 0 0 4px var(--accent-light);
+    }
+    input::placeholder { color: var(--text-tertiary); }
+    .target-box {
+      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #0ea5e9 100%);
+      color: white; text-align: center; padding: 24px;
+      border-radius: var(--radius); margin-bottom: 16px;
+      position: relative; overflow: hidden;
+      box-shadow: 0 8px 32px rgba(99,102,241,0.3);
+    }
+    .target-box::before {
+      content: ''; position: absolute; top: -50%; left: -50%;
+      width: 200%; height: 200%;
+      background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 60%);
+      animation: pulse-glow 4s ease-in-out infinite;
+    }
+    @keyframes pulse-glow {
+      0%, 100% { transform: scale(1); opacity: 0.5; }
+      50% { transform: scale(1.1); opacity: 0.8; }
+    }
+    .target-box label { 
+      font-size: 12px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 1px; opacity: 0.9; display: block; margin-bottom: 10px;
+      position: relative; z-index: 1;
+    }
+    .target-box input[type="number"] {
+      background: rgba(255,255,255,0.15); 
+      border: 2px solid rgba(255,255,255,0.3);
+      color: white; font-size: 32px; font-weight: 800; text-align: center;
+      width: 100%; border-radius: 14px; padding: 14px;
+      position: relative; z-index: 1;
+      backdrop-filter: blur(10px);
+    }
+    .target-box input::placeholder { color: rgba(255,255,255,0.5); }
+    .target-box input:focus { 
+      border-color: rgba(255,255,255,0.6); 
+      box-shadow: 0 0 0 4px rgba(255,255,255,0.15);
+    }
+    .year-select-wrap { text-align: center; margin-bottom: 12px; position: relative; z-index: 1; }
+    .year-select-wrap select {
+      background: rgba(255,255,255,0.15); border: 2px solid rgba(255,255,255,0.3);
+      color: white; font-size: 15px; font-weight: 700; text-align: center;
+      width: auto; min-width: 180px; border-radius: 12px; padding: 10px 36px 10px 16px;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 12px center;
+      backdrop-filter: blur(10px);
+    }
+    .year-select-wrap select option { background: var(--surface-solid); color: var(--text); }
+    .btn { 
+      width: 100%; padding: 14px; 
+      background: linear-gradient(135deg, var(--accent), #8b5cf6); 
+      color: white;
+      border: none; border-radius: 14px; font-size: 16px; font-weight: 700;
+      cursor: pointer; margin-top: 4px; 
+      transition: all 0.2s cubic-bezier(0.22,1,0.36,1); 
+      font-family: inherit; letter-spacing: -0.2px;
+      box-shadow: 0 4px 14px var(--accent-glow);
+      position: relative; overflow: hidden;
+    }
+    .btn::after {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(135deg, transparent 40%, rgba(255,255,255,0.2) 50%, transparent 60%);
+      transform: translateX(-100%);
+      transition: transform 0.5s;
+    }
+    .btn:hover::after { transform: translateX(100%); }
+    .btn:active { transform: scale(0.97); }
+    .btn-secondary { 
+      background: linear-gradient(135deg, var(--positive), #059669); 
+      box-shadow: 0 4px 14px rgba(16,185,129,0.25);
+    }
+    .btn-danger { 
+      background: linear-gradient(135deg, var(--danger), #dc2626); 
+      box-shadow: 0 4px 14px rgba(239,68,68,0.25);
+    }
+    .btn-warning { 
+      background: linear-gradient(135deg, var(--warning), #d97706); 
+      box-shadow: 0 4px 14px rgba(245,158,11,0.25);
+    }
+    .total-box { text-align: center; padding: 28px 20px; }
+    .total-number { 
+      font-size: 56px; font-weight: 800; 
+      background: linear-gradient(135deg, var(--accent), #8b5cf6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      line-height: 1; letter-spacing: -2px;
+    }
+    .total-label { font-size: 14px; color: var(--text-secondary); margin-top: 10px; font-weight: 500; }
+    .grand-total {
+      background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #1e1b4b 100%);
+      color: white; text-align: center; padding: 32px 24px;
+      position: relative; overflow: hidden;
+      box-shadow: 0 8px 32px rgba(49,46,129,0.4);
+    }
+    .grand-total::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+      background: radial-gradient(circle at 30% 20%, rgba(99,102,241,0.3) 0%, transparent 50%),
+                  radial-gradient(circle at 70% 80%, rgba(14,165,233,0.2) 0%, transparent 50%);
+    }
+    .grand-total .total-number { 
+      color: white; font-size: 64px; 
+      -webkit-text-fill-color: white;
+      position: relative; z-index: 1;
+      text-shadow: 0 0 40px rgba(129,140,248,0.3);
+    }
+    .grand-total .total-label { 
+      color: rgba(255,255,255,0.7); 
+      position: relative; z-index: 1;
+      font-weight: 600;
+    }
+    .year-wrap { margin-bottom: 10px; }
+    .year-item { 
+      display: flex; flex-direction: column; padding: 14px 16px; 
+      background: var(--surface-solid);
+      border-radius: 14px; border: 1.5px solid var(--border); 
+      cursor: pointer;
+      transition: all 0.25s cubic-bezier(0.22,1,0.36,1);
+      position: relative; overflow: hidden;
+    }
+    .year-item::before {
+      content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+      background: linear-gradient(180deg, var(--accent), #8b5cf6);
+      opacity: 0; transition: opacity 0.2s;
+    }
+    .year-item:hover { 
+      border-color: var(--border-strong); 
+      transform: translateY(-1px);
+      box-shadow: var(--shadow);
+    }
+    .year-item:hover::before { opacity: 1; }
+    .year-item:active { transform: scale(0.98); }
+    .year-item.active-year { 
+      background: var(--surface); 
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-light), var(--shadow);
+    }
+    .year-item.active-year::before { opacity: 1; }
+    .year-header { display: flex; justify-content: space-between; align-items: center; }
+    .year-name { font-size: 15px; font-weight: 700; letter-spacing: -0.3px; }
+    .year-days { font-size: 22px; font-weight: 800; color: var(--accent); }
+    .year-bar-bg { 
+      width: 100%; height: 6px; background: var(--border); 
+      border-radius: 3px; margin-top: 10px; overflow: hidden; 
+    }
+    .year-bar-fill { 
+      height: 100%; 
+      background: linear-gradient(90deg, var(--accent), #8b5cf6, #0ea5e9); 
+      border-radius: 3px; width: 0%;
+      transition: width 0.8s cubic-bezier(0.22,1,0.36,1);
+      box-shadow: 0 0 10px var(--accent-glow);
+    }
+    .detail-inline { 
+      margin-top: 12px; padding: 16px;
+      background: var(--bg); border-radius: 14px; 
+      border: 1px solid var(--border);
+      animation: slideDown 0.3s cubic-bezier(0.22,1,0.36,1);
+    }
+    @keyframes slideDown { 
+      from { opacity: 0; transform: translateY(-8px) scale(0.98); } 
+      to { opacity: 1; transform: translateY(0) scale(1); } 
+    }
+    .detail-row { 
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 10px 0; border-bottom: 1px solid var(--border); 
+    }
+    .detail-row:last-child { border-bottom: none; }
+    .detail-info { flex: 1; min-width: 0; }
+    .detail-name { font-size: 14px; font-weight: 600; letter-spacing: -0.2px; }
+    .detail-days { font-size: 12px; color: var(--text-tertiary); font-weight: 500; }
+    .detail-period-total { font-size: 15px; font-weight: 700; color: var(--accent); }
+    .period-item { 
+      display: flex; justify-content: space-between; align-items: center; 
+      padding: 16px; background: var(--surface-solid);
+      border-radius: 14px; margin-bottom: 10px;
+      border: 1.5px solid var(--border); cursor: pointer; 
+      transition: all 0.25s cubic-bezier(0.22,1,0.36,1);
+      position: relative; overflow: hidden;
+    }
+    .period-item::before {
+      content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+      background: linear-gradient(180deg, var(--accent), #8b5cf6);
+      opacity: 0; transition: opacity 0.2s;
+    }
+    .period-item:hover { 
+      border-color: var(--border-strong); 
+      transform: translateY(-2px);
+      box-shadow: var(--shadow);
+    }
+    .period-item:hover::before { opacity: 1; }
+    .period-item:active { transform: scale(0.98); }
+    .period-info { flex: 1; min-width: 0; }
+    .period-name { 
+      font-size: 15px; font-weight: 700; 
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      letter-spacing: -0.3px;
+    }
+    .period-dates { font-size: 12px; color: var(--text-tertiary); margin-top: 2px; font-weight: 500; }
+    .period-days { 
+      font-size: 22px; font-weight: 800; color: var(--accent); 
+      margin-right: 8px; flex-shrink: 0;
+    }
+    .cert-status { 
+      display: inline-block; padding: 3px 8px; border-radius: 20px; 
+      font-size: 10px; font-weight: 700; margin-left: 8px; vertical-align: middle;
+      letter-spacing: 0.3px; text-transform: uppercase;
+    }
+    .cert-status.valid { background: rgba(16,185,129,0.12); color: var(--positive); }
+    .cert-status.warning { background: rgba(245,158,11,0.12); color: var(--warning); }
+    .cert-status.expired { background: rgba(239,68,68,0.12); color: var(--danger); }
+    .cert-item { 
+      display: flex; justify-content: space-between; align-items: center; 
+      padding: 16px; background: var(--surface-solid);
+      border-radius: 14px; margin-bottom: 10px;
+      border: 1.5px solid var(--border); cursor: pointer; 
+      transition: all 0.25s cubic-bezier(0.22,1,0.36,1);
+      position: relative; overflow: hidden;
+    }
+    .cert-item::before {
+      content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+      opacity: 0; transition: opacity 0.2s;
+    }
+    .cert-item.valid::before { background: var(--positive); opacity: 1; }
+    .cert-item.warning::before { background: var(--warning); opacity: 1; }
+    .cert-item.expired::before { background: var(--danger); opacity: 1; }
+    .cert-item:hover { 
+      border-color: var(--border-strong); 
+      transform: translateY(-2px);
+      box-shadow: var(--shadow);
+    }
+    .cert-item:active { transform: scale(0.98); }
+    .cert-info { flex: 1; min-width: 0; }
+    .cert-name { 
+      font-size: 15px; font-weight: 700; 
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      letter-spacing: -0.3px;
+    }
+    .cert-code { font-size: 12px; color: var(--text-tertiary); margin-top: 2px; font-weight: 500; }
+    .cert-days { font-size: 14px; font-weight: 700; margin-right: 4px; flex-shrink: 0; }
+    .cert-days.valid { color: var(--positive); }
+    .cert-days.warning { color: var(--warning); }
+    .cert-days.expired { color: var(--danger); }
+    .summary-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    .summary-cell { 
+      background: var(--surface-solid); border-radius: 16px; 
+      padding: 20px 10px; text-align: center; 
+      border: 1.5px solid var(--border);
+      transition: all 0.2s;
+    }
+    .summary-cell:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+    .summary-cell .num { font-size: 32px; font-weight: 800; letter-spacing: -1px; }
+    .summary-cell .lbl { 
+      font-size: 10px; color: var(--text-tertiary); margin-top: 6px; 
+      text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700;
+    }
+    .summary-cell.valid .num { color: var(--positive); }
+    .summary-cell.warning .num { color: var(--warning); }
+    .summary-cell.expired .num { color: var(--danger); }
+    .modal-overlay { 
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.4); backdrop-filter: blur(8px); 
+      -webkit-backdrop-filter: blur(8px);
+      z-index: 1000;
+      display: flex; align-items: flex-end; justify-content: center;
+      opacity: 0; visibility: hidden; transition: all 0.3s cubic-bezier(0.22,1,0.36,1); 
+    }
+    .modal-overlay.show { opacity: 1; visibility: visible; }
+    .modal-content { 
+      background: var(--surface-solid);
+      width: 100%; max-width: 560px;
+      border-radius: 24px 24px 0 0; 
+      padding: 28px 24px max(28px, env(safe-area-inset-bottom));
+      transform: translateY(100%); 
+      transition: transform 0.4s cubic-bezier(0.22,1,0.36,1);
+      box-shadow: 0 -8px 40px rgba(0,0,0,0.2);
+      border-top: 1px solid var(--border);
+    }
+    .modal-overlay.show .modal-content { transform: translateY(0); }
+    .modal-header { 
+      display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; 
+    }
+    .modal-title { font-size: 20px; font-weight: 800; letter-spacing: -0.5px; }
+    .modal-close { 
+      width: 36px; height: 36px; border-radius: 12px; border: none;
+      background: var(--bg); color: var(--text-secondary); font-size: 22px;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      transition: all 0.2s; font-weight: 300;
+    }
+    .modal-close:hover { background: var(--border-strong); color: var(--text); }
+    .modal-actions { display: flex; gap: 12px; margin-top: 20px; }
+    .modal-actions .btn { margin-top: 0; flex: 1; }
+    .empty-state { text-align: center; padding: 40px 20px; color: var(--text-tertiary); }
+    .empty-state svg { width: 56px; height: 56px; margin-bottom: 14px; opacity: 0.3; }
+    .empty-state p { font-size: 14px; font-weight: 500; }
+    .hidden { display: none !important; }
+    .fade-in { animation: fadeIn 0.4s cubic-bezier(0.22,1,0.36,1); }
+    @keyframes fadeIn { 
+      from { opacity: 0; transform: translateY(12px) scale(0.98); } 
+      to { opacity: 1; transform: translateY(0) scale(1); } 
+    }
+    .badge { 
+      display: inline-block; padding: 3px 8px; border-radius: 20px; 
+      font-size: 10px; font-weight: 700; margin-left: 6px;
+      background: rgba(245,158,11,0.12); color: var(--warning);
+      letter-spacing: 0.3px; text-transform: uppercase;
+    }
+    .section-title { 
+      font-size: 20px; font-weight: 800; margin-bottom: 14px; margin-top: 4px;
+      letter-spacing: -0.5px;
+    }
+    .toast { 
+      position: fixed; bottom: 24px; left: 50%; 
+      transform: translateX(-50%) translateY(100px);
+      background: var(--text); color: var(--surface-solid); 
+      padding: 14px 28px; border-radius: 14px;
+      font-size: 14px; font-weight: 600; 
+      box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+      z-index: 1001; transition: all 0.4s cubic-bezier(0.22,1,0.36,1); 
+      pointer-events: none; letter-spacing: -0.2px;
+      border: 1px solid var(--border);
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); }
+    .backup-row { display: flex; gap: 12px; margin-top: 12px; }
+    .backup-row .btn { flex: 1; font-size: 15px; padding: 12px; margin-top: 0; }
+    .backup-row .btn-secondary { background: var(--positive); }
+    .backup-row .btn-warning { background: var(--warning); }
+    .ios-notice { 
+      background: var(--accent-light); color: var(--accent); 
+      padding: 14px 16px; border-radius: 14px; font-size: 13px; 
+      line-height: 1.6; margin-bottom: 16px; border: 1.5px solid var(--accent-glow);
+      font-weight: 500;
+    }
+    #importFile { display: none; }
+    .lang-row { 
+      display: flex; align-items: center; justify-content: space-between; 
+      margin-bottom: 16px; padding: 6px 0; 
+    }
+    .lang-row label { font-size: 15px; font-weight: 700; letter-spacing: -0.2px; }
+    .lang-row select {
+      width: auto; min-width: 140px; padding: 10px 36px 10px 14px;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 12px center;
+      font-weight: 600;
+    }
+    .spinner {
+      display: inline-block;
+      width: 16px; height: 16px;
+      border: 2.5px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin-loader 0.7s linear infinite;
+      vertical-align: middle;
+      margin-left: 6px;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+    .spinner.show { opacity: 1; }
+    @keyframes spin-loader { to { transform: rotate(360deg); } }
+    [id^="page-"] {
+      animation: pageEnter 0.35s cubic-bezier(0.22,1,0.36,1);
+    }
+    @keyframes pageEnter {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--text-tertiary); }
+    .splash-dismiss {
+      position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%);
+      background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
+      color: rgba(255,255,255,0.6); padding: 10px 24px; border-radius: 30px;
+      font-size: 13px; font-weight: 600; cursor: pointer; backdrop-filter: blur(10px);
+      z-index: 10000; opacity: 0; transition: opacity 0.5s; letter-spacing: 0.3px;
+    }
+    .splash-dismiss.show { opacity: 1; }
+    .splash-dismiss:hover { background: rgba(255,255,255,0.2); color: white; }
+  </style>
+
+<body>
+  <div id="splash">
+    <img class="wheel" src="timone.png" width="280" height="280" alt="Day Counter">
+    <h2>Day Counter</h2>
+    <button class="splash-dismiss" id="splashDismiss" onclick="forceHideSplash()">Tocca per continuare</button>
+  </div>
+
+  <div class="container">
+    <div class="nav-bar">
+      <button class="nav-btn active" onclick="showPage('dashboard')" id="nav-dash" data-i18n="dashboard">Dashboard</button>
+      <button class="nav-btn" onclick="showPage('calculator')" id="nav-calc" data-i18n="calcola">Calcola</button>
+      <button class="nav-btn" onclick="showPage('certificates')" id="nav-cert" data-i18n="certificati">Certificati</button>
+      <button class="nav-btn menu-btn" onclick="openMenu()" id="nav-menu">☰</button>
+    </div>
+
+    <div id="page-dashboard">
+      <h1 data-i18n="dashboard">Dashboard</h1>
+      <div class="card grand-total">
+        <div class="year-select-wrap">
+          <select id="dashYearSelect" onchange="renderDashboard()">
+            <option value="all" data-i18n="tuttiAnni">Tutti gli anni</option>
+          </select>
+        </div>
+        <div class="total-number" id="dashTotalDays">0</div>
+        <div class="total-label" id="dashTotalLabel" data-i18n="giorniTotali">giorni totali salvati</div>
+      </div>
+      <div class="card">
+        <div class="card-title" data-i18n="riepilogoCert">Riepilogo certificati</div>
+        <div class="summary-grid" id="certSummary">
+          <div class="summary-cell valid"><div class="num" id="dashCertValid">0</div><div class="lbl" data-i18n="validi">Validi</div></div>
+          <div class="summary-cell warning"><div class="num" id="dashCertWarn">0</div><div class="lbl" data-i18n="inScadenza">In scadenza</div></div>
+          <div class="summary-cell expired"><div class="num" id="dashCertExp">0</div><div class="lbl" data-i18n="scaduti">Scaduti</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="page-calculator" class="hidden">
+      <h1 data-i18n="calcola">Calcola</h1>
+      <div class="target-box">
+        <label data-i18n="giorniTarget">Giorni target</label>
+        <input type="number" id="targetDays" placeholder="0" min="0" onchange="saveTarget()">
+      </div>
+      <div class="card">
+        <div class="card-title" data-i18n="selezionaPeriodo">Seleziona il periodo</div>
+        <div class="input-group">
+          <div class="input-row"><label data-i18n="da">Da</label><input type="date" id="startDate"></div>
+          <div class="input-row"><label data-i18n="a">A</label><input type="date" id="endDate"></div>
+          <div class="input-row"><label style="min-width:44px" data-i18n="nome">Nome</label>
+            <input type="text" id="periodName" placeholder="Es. Progetto Alpha, Vacanza..."></div>
+          <button class="btn" onclick="calculate()" data-i18n="calcolaSalva">Calcola e salva</button>
+          <button class="btn" onclick="resetCalculator()" style="background:var(--text-secondary); margin-top:10px; box-shadow:none;" data-i18n="reset">Reset</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+          <div class="card-title" data-i18n="ripartizioneGlobale" style="margin-bottom:0;">Ripartizione annuale globale</div>
+          <div style="text-align:right;">
+            <div id="calcTotalDays" style="font-size:32px; font-weight:800; background:linear-gradient(135deg,var(--accent),#8b5cf6); -webkit-background-clip:text; -webkit-text-fill-color:transparent; line-height:1;">0</div>
+            <div style="font-size:11px; color:var(--text-tertiary); text-transform:uppercase; letter-spacing:0.5px; font-weight:700;" data-i18n="giorniTotali">giorni totali salvati</div>
+          </div>
+        </div>
+        <div id="calcGlobalYearList"></div>
+      </div>
+      <div class="card">
+        <div class="section-title" data-i18n="periodiSalvati">Periodi salvati</div>
+        <div id="calcSavedPeriodsList"></div>
+      </div>
+    </div>
+
+    <div id="page-certificates" class="hidden">
+      <h1 data-i18n="certificati">Certificati</h1>
+      <div class="card">
+        <div class="card-title" data-i18n="aggiungiCert">Aggiungi certificato</div>
+        <div class="input-group">
+          <div class="input-row"><label style="min-width:50px" data-i18n="nome">Nome</label><input type="text" id="certName" placeholder="Es. Brevetto nautico..."></div>
+          <div class="input-row"><label style="min-width:50px" data-i18n="codice">Codice</label><input type="text" id="certCode" placeholder="Es. ABC-12345"></div>
+          <div class="input-row"><label style="min-width:50px" data-i18n="scad">Scad.</label><input type="date" id="certExpiry"></div>
+          <div class="input-row"><label style="min-width:50px" data-i18n="allegato">Allegato</label>
+            <input type="file" id="certFile" accept="image/*,application/pdf" style="flex:1; padding:8px 0; border:none; background:transparent; font-size:14px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:100%;">
+          </div>
+          <button class="btn" onclick="addCertificate()" data-i18n="aggiungi">Aggiungi</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="section-title" data-i18n="certificatiSalvati">Certificati salvati</div>
+        <div id="certificatesList"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="menuOverlay" onclick="closeMenu(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <div class="modal-title" data-i18n="menu">Menu</div>
+        <button class="modal-close" onclick="closeMenu()">&times;</button>
+      </div>
+      <div class="lang-row">
+        <label data-i18n="lingua">Lingua</label>
+        <select id="langSelect" onchange="changeLang(this.value)">
+          <option value="it">Italiano</option>
+          <option value="en">English</option>
+        </select>
+      </div>
+      <div class="ios-notice" id="iosNotice">
+        <strong data-i18n="notaIOS">Nota iOS:</strong> <span data-i18n="notaIOSText">salvando la PWA sulla schermata Home, i dati del browser non si trasferiscono automaticamente. Usa "Esporta" dal browser, poi "Importa" dall'app installata.</span>
+      </div>
+      <div class="backup-row">
+        <button class="btn btn-secondary" onclick="exportData()" data-i18n="esporta">Esporta dati</button>
+        <button class="btn btn-warning" onclick="document.getElementById('importFile').click()" data-i18n="importa">Importa dati</button>
+      </div>
+      <div class="backup-row" style="margin-top:12px;">
+        <button class="btn" style="background:linear-gradient(135deg,var(--accent),#8b5cf6);" onclick="downloadPDF('all')" data-i18n="pdfTutto">PDF completo</button>
+        <button class="btn btn-secondary" onclick="downloadPDF('days')" data-i18n="pdfGiorni">PDF giorni</button>
+        <button class="btn btn-warning" onclick="downloadPDF('certs')" data-i18n="pdfCert">PDF certificati</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="editModal" onclick="closeEditModal(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <div class="modal-title" data-i18n="modificaPeriodo">Modifica periodo</div>
+        <button class="modal-close" onclick="closeEditModal()">&times;</button>
+      </div>
+      <div class="input-group">
+        <div class="input-row"><label style="min-width:44px" data-i18n="nome">Nome</label><input type="text" id="editName"></div>
+        <div class="input-row"><label data-i18n="da">Da</label><input type="date" id="editStart"></div>
+        <div class="input-row"><label data-i18n="a">A</label><input type="date" id="editEnd"></div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-danger" onclick="deleteEditPeriod()" data-i18n="elimina">Elimina</button>
+        <button class="btn" onclick="saveEditPeriod()" data-i18n="salva">Salva</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="certModal" onclick="closeCertModal(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <div class="modal-title" data-i18n="modificaCert">Modifica certificato</div>
+        <button class="modal-close" onclick="closeCertModal()">&times;</button>
+      </div>
+      <div class="input-group">
+        <div class="input-row"><label style="min-width:50px" data-i18n="nome">Nome</label><input type="text" id="editCertName"></div>
+        <div class="input-row"><label style="min-width:50px" data-i18n="codice">Codice</label><input type="text" id="editCertCode"></div>
+        <div class="input-row"><label style="min-width:50px" data-i18n="scad">Scad.</label><input type="date" id="editCertExpiry"></div>
+        <div class="input-row" id="editCertFileRow"><label style="min-width:50px" data-i18n="allegato">Allegato</label>
+          <div style="flex:1; display:flex; align-items:center; gap:8px;">
+            <span id="editCertFileName" style="font-size:14px; color:var(--text-tertiary); flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;"></span>
+            <button type="button" class="btn" style="flex:0 0 auto; width:auto; padding:8px 14px; font-size:13px; margin-top:0;" onclick="downloadEditAttachment()" data-i18n="scarica">Scarica</button>
+            <button type="button" class="btn btn-danger" style="flex:0 0 auto; width:auto; padding:8px 14px; font-size:13px; margin-top:0;" onclick="removeEditAttachment()" data-i18n="rimuovi">Rimuovi</button>
+          </div>
+        </div>
+        <div class="input-row" id="editCertFileNewRow"><label style="min-width:50px" data-i18n="nuovoAllegato">Nuovo</label><input type="file" id="editCertFile" accept="image/*,application/pdf" style="padding:8px 0; border:none; background:transparent; font-size:14px;"></div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-danger" onclick="deleteEditCert()" data-i18n="elimina">Elimina</button>
+        <button class="btn" onclick="saveEditCert()" data-i18n="salva">Salva</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+  <input type="file" id="importFile" accept=".json" onchange="importData(event)">
+
+  <script>
+
+    // ===== I18N =====
+    const LANG_KEY = 'daycounter_lang';
+    const i18n = {
+      it: {
+        dashboard: 'Dashboard', calcola: 'Calcola', certificati: 'Certificati', menu: 'Menu',
+        tuttiAnni: 'Tutti gli anni', giorniTotali: 'giorni totali salvati',
+        riepilogoCert: 'Riepilogo certificati', validi: 'Validi', inScadenza: 'In scadenza', scaduti: 'Scaduti',
+        giorniTarget: 'Giorni target', selezionaPeriodo: 'Seleziona il periodo',
+        da: 'Da', a: 'A', nome: 'Nome', calcolaSalva: 'Calcola e salva', reset: 'Reset',
+        ripartizioneGlobale: 'Ripartizione annuale globale', periodiSalvati: 'Periodi salvati',
+        aggiungiCert: 'Aggiungi certificato', codice: 'Codice', scad: 'Scad.',
+        aggiungi: 'Aggiungi', certificatiSalvati: 'Certificati salvati',
+        modificaPeriodo: 'Modifica periodo', modificaCert: 'Modifica certificato',
+        elimina: 'Elimina', salva: 'Salva',
+        notaIOS: 'Nota iOS:', notaIOSText: 'salvando la PWA sulla schermata Home, i dati del browser non si trasferiscono automaticamente. Usa "Esporta" dal browser, poi "Importa" dall'app installata.',
+        esporta: 'Esporta dati', importa: 'Importa dati', lingua: 'Lingua',
+        nessunCert: 'Nessun certificato salvato', nessunPeriodo: 'Nessun periodo salvato',
+        nessunDato: 'Nessun dato disponibile', compilaTutti: 'Compila tutti i campi',
+        certAggiunto: 'Certificato aggiunto', certAggiornato: 'Certificato aggiornato',
+        certEliminato: 'Certificato eliminato', periodoSalvato: 'Periodo salvato!',
+        campiResettati: 'Campi resettati', periodoAggiornato: 'Periodo aggiornato',
+        periodoEliminato: 'Periodo eliminato', backupScaricato: 'Backup scaricato!',
+        fileNonValido: 'File non valido', erroreJSON: 'Errore nel file JSON',
+        datiImportati: 'Dati importati con successo!', erroreSalvataggio: 'Errore nel salvataggio allegato', selezionaDate: 'Seleziona entrambe le date',
+        fineDopoInizio: 'La data di fine deve essere successiva alla data di inizio',
+        inserisciDate: 'Inserisci entrambe le date', fineDopoInizio2: "La fine deve essere dopo l'inizio",
+        importaPeriodi: (n) => `Importare ${n} periodi?`, datiSostituiti: 'I dati attuali verranno sostituiti.',
+        eliminaCert: 'Eliminare questo certificato?', eliminaPeriodo: 'Eliminare questo periodo?',
+        allegato: 'Allegato', nuovoAllegato: 'Nuovo allegato', scarica: 'Scarica', rimuovi: 'Rimuovi',
+        pdfTutto: 'PDF completo', pdfGiorni: 'PDF giorni', pdfCert: 'PDF certificati',
+        bisestile: 'bisestile', giorniAnno: (y) => `giorni nell'anno ${y}`,
+        target: 'Target', giorniMancanti: 'giorni mancanti al target',
+        giorniOltre: 'giorni oltre il target', totaleAnno: (y) => `Totale anno ${y}`,
+        tra: 'tra', ggFa: 'gg fa', gg: 'gg', scaduto: 'Scaduto', inScadenzaLabel: 'In scadenza',
+        valido: 'Valido', periodoDefault: 'Periodo', anno: 'Anno'
+      },
+      en: {
+        dashboard: 'Dashboard', calcola: 'Calculate', certificati: 'Certificates', menu: 'Menu',
+        tuttiAnni: 'All years', giorniTotali: 'total saved days',
+        riepilogoCert: 'Certificates summary', validi: 'Valid', inScadenza: 'Expiring soon', scaduti: 'Expired',
+        giorniTarget: 'Target days', selezionaPeriodo: 'Select period',
+        da: 'From', a: 'To', nome: 'Name', calcolaSalva: 'Calculate & save', reset: 'Reset',
+        ripartizioneGlobale: 'Global yearly breakdown', periodiSalvati: 'Saved periods',
+        aggiungiCert: 'Add certificate', codice: 'Code', scad: 'Exp.',
+        aggiungi: 'Add', certificatiSalvati: 'Saved certificates',
+        modificaPeriodo: 'Edit period', modificaCert: 'Edit certificate',
+        elimina: 'Delete', salva: 'Save',
+        notaIOS: 'iOS Note:', notaIOSText: 'when saving the PWA to the Home screen, browser data does not transfer automatically. Use "Export" from the browser, then "Import" from the installed app.',
+        esporta: 'Export data', importa: 'Import data', lingua: 'Language',
+        nessunCert: 'No certificates saved', nessunPeriodo: 'No periods saved',
+        nessunDato: 'No data available', compilaTutti: 'Fill in all fields',
+        certAggiunto: 'Certificate added', certAggiornato: 'Certificate updated',
+        certEliminato: 'Certificate deleted', periodoSalvato: 'Period saved!',
+        campiResettati: 'Fields reset', periodoAggiornato: 'Period updated',
+        periodoEliminato: 'Period deleted', backupScaricato: 'Backup downloaded!',
+        fileNonValido: 'Invalid file', erroreJSON: 'JSON file error',
+        datiImportati: 'Data imported successfully!', erroreSalvataggio: 'Error saving attachment', selezionaDate: 'Select both dates',
+        fineDopoInizio: 'End date must be after start date',
+        inserisciDate: 'Enter both dates', fineDopoInizio2: 'End must be after start',
+        importaPeriodi: (n) => `Import ${n} periods?`, datiSostituiti: 'Current data will be replaced.',
+        eliminaCert: 'Delete this certificate?', eliminaPeriodo: 'Delete this period?',
+        allegato: 'Attachment', nuovoAllegato: 'New attachment', scarica: 'Download', rimuovi: 'Remove',
+        pdfTutto: 'Full PDF', pdfGiorni: 'PDF days', pdfCert: 'PDF certificates',
+        bisestile: 'leap year', giorniAnno: (y) => `days in year ${y}`,
+        target: 'Target', giorniMancanti: 'days missing to target',
+        giorniOltre: 'days over target', totaleAnno: (y) => `Year ${y} total`,
+        tra: 'in', ggFa: 'days ago', gg: 'days', scaduto: 'Expired', inScadenzaLabel: 'Expiring',
+        valido: 'Valid', periodoDefault: 'Period', anno: 'Year'
+      }
+    };
+
+    function getLang() {
+      try { return localStorage.getItem(LANG_KEY) || 'it'; } catch(e) { return 'it'; }
+    }
+    function setLang(lang) {
+      localStorage.setItem(LANG_KEY, lang);
+      applyLang();
+      renderDashboard();
+      renderCalcData();
+      renderCertificates();
+    }
+    function changeLang(lang) {
+      setLang(lang);
+      document.getElementById('langSelect').value = lang;
+    }
+    function t(key, ...args) {
+      const lang = getLang();
+      const val = i18n[lang]?.[key] ?? i18n['it'][key] ?? key;
+      return typeof val === 'function' ? val(...args) : val;
+    }
+    function applyLang() {
+      const lang = getLang();
+      document.documentElement.lang = lang;
+      document.getElementById('langSelect').value = lang;
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        const val = t(key);
+        if (el.tagName === 'INPUT' && el.placeholder) {
+        } else {
+          el.textContent = val;
+        }
+      });
+      document.getElementById('periodName').placeholder = lang === 'en' ? 'e.g. Project Alpha, Vacation...' : 'Es. Progetto Alpha, Vacanza...';
+      document.getElementById('certName').placeholder = lang === 'en' ? 'e.g. Sailing license...' : 'Es. Brevetto nautico...';
+      document.getElementById('certCode').placeholder = lang === 'en' ? 'e.g. ABC-12345' : 'Es. ABC-12345';
+    }
+
+    let editingId = null;
+    let editingCertId = null;
+    let editingCertAttachment = null;
+    let editingCertHasAttachment = false;
+    let editingCertAttachmentName = '';
+    let editingCertRemoveAttachment = false;
+    let openYear = null;
+
+    const ATTACHMENT_DB = 'daycounter_attachments';
+    const ATTACHMENT_STORE = 'attachments';
+    let attachmentDB = null;
+
+    function openAttachmentDB() {
+      return new Promise((resolve, reject) => {
+        if (attachmentDB) return resolve(attachmentDB);
+        const req = indexedDB.open(ATTACHMENT_DB, 1);
+        req.onupgradeneeded = (e) => {
+          const db = e.target.result;
+          if (!db.objectStoreNames.contains(ATTACHMENT_STORE)) {
+            db.createObjectStore(ATTACHMENT_STORE, { keyPath: 'id' });
+          }
+        };
+        req.onsuccess = (e) => { attachmentDB = e.target.result; resolve(attachmentDB); };
+        req.onerror = (e) => reject(e);
+      });
+    }
+    async function saveAttachment(id, attachment) {
+      const db = await openAttachmentDB();
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(ATTACHMENT_STORE, 'readwrite');
+        const store = tx.objectStore(ATTACHMENT_STORE);
+        const req = store.put({ id, attachment });
+        req.onsuccess = () => resolve();
+        req.onerror = () => reject(req.error);
+      });
+    }
+    async function getAttachment(id) {
+      const db = await openAttachmentDB();
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(ATTACHMENT_STORE, 'readonly');
+        const store = tx.objectStore(ATTACHMENT_STORE);
+        const req = store.get(id);
+        req.onsuccess = () => resolve(req.result?.attachment || null);
+        req.onerror = () => reject(req.error);
+      });
+    }
+    async function deleteAttachment(id) {
+      const db = await openAttachmentDB();
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(ATTACHMENT_STORE, 'readwrite');
+        const store = tx.objectStore(ATTACHMENT_STORE);
+        const req = store.delete(id);
+        req.onsuccess = () => resolve();
+        req.onerror = () => reject(req.error);
+      });
+    }
+    const STORAGE_KEY = 'daycounter_periods';
+    const TARGET_KEY = 'daycounter_target';
+    const CERT_KEY = 'daycounter_certificates';
+
+    function isLeapYear(year) {
+      return (year % 4 === 0 && year % 100 !== 0) || (year % 400 === 0);
+    }
+    function formatDateIT(dateStr) {
+      const d = new Date(dateStr + 'T00:00:00');
+      const lang = getLang();
+      return d.toLocaleDateString(lang === 'en' ? 'en-US' : 'it-IT', { day: 'numeric', month: 'short', year: 'numeric' });
+    }
+    function toast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg; t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2200);
+    }
+    function anim(el, target, dur) {
+      const s = performance.now();
+      (function tick(now) {
+        const p = Math.min((now - s) / dur, 1);
+        const ease = 1 - Math.pow(1 - p, 3);
+        const locale = getLang() === 'en' ? 'en-US' : 'it-IT';
+        el.textContent = Math.floor(target * ease).toLocaleString(locale);
+        if (p < 1) requestAnimationFrame(tick);
+      })(s);
+    }
+    function getSavedPeriods() {
+      try {
+        const currentData = localStorage.getItem(STORAGE_KEY);
+        const v2Data = localStorage.getItem('daycounter_periods_v2');
+        let periods = currentData ? JSON.parse(currentData) : [];
+        if (v2Data) {
+          const v2Periods = JSON.parse(v2Data);
+          if (Array.isArray(v2Periods)) {
+            const existingIds = new Set(periods.map(p => p.id));
+            v2Periods.forEach(p => { if (!existingIds.has(p.id)) periods.push(p); });
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(periods));
+          }
+        }
+        return periods;
+      } catch (e) { return []; }
+    }
+    function savePeriods(periods) { localStorage.setItem(STORAGE_KEY, JSON.stringify(periods)); }
+    function getTarget() {
+      try { const t = localStorage.getItem(TARGET_KEY); return t ? parseInt(t, 10) : 0; }
+      catch (e) { return 0; }
+    }
+    function saveTarget() {
+      const val = document.getElementById('targetDays').value;
+      localStorage.setItem(TARGET_KEY, val || '0');
+    }
+    function recalcPeriod(p) {
+      const start = new Date(p.start + 'T00:00:00'), end = new Date(p.end + 'T00:00:00');
+      const years = []; let total = 0;
+      const sy = start.getFullYear(), ey = end.getFullYear();
+      for (let y = sy; y <= ey; y++) {
+        let ys, ye;
+        if (y === sy && y === ey) { ys = new Date(start); ye = new Date(end); }
+        else if (y === sy) { ys = new Date(start); ye = new Date(y, 11, 31); }
+        else if (y === ey) { ys = new Date(y, 0, 1); ye = new Date(end); }
+        else { ys = new Date(y, 0, 1); ye = new Date(y, 11, 31); }
+        const days = Math.floor((ye - ys) / 86400000) + 1;
+        years.push({ year: y, days: days, leap: isLeapYear(y) });
+        total += days;
+      }
+      const maxD = Math.max(...years.map(x => x.days));
+      years.forEach(x => x.pct = (x.days / maxD) * 100);
+      p.total = total; p.years = years;
+      return p;
+    }
+
+    function getCertificates() {
+      try { return JSON.parse(localStorage.getItem(CERT_KEY)) || []; } catch(e) { return []; }
+    }
+    function saveCertificates(certs) { localStorage.setItem(CERT_KEY, JSON.stringify(certs)); }
+    function getCertStatus(expiryStr) {
+      const today = new Date(); today.setHours(0,0,0,0);
+      const exp = new Date(expiryStr + 'T00:00:00');
+      const diffMs = exp - today;
+      const diffDays = Math.ceil(diffMs / 86400000);
+      if (diffDays < 0) return { class: 'expired', label: t('scaduto'), days: diffDays };
+      if (diffDays <= 90) return { class: 'warning', label: t('inScadenzaLabel'), days: diffDays };
+      return { class: 'valid', label: t('valido'), days: diffDays };
+    }
+
+    // Robust splash hiding system
+    function hideSplash() {
+      var splash = document.getElementById('splash');
+      if (!splash) return;
+      splash.classList.add('splash-done');
+      // Hard remove after transition
+      setTimeout(function() {
+        if (splash && splash.parentNode) splash.parentNode.removeChild(splash);
+      }, 1200);
+    }
+    function forceHideSplash() {
+      var splash = document.getElementById('splash');
+      if (splash && splash.parentNode) splash.parentNode.removeChild(splash);
+    }
+    // Primary: hide after 2s when DOM is ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', function() {
+        setTimeout(hideSplash, 2000);
+      });
+    } else {
+      setTimeout(hideSplash, 2000);
+    }
+    // Secondary: hard kill at 5s
+    setTimeout(function() {
+      var splash = document.getElementById('splash');
+      if (splash) forceHideSplash();
+    }, 5000);
+    // Tertiary: show manual button at 3.5s if still stuck
+    setTimeout(function() {
+      var btn = document.getElementById('splashDismiss');
+      var splash = document.getElementById('splash');
+      if (btn && splash) btn.classList.add('show');
+    }, 3500);
+    // Emergency: any JS error kills splash
+    window.addEventListener('error', function() {
+      forceHideSplash();
+    });
+
+    function showPage(page) {
+      closeMenu();
+      ['dashboard','calculator','certificates'].forEach(p => {
+        document.getElementById('page-' + p).classList.add('hidden');
+        const navId = p === 'dashboard' ? 'nav-dash' : p === 'calculator' ? 'nav-calc' : 'nav-cert';
+        document.getElementById(navId).classList.remove('active');
+      });
+      document.getElementById('page-' + page).classList.remove('hidden');
+      const activeNavId = page === 'dashboard' ? 'nav-dash' : page === 'calculator' ? 'nav-calc' : 'nav-cert';
+      document.getElementById(activeNavId).classList.add('active');
+      if (page === 'dashboard') renderDashboard();
+      if (page === 'calculator') renderCalcData();
+      if (page === 'certificates') renderCertificates();
+    }
+
+    function openMenu() {
+      document.getElementById('menuOverlay').classList.add('show');
+    }
+    function closeMenu(e) {
+      if (e && e.target !== e.currentTarget) return;
+      document.getElementById('menuOverlay').classList.remove('show');
+    }
+
+    function renderDashboard() {
+      const periods = getSavedPeriods();
+      const certs = getCertificates();
+      const select = document.getElementById('dashYearSelect');
+      const currentVal = select.value;
+      const yearSet = new Set();
+      periods.forEach(p => p.years.forEach(y => yearSet.add(y.year)));
+      const years = Array.from(yearSet).sort((a, b) => a - b);
+      let opts = `<option value="all">${t('tuttiAnni')}</option>`;
+      years.forEach(y => { opts += `<option value="${y}">${t('anno')} ${y}</option>`; });
+      select.innerHTML = opts;
+      if (currentVal && (currentVal === 'all' || yearSet.has(parseInt(currentVal)))) {
+        select.value = currentVal;
+      } else { select.value = 'all'; }
+      const selected = select.value;
+      let total = 0;
+      let label = '';
+      if (selected === 'all') {
+        total = periods.reduce((sum, p) => sum + p.total, 0);
+        label = t('giorniTotali');
+      } else {
+        const y = parseInt(selected);
+        total = periods.reduce((sum, p) => {
+          const py = p.years.find(x => x.year === y);
+          return sum + (py ? py.days : 0);
+        }, 0);
+        label = t('giorniAnno', y);
+      }
+      anim(document.getElementById('dashTotalDays'), total, 700);
+      document.getElementById('dashTotalLabel').textContent = label;
+      let valid = 0, warn = 0, exp = 0;
+      certs.forEach(c => {
+        const s = getCertStatus(c.expiry);
+        if (s.class === 'valid') valid++;
+        else if (s.class === 'warning') warn++;
+        else exp++;
+      });
+      document.getElementById('dashCertValid').textContent = valid;
+      document.getElementById('dashCertWarn').textContent = warn;
+      document.getElementById('dashCertExp').textContent = exp;
+    }
+
+    function addCertificate() {
+      const name = document.getElementById('certName').value.trim();
+      const code = document.getElementById('certCode').value.trim();
+      const expiry = document.getElementById('certExpiry').value;
+      if (!name || !expiry) { toast(t('compilaTutti')); return; }
+      const fileInput = document.getElementById('certFile');
+      async function doSave(hasAttachment, attachmentData) {
+        const certs = getCertificates();
+        const newId = Date.now();
+        certs.push({ id: newId, name, code, expiry, hasAttachment, attachmentName: attachmentData?.name || '' });
+        saveCertificates(certs);
+        if (hasAttachment && attachmentData) {
+          try { await saveAttachment(newId, attachmentData); }
+          catch(err) { toast(t('erroreSalvataggio')); }
+        }
+        document.getElementById('certName').value = '';
+        document.getElementById('certCode').value = '';
+        document.getElementById('certExpiry').value = '';
+        document.getElementById('certFile').value = '';
+        renderCertificates();
+        toast(t('certAggiunto'));
+      }
+      if (fileInput.files && fileInput.files[0]) {
+        const file = fileInput.files[0];
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          doSave(true, { name: file.name, type: file.type, data: e.target.result });
+        };
+        reader.onerror = function() {
+          toast(t('erroreSalvataggio'));
+        };
+        reader.readAsDataURL(file);
+      } else {
+        doSave(false, null);
+      }
+    }
+
+    function renderCertificates() {
+      const list = document.getElementById('certificatesList');
+      const certs = getCertificates();
+      if (certs.length === 0) {
+        list.innerHTML = `<div class="empty-state"><p style="font-size:13px">${t('nessunCert')}</p></div>`;
+        return;
+      }
+      const sorted = certs.slice().sort((a, b) => new Date(a.expiry) - new Date(b.expiry));
+      list.innerHTML = '';
+      sorted.forEach(c => {
+        const s = getCertStatus(c.expiry);
+        const div = document.createElement('div');
+        div.className = 'cert-item ' + s.class;
+        div.onclick = () => openCertModal(c.id);
+        const daysText = s.days >= 0 ? `${t('tra')} ${s.days} ${t('gg')}` : `${Math.abs(s.days)} ${t('ggFa')}`;
+        const attachIcon = c.hasAttachment ? `<span style="margin-left:6px;opacity:0.6;">📎</span>` : '';
+        div.innerHTML = `<div class="cert-info">
+          <div class="cert-name">${escapeHtml(c.name)}${attachIcon} <span class="cert-status ${s.class}">${s.label}</span></div>
+          <div class="cert-code">${t('codice')}: ${escapeHtml(c.code)} — ${t('scad')}: ${formatDateIT(c.expiry)}</div>
+        </div>
+        <div class="cert-days ${s.class}">${daysText}</div>`;
+        list.appendChild(div);
+      });
+    }
+
+    async function openCertModal(id) {
+      const certs = getCertificates();
+      const c = certs.find(x => x.id === id);
+      if (!c) return;
+      editingCertId = id;
+      editingCertHasAttachment = c.hasAttachment || false;
+      editingCertAttachmentName = c.attachmentName || '';
+      editingCertAttachment = null;
+      if (editingCertHasAttachment) {
+        try { editingCertAttachment = await getAttachment(id); }
+        catch(e) { editingCertAttachment = null; }
+      }
+      editingCertRemoveAttachment = false;
+      document.getElementById('editCertName').value = c.name;
+      document.getElementById('editCertCode').value = c.code;
+      document.getElementById('editCertExpiry').value = c.expiry;
+      document.getElementById('editCertFile').value = '';
+      updateEditAttachmentUI();
+      document.getElementById('certModal').classList.add('show');
+    }
+    function closeCertModal(e) {
+      if (e && e.target !== e.currentTarget) return;
+      document.getElementById('certModal').classList.remove('show');
+      editingCertId = null;
+      editingCertAttachment = null;
+      editingCertHasAttachment = false;
+      editingCertAttachmentName = '';
+      editingCertRemoveAttachment = false;
+    }
+    async function saveEditCert() {
+      if (!editingCertId) return;
+      const certs = getCertificates();
+      const idx = certs.findIndex(x => x.id === editingCertId);
+      if (idx === -1) return;
+      const name = document.getElementById('editCertName').value.trim();
+      const code = document.getElementById('editCertCode').value.trim();
+      const expiry = document.getElementById('editCertExpiry').value;
+      if (!name || !expiry) { toast(t('compilaTutti')); return; }
+      let hasAttachment = editingCertHasAttachment && !editingCertRemoveAttachment;
+      let attachmentName = editingCertAttachmentName;
+      const fileInput = document.getElementById('editCertFile');
+      if (fileInput.files && fileInput.files[0]) {
+        const file = fileInput.files[0];
+        const reader = new FileReader();
+        reader.onload = async function(e) {
+          const att = { name: file.name, type: file.type, data: e.target.result };
+          try { await saveAttachment(editingCertId, att); } catch(err) { toast(t('erroreSalvataggio')); }
+          certs[idx] = { ...certs[idx], name, code, expiry, hasAttachment: true, attachmentName: file.name };
+          saveCertificates(certs);
+          closeCertModal(); renderCertificates(); toast(t('certAggiornato'));
+        };
+        reader.readAsDataURL(file);
+        return;
+      }
+      if (editingCertRemoveAttachment) {
+        try { await deleteAttachment(editingCertId); } catch(e) {}
+        hasAttachment = false;
+        attachmentName = '';
+      }
+      certs[idx] = { ...certs[idx], name, code, expiry, hasAttachment, attachmentName };
+      saveCertificates(certs);
+      closeCertModal(); renderCertificates(); toast(t('certAggiornato'));
+    }
+    async function deleteEditCert() {
+      if (!editingCertId) return;
+      if (!confirm(t('eliminaCert'))) return;
+      const certs = getCertificates();
+      const cert = certs.find(x => x.id === editingCertId);
+      if (cert && cert.hasAttachment) {
+        try { await deleteAttachment(editingCertId); } catch(e) {}
+      }
+      const filtered = certs.filter(x => x.id !== editingCertId);
+      saveCertificates(filtered);
+      closeCertModal(); renderCertificates(); toast(t('certEliminato'));
+    }
+
+    function getDaysInRange(startStr, endStr) {
+      const start = new Date(startStr + 'T00:00:00');
+      const end = new Date(endStr + 'T00:00:00');
+      if (end < start) return { error: t('fineDopoInizio') };
+      const result = []; let totalDays = 0;
+      const startYear = start.getFullYear(), endYear = end.getFullYear();
+      for (let year = startYear; year <= endYear; year++) {
+        let yearStart, yearEnd;
+        if (year === startYear && year === endYear) { yearStart = new Date(start); yearEnd = new Date(end); }
+        else if (year === startYear) { yearStart = new Date(start); yearEnd = new Date(year, 11, 31); }
+        else if (year === endYear) { yearStart = new Date(year, 0, 1); yearEnd = new Date(end); }
+        else { yearStart = new Date(year, 0, 1); yearEnd = new Date(year, 11, 31); }
+        const days = Math.floor((yearEnd - yearStart) / 86400000) + 1;
+        result.push({ year: year, days: days, isLeap: isLeapYear(year) });
+        totalDays += days;
+      }
+      const maxDays = Math.max(...result.map(r => r.days));
+      result.forEach(r => { r.percentage = (r.days / maxDays) * 100; });
+      return { years: result, total: totalDays };
+    }
+
+    function calculate() {
+      const start = document.getElementById('startDate').value;
+      const end = document.getElementById('endDate').value;
+      if (!start || !end) { toast(t('selezionaDate')); return; }
+      const data = getDaysInRange(start, end);
+      if (data.error) { toast(data.error); return; }
+      const period = {
+        id: Date.now(),
+        name: document.getElementById('periodName').value.trim() || (t('periodoDefault') + ' ' + new Date().toLocaleDateString(getLang() === 'en' ? 'en-US' : 'it-IT')),
+        start: start, end: end, total: data.total, years: data.years
+      };
+      const periods = getSavedPeriods();
+      periods.push(period);
+      savePeriods(periods);
+      toast(t('periodoSalvato'));
+      document.getElementById('periodName').value = '';
+      renderCalcData();
+    }
+
+    function resetCalculator() {
+      document.getElementById('startDate').value = '';
+      document.getElementById('endDate').value = '';
+      document.getElementById('periodName').value = '';
+      toast(t('campiResettati'));
+    }
+
+    function renderCalcData() {
+      const periods = getSavedPeriods();
+      const target = getTarget();
+      const grandTotal = periods.reduce((sum, p) => sum + p.total, 0);
+      anim(document.getElementById('calcTotalDays'), grandTotal, 700);
+      const yearTotals = {};
+      periods.forEach(p => p.years.forEach(y => { yearTotals[y.year] = (yearTotals[y.year] || 0) + y.days; }));
+      const globalList = document.getElementById('calcGlobalYearList');
+      const yrs = Object.keys(yearTotals).map(Number).sort((a, b) => a - b);
+      globalList.innerHTML = '';
+      if (yrs.length === 0) {
+        globalList.innerHTML = `<div class="empty-state" style="padding:16px"><p style="font-size:13px">${t('nessunDato')}</p></div>`;
+      } else {
+        const maxY = Math.max(...yrs.map(y => yearTotals[y]));
+        yrs.forEach(y => {
+          const days = yearTotals[y]; const pct = (days / maxY) * 100;
+          const isOpen = openYear === y;
+          const wrap = document.createElement('div');
+          wrap.className = 'year-wrap';
+          const item = document.createElement('div');
+          item.className = 'year-item' + (isOpen ? ' active-year' : '');
+          item.onclick = () => { openYear = isOpen ? null : y; renderCalcData(); };
+          const badge = isLeapYear(y) ? `<span class="badge">${t('bisestile')}</span>` : '';
+          item.innerHTML = `<div class="year-header">
+            <span class="year-name">${y}${badge}</span>
+            <span class="year-days">${days}</span>
+          </div>
+          <div class="year-bar-bg"><div class="year-bar-fill" style="width:0%" data-pct="${pct.toFixed(1)}%"></div></div>`;
+          wrap.appendChild(item);
+          if (isOpen) {
+            const detail = document.createElement('div');
+            detail.className = 'detail-inline';
+            let detailHtml = '';
+            if (target > 0) {
+              const yearDiff = target - days;
+              const isMissing = yearDiff >= 0;
+              const diffClass = isMissing ? 'danger' : 'positive';
+              const diffText = isMissing ? t('giorniMancanti') : t('giorniOltre');
+              const diffBoxBg = isMissing
+                ? 'background: rgba(239,68,68,0.08); border-color: var(--danger);'
+                : 'background: rgba(16,185,129,0.08); border-color: var(--positive);';
+              detailHtml += `<div style="padding:16px 18px; border-radius:14px; border:1.5px solid; margin-bottom:16px; ${diffBoxBg} text-align:center;">
+                <div style="font-size:13px; color:var(--text-secondary); margin-bottom:4px; font-weight:600;">${t('target')} ${target} ${t('gg')} — ${t('totaleAnno', y)}: ${days} ${t('gg')}</div>
+                <div style="font-size:36px; font-weight:800; color:var(--${diffClass}); line-height:1; letter-spacing:-1px;">${Math.abs(yearDiff)}</div>
+                <div style="font-size:13px; color:var(--text-secondary); margin-top:6px; font-weight:500;">${diffText}</div>
+              </div>`;
+            } else {
+              detailHtml += `<div style="padding:10px 0 14px; font-size:13px; color:var(--text-secondary); font-weight:700; letter-spacing:0.3px; text-transform:uppercase;">${t('totaleAnno', y)}: ${days} ${t('gg')}</div>`;
+            }
+            let hasData = false;
+            periods.forEach(p => {
+              const py = p.years.find(x => x.year === y);
+              if (py) {
+                hasData = true;
+                detailHtml += `<div class="detail-row">
+                  <div class="detail-info">
+                    <div class="detail-name">${escapeHtml(p.name)}</div>
+                    <div class="detail-days">${formatDateIT(p.start)} → ${formatDateIT(p.end)}</div>
+                  </div>
+                  <div class="detail-period-total">${py.days} ${t('gg')}</div>
+                </div>`;
+              }
+            });
+            if (!hasData) detailHtml += `<div style="font-size:13px;color:var(--text-tertiary);padding:4px 0;font-weight:500;">${t('nessunDato')}</div>`;
+            detail.innerHTML = detailHtml;
+            wrap.appendChild(detail);
+          }
+          globalList.appendChild(wrap);
+        });
+        setTimeout(() => {
+          document.querySelectorAll('#calcGlobalYearList .year-bar-fill').forEach(b => b.style.width = b.dataset.pct);
+        }, 60);
+      }
+      const listEl = document.getElementById('calcSavedPeriodsList');
+      if (periods.length === 0) {
+        listEl.innerHTML = `<div class="empty-state">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          <p style="font-size:13px">${t('nessunPeriodo')}</p>
+        </div>`;
+      } else {
+        listEl.innerHTML = '';
+        const sorted = periods.slice().sort((a, b) => new Date(b.end) - new Date(a.end));
+        sorted.forEach(p => {
+          const div = document.createElement('div');
+          div.className = 'period-item';
+          div.onclick = () => openEditModal(p.id);
+          div.innerHTML = `<div class="period-info">
+            <div class="period-name">${escapeHtml(p.name)}</div>
+            <div class="period-dates">${formatDateIT(p.start)} → ${formatDateIT(p.end)}</div>
+          </div>
+          <div class="period-days">${p.total}</div>`;
+          listEl.appendChild(div);
+        });
+      }
+    }
+
+    function openEditModal(id) {
+      const periods = getSavedPeriods();
+      const p = periods.find(x => x.id === id);
+      if (!p) return;
+      editingId = id;
+      document.getElementById('editName').value = p.name;
+      document.getElementById('editStart').value = p.start;
+      document.getElementById('editEnd').value = p.end;
+      document.getElementById('editModal').classList.add('show');
+    }
+    function closeEditModal(e) {
+      if (e && e.target !== e.currentTarget) return;
+      document.getElementById('editModal').classList.remove('show');
+      editingId = null;
+    }
+    function saveEditPeriod() {
+      if (!editingId) return;
+      const periods = getSavedPeriods();
+      const idx = periods.findIndex(x => x.id === editingId);
+      if (idx === -1) return;
+      const name = document.getElementById('editName').value.trim();
+      const start = document.getElementById('editStart').value;
+      const end = document.getElementById('editEnd').value;
+      if (!start || !end) { toast(t('inserisciDate')); return; }
+      if (new Date(end) < new Date(start)) { toast(t('fineDopoInizio2')); return; }
+      periods[idx].name = name || periods[idx].name;
+      periods[idx].start = start; periods[idx].end = end;
+      recalcPeriod(periods[idx]);
+      savePeriods(periods);
+      closeEditModal(); renderCalcData(); toast(t('periodoAggiornato'));
+    }
+    function deleteEditPeriod() {
+      if (!editingId) return;
+      if (!confirm(t('eliminaPeriodo'))) return;
+      let periods = getSavedPeriods().filter(x => x.id !== editingId);
+      savePeriods(periods);
+      closeEditModal(); renderCalcData(); toast(t('periodoEliminato'));
+    }
+
+    async function exportData() {
+      const periods = getSavedPeriods();
+      const target = getTarget();
+      const certs = getCertificates();
+      for (const c of certs) {
+        if (c.hasAttachment) {
+          try { c.attachment = await getAttachment(c.id); }
+          catch(e) { c.attachment = null; }
+        }
+      }
+      const data = { periods: periods, target: target, certificates: certs, exportedAt: new Date().toISOString() };
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'daycounter-backup-' + new Date().toISOString().split('T')[0] + '.json';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      for (const c of certs) { delete c.attachment; }
+      toast(t('backupScaricato'));
+    }
+    async function importData(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = async function(e) {
+        try {
+          const data = JSON.parse(e.target.result);
+          if (!data.periods || !Array.isArray(data.periods)) {
+            toast(t('fileNonValido')); return;
+          }
+          if (confirm(t('importaPeriodi', data.periods.length) + ' ' + t('datiSostituiti'))) {
+            savePeriods(data.periods);
+            if (data.target !== undefined) {
+              localStorage.setItem(TARGET_KEY, String(data.target));
+              document.getElementById('targetDays').value = data.target || '';
+            }
+            if (data.certificates && Array.isArray(data.certificates)) {
+              for (const c of data.certificates) {
+                if (c.attachment) {
+                  try { await saveAttachment(c.id, c.attachment); c.hasAttachment = true; c.attachmentName = c.attachment.name; }
+                  catch(err) { c.hasAttachment = false; c.attachmentName = ''; }
+                  delete c.attachment;
+                }
+              }
+              saveCertificates(data.certificates);
+            }
+            renderDashboard();
+            toast(t('datiImportati'));
+          }
+        } catch (err) {
+          toast(t('erroreJSON'));
+        }
+      };
+      reader.readAsText(file);
+      event.target.value = '';
+    }
+    function escapeHtml(text) {
+      const div = document.createElement('div'); div.textContent = text; return div.innerHTML;
+    }
+
+    function openAttachment(data, name) {
+      const a = document.createElement('a');
+      a.href = data;
+      a.download = name;
+      a.target = '_blank';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }
+    function updateEditAttachmentUI() {
+      const rowExisting = document.getElementById('editCertFileRow');
+      const rowNew = document.getElementById('editCertFileNewRow');
+      const nameEl = document.getElementById('editCertFileName');
+      if (editingCertHasAttachment && !editingCertRemoveAttachment) {
+        nameEl.textContent = editingCertAttachmentName || editingCertAttachment?.name || '';
+        rowExisting.style.display = 'flex';
+        rowNew.style.display = 'none';
+      } else {
+        rowExisting.style.display = 'none';
+        rowNew.style.display = 'flex';
+      }
+    }
+    async function downloadEditAttachment() {
+      if (!editingCertAttachment && editingCertHasAttachment) {
+        try { editingCertAttachment = await getAttachment(editingCertId); }
+        catch(e) { editingCertAttachment = null; }
+      }
+      if (editingCertAttachment) {
+        openAttachment(editingCertAttachment.data, editingCertAttachment.name);
+      }
+    }
+    function removeEditAttachment() {
+      editingCertRemoveAttachment = true;
+      updateEditAttachmentUI();
+    }
+    async function downloadPDF(type) {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      const lang = getLang();
+      const isEn = lang === 'en';
+      doc.setFontSize(18);
+      doc.text('Day Counter Dashboard', 14, 20);
+      doc.setFontSize(10);
+      doc.text(new Date().toLocaleDateString(isEn ? 'en-US' : 'it-IT'), 14, 26);
+      let y = 35;
+      if (type === 'all' || type === 'days') {
+        const periods = getSavedPeriods();
+        const grandTotal = periods.reduce((sum, p) => sum + p.total, 0);
+        doc.setFontSize(14);
+        doc.text(isEn ? 'Saved Periods' : 'Periodi salvati', 14, y);
+        y += 8;
+        if (periods.length === 0) {
+          doc.setFontSize(11);
+          doc.text(isEn ? 'No periods saved' : 'Nessun periodo salvato', 14, y);
+          y += 10;
+        } else {
+          const body = periods.map(p => [
+            p.name,
+            formatDateIT(p.start),
+            formatDateIT(p.end),
+            p.total.toString()
+          ]);
+          doc.autoTable({
+            startY: y,
+            head: [[isEn ? 'Name' : 'Nome', isEn ? 'From' : 'Da', isEn ? 'To' : 'A', isEn ? 'Days' : 'Giorni']],
+            body: body,
+            theme: 'grid',
+            styles: { fontSize: 10 },
+            headStyles: { fillColor: [99, 102, 241] }
+          });
+          y = doc.lastAutoTable.finalY + 8;
+          doc.setFontSize(12);
+          doc.text((isEn ? 'Total: ' : 'Totale: ') + grandTotal + ' ' + (isEn ? 'days' : 'giorni'), 14, y);
+          y += 10;
+        }
+      }
+      if (type === 'all') {
+        y += 5;
+      }
+      if (type === 'all' || type === 'certs') {
+        const certs = getCertificates();
+        doc.setFontSize(14);
+        doc.text(isEn ? 'Certificates' : 'Certificati', 14, y);
+        y += 8;
+        if (certs.length === 0) {
+          doc.setFontSize(11);
+          doc.text(isEn ? 'No certificates saved' : 'Nessun certificato salvato', 14, y);
+        } else {
+          const body = certs.map(c => {
+            const s = getCertStatus(c.expiry);
+            const statusText = s.label;
+            return [
+              c.name,
+              c.code,
+              formatDateIT(c.expiry),
+              statusText,
+              c.attachment ? (isEn ? 'Yes' : 'Si') : (isEn ? 'No' : 'No')
+            ];
+          });
+          doc.autoTable({
+            startY: y,
+            head: [[isEn ? 'Name' : 'Nome', isEn ? 'Code' : 'Codice', isEn ? 'Expiry' : 'Scadenza', isEn ? 'Status' : 'Stato', isEn ? 'Attachment' : 'Allegato']],
+            body: body,
+            theme: 'grid',
+            styles: { fontSize: 10 },
+            headStyles: { fillColor: [99, 102, 241] }
+          });
+        }
+      }
+      doc.save('daycounter-report-' + new Date().toISOString().split('T')[0] + '.pdf');
+    }
+
+    document.getElementById('endDate').value = new Date().toISOString().split('T')[0];
+    document.getElementById('startDate').value = '2023-01-01';
+    document.getElementById('targetDays').value = getTarget() || '';
+    applyLang();
+    renderDashboard();
+
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js').then(function(reg) {
+        console.log('SW registered');
+      }).catch(function(err) {
+        console.log('SW registration failed:', err);
+      });
+    }
+  </script>
+  <script async src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script async src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+</body>
