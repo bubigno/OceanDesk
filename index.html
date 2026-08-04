@@ -6,10 +6,10 @@
   <meta name="theme-color" content="#0f172a">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="DayCounter">
+  <meta name="apple-mobile-web-app-title" content="OceanDesk">
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icon-192.png">
-  <title>Day Counter Dashboard</title>
+  <title>Ocean Desk Dashboard</title>
   <style>
     :root {
       --bg: #f0f2f5;
@@ -330,14 +330,14 @@
 </head>
 <body>
   <div id="splash">
-    <img class="wheel" src="timone.png" width="280" height="280" alt="Day Counter">
+    <img class="wheel" src="timone.png" width="280" height="280" alt="Ocean Desk">
   </div>
 
   <div class="container">
     <div class="app-header">
-      <img src="timone.png" class="app-logo" alt="Day Counter">
+      <img src="timone.png" class="app-logo" alt="Ocean Desk">
       <div>
-        <div class="app-title">Day Counter</div>
+        <div class="app-title">Ocean Desk</div>
         <div class="app-subtitle"></div>
       </div>
     </div>
@@ -354,8 +354,7 @@
 
   <div class="container main-content">
     <div id="page-dashboard" class="fade-in">
-      <h1>Day Counter</h1>
-      <div class="card grand-total">
+      <div class="card grand-total" style="margin-top:8px;">
         <div class="year-select-wrap">
           <select id="dashYearSelect" onchange="renderDashboard()">
             <option value="all" data-i18n="tuttiAnni">Tutti gli anni</option>
@@ -416,8 +415,11 @@
           <div class="input-row"><label style="min-width:50px" data-i18n="nome">Nome</label><input type="text" id="certName" placeholder="Es. Brevetto nautico..."></div>
           <div class="input-row"><label style="min-width:50px" data-i18n="codice">Codice</label><input type="text" id="certCode" placeholder="Es. ABC-12345"></div>
           <div class="input-row"><label style="min-width:50px" data-i18n="scad">Scad.</label><input type="date" id="certExpiry"></div>
-          <div class="input-row"><label style="min-width:50px" data-i18n="allegato">Allegato</label>
-            <input type="file" id="certFile" accept="image/*,application/pdf" style="flex:1; padding:8px 0; border:none; background:transparent; font-size:14px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:100%;">
+          <div class="input-row"><label style="min-width:50px">Allegato 1</label>
+            <input type="file" id="certFile1" accept="image/*,application/pdf" style="flex:1; padding:8px 0; border:none; background:transparent; font-size:14px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:100%;">
+          </div>
+          <div class="input-row"><label style="min-width:50px">Allegato 2</label>
+            <input type="file" id="certFile2" accept="image/*,application/pdf" style="flex:1; padding:8px 0; border:none; background:transparent; font-size:14px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:100%;">
           </div>
           <button class="btn" onclick="addCertificate()" data-i18n="aggiungi">Aggiungi</button>
         </div>
@@ -488,13 +490,7 @@
         <div class="input-row"><label style="min-width:50px" data-i18n="nome">Nome</label><input type="text" id="editCertName"></div>
         <div class="input-row"><label style="min-width:50px" data-i18n="codice">Codice</label><input type="text" id="editCertCode"></div>
         <div class="input-row"><label style="min-width:50px" data-i18n="scad">Scad.</label><input type="date" id="editCertExpiry"></div>
-        <div class="input-row" id="editCertFileRow"><label style="min-width:50px" data-i18n="allegato">Allegato</label>
-          <div style="flex:1; display:flex; align-items:center; gap:8px;">
-            <span id="editCertFileName" style="font-size:14px; color:var(--text-secondary); flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;"></span>
-            <button type="button" class="btn" style="flex:0 0 auto; width:auto; padding:8px 14px; font-size:13px; margin-top:0;" onclick="downloadEditAttachment()" data-i18n="scarica">Scarica</button>
-            <button type="button" class="btn btn-danger" style="flex:0 0 auto; width:auto; padding:8px 14px; font-size:13px; margin-top:0;" onclick="removeEditAttachment()" data-i18n="rimuovi">Rimuovi</button>
-          </div>
-        </div>
+        <div id="editAttachmentsArea"></div>
         <div class="input-row" id="editCertFileNewRow"><label style="min-width:50px" data-i18n="nuovoAllegato">Nuovo</label><input type="file" id="editCertFile" accept="image/*,application/pdf" style="padding:8px 0; border:none; background:transparent; font-size:14px;"></div>
       </div>
       <div class="modal-actions">
@@ -621,10 +617,8 @@
     // ===== STATE =====
     let editingId = null;
     let editingCertId = null;
-    let editingCertAttachment = null;
-    let editingCertHasAttachment = false;
-    let editingCertAttachmentName = '';
-    let editingCertRemoveAttachment = false;
+    let editingCertAttachments = [];
+    let editingCertAttachmentsRemoved = [];
     let openYear = null;
 
     // ===== INDEXEDDB ATTACHMENTS =====
@@ -646,12 +640,12 @@
         req.onerror = (e) => reject(e);
       });
     }
-    async function saveAttachment(id, attachment) {
+    async function saveAttachment(id, attachments) {
       const db = await openAttachmentDB();
       return new Promise((resolve, reject) => {
         const tx = db.transaction(ATTACHMENT_STORE, 'readwrite');
         const store = tx.objectStore(ATTACHMENT_STORE);
-        const req = store.put({ id, attachment });
+        const req = store.put({ id, attachments });
         req.onsuccess = () => resolve();
         req.onerror = () => reject(req.error);
       });
@@ -662,7 +656,7 @@
         const tx = db.transaction(ATTACHMENT_STORE, 'readonly');
         const store = tx.objectStore(ATTACHMENT_STORE);
         const req = store.get(id);
-        req.onsuccess = () => resolve(req.result?.attachment || null);
+        req.onsuccess = () => resolve(req.result?.attachments || []);
         req.onerror = () => reject(req.error);
       });
     }
@@ -848,37 +842,49 @@
       const code = document.getElementById('certCode').value.trim();
       const expiry = document.getElementById('certExpiry').value;
       if (!name || !expiry) { toast(t('compilaTutti')); return; }
-      const fileInput = document.getElementById('certFile');
-      async function doSave(hasAttachment, attachmentData) {
+
+      async function doSave(attachments) {
         const certs = getCertificates();
         const newId = Date.now();
-        certs.push({ id: newId, name, code, expiry, hasAttachment, attachmentName: attachmentData?.name || '' });
+        const attMeta = attachments.map(a => ({ name: a.name, type: a.type }));
+        certs.push({ id: newId, name, code, expiry, attachments: attMeta });
         saveCertificates(certs);
-        if (hasAttachment && attachmentData) {
-          try { await saveAttachment(newId, attachmentData); }
+        if (attachments.length > 0) {
+          try { await saveAttachment(newId, attachments); }
           catch(err) { toast(t('erroreSalvataggio')); }
         }
         document.getElementById('certName').value = '';
         document.getElementById('certCode').value = '';
         document.getElementById('certExpiry').value = '';
-        document.getElementById('certFile').value = '';
+        document.getElementById('certFile1').value = '';
+        document.getElementById('certFile2').value = '';
         renderCertificates();
         toast(t('certAggiunto'));
       }
 
-      if (fileInput.files && fileInput.files[0]) {
-        const file = fileInput.files[0];
+      const files = [];
+      const f1 = document.getElementById('certFile1').files?.[0];
+      const f2 = document.getElementById('certFile2').files?.[0];
+      if (f1) files.push(f1);
+      if (f2) files.push(f2);
+
+      if (files.length === 0) {
+        doSave([]);
+        return;
+      }
+
+      const attachments = [];
+      let loaded = 0;
+      files.forEach(file => {
         const reader = new FileReader();
         reader.onload = function(e) {
-          doSave(true, { name: file.name, type: file.type, data: e.target.result });
+          attachments.push({ name: file.name, type: file.type, data: e.target.result });
+          loaded++;
+          if (loaded === files.length) doSave(attachments);
         };
-        reader.onerror = function() {
-          toast(t('erroreSalvataggio'));
-        };
+        reader.onerror = function() { toast(t('erroreSalvataggio')); };
         reader.readAsDataURL(file);
-      } else {
-        doSave(false, null);
-      }
+      });
     }
 
     function renderCertificates() {
@@ -896,7 +902,8 @@
         div.className = 'cert-item ' + s.class;
         div.onclick = () => openCertModal(c.id);
         const daysText = s.days >= 0 ? `${t('tra')} ${s.days} ${t('gg')}` : `${Math.abs(s.days)} ${t('ggFa')}`;
-        const attachIcon = c.hasAttachment ? `<span style="margin-left:6px;opacity:0.6;">&#128206;</span>` : '';
+        const attCount = (c.attachments && c.attachments.length) || (c.hasAttachment ? 1 : 0);
+        const attachIcon = attCount > 0 ? `<span style="margin-left:6px;opacity:0.6;font-size:12px;">&#128206;${attCount > 1 ? '×' + attCount : ''}</span>` : '';
         div.innerHTML = `<div class="cert-info">
           <div class="cert-name">${escapeHtml(c.name)}${attachIcon} <span class="cert-status ${s.class}">${s.label}</span></div>
           <div class="cert-code">${t('codice')}: ${escapeHtml(c.code)} &mdash; ${t('scad')}: ${formatDateIT(c.expiry)}</div>
@@ -911,29 +918,30 @@
       const c = certs.find(x => x.id === id);
       if (!c) return;
       editingCertId = id;
-      editingCertHasAttachment = c.hasAttachment || false;
-      editingCertAttachmentName = c.attachmentName || '';
-      editingCertAttachment = null;
-      if (editingCertHasAttachment) {
-        try { editingCertAttachment = await getAttachment(id); }
-        catch(e) { editingCertAttachment = null; }
+      editingCertAttachments = [];
+      editingCertAttachmentsRemoved = [];
+      try {
+        const stored = await getAttachment(id);
+        if (Array.isArray(stored)) editingCertAttachments = stored;
+        else if (stored) editingCertAttachments = [stored];
+      } catch(e) {}
+      // retrocompatibilità
+      if (editingCertAttachments.length === 0 && c.hasAttachment && c.attachmentName) {
+        editingCertAttachments = [{ name: c.attachmentName, type: 'application/octet-stream', data: null }];
       }
-      editingCertRemoveAttachment = false;
       document.getElementById('editCertName').value = c.name;
       document.getElementById('editCertCode').value = c.code;
       document.getElementById('editCertExpiry').value = c.expiry;
       document.getElementById('editCertFile').value = '';
-      updateEditAttachmentUI();
+      renderEditAttachments();
       document.getElementById('certModal').classList.add('show');
     }
     function closeCertModal(e) {
       if (e && e.target !== e.currentTarget) return;
       document.getElementById('certModal').classList.remove('show');
       editingCertId = null;
-      editingCertAttachment = null;
-      editingCertHasAttachment = false;
-      editingCertAttachmentName = '';
-      editingCertRemoveAttachment = false;
+      editingCertAttachments = [];
+      editingCertAttachmentsRemoved = [];
     }
     async function saveEditCert() {
       if (!editingCertId) return;
@@ -945,17 +953,17 @@
       const expiry = document.getElementById('editCertExpiry').value;
       if (!name || !expiry) { toast(t('compilaTutti')); return; }
 
-      let hasAttachment = editingCertHasAttachment && !editingCertRemoveAttachment;
-      let attachmentName = editingCertAttachmentName;
-
+      let attachments = editingCertAttachments.filter((_, i) => !editingCertAttachmentsRemoved.includes(i));
       const fileInput = document.getElementById('editCertFile');
       if (fileInput.files && fileInput.files[0]) {
         const file = fileInput.files[0];
         const reader = new FileReader();
         reader.onload = async function(e) {
-          const att = { name: file.name, type: file.type, data: e.target.result };
-          try { await saveAttachment(editingCertId, att); } catch(err) { toast(t('erroreSalvataggio')); }
-          certs[idx] = { ...certs[idx], name, code, expiry, hasAttachment: true, attachmentName: file.name };
+          attachments.push({ name: file.name, type: file.type, data: e.target.result });
+          if (attachments.length > 2) attachments = attachments.slice(-2);
+          try { await saveAttachment(editingCertId, attachments); } catch(err) { toast(t('erroreSalvataggio')); }
+          const attMeta = attachments.map(a => ({ name: a.name, type: a.type }));
+          certs[idx] = { ...certs[idx], name, code, expiry, attachments: attMeta, hasAttachment: attMeta.length > 0, attachmentName: attMeta[0]?.name || '' };
           saveCertificates(certs);
           closeCertModal(); renderCertificates(); toast(t('certAggiornato'));
         };
@@ -963,13 +971,11 @@
         return;
       }
 
-      if (editingCertRemoveAttachment) {
-        try { await deleteAttachment(editingCertId); } catch(e) {}
-        hasAttachment = false;
-        attachmentName = '';
+      if (editingCertAttachmentsRemoved.length > 0) {
+        try { await saveAttachment(editingCertId, attachments); } catch(e) {}
       }
-
-      certs[idx] = { ...certs[idx], name, code, expiry, hasAttachment, attachmentName };
+      const attMeta = attachments.map(a => ({ name: a.name, type: a.type }));
+      certs[idx] = { ...certs[idx], name, code, expiry, attachments: attMeta, hasAttachment: attMeta.length > 0, attachmentName: attMeta[0]?.name || '' };
       saveCertificates(certs);
       closeCertModal(); renderCertificates(); toast(t('certAggiornato'));
     }
@@ -978,7 +984,7 @@
       if (!confirm(t('eliminaCert'))) return;
       const certs = getCertificates();
       const cert = certs.find(x => x.id === editingCertId);
-      if (cert && cert.hasAttachment) {
+      if (cert && ((cert.attachments && cert.attachments.length > 0) || cert.hasAttachment)) {
         try { await deleteAttachment(editingCertId); } catch(e) {}
       }
       const filtered = certs.filter(x => x.id !== editingCertId);
@@ -1190,9 +1196,10 @@
       const target = getTarget();
       const certs = getCertificates();
       for (const c of certs) {
-        if (c.hasAttachment) {
-          try { c.attachment = await getAttachment(c.id); }
-          catch(e) { c.attachment = null; }
+        const hasAtt = (c.attachments && c.attachments.length > 0) || c.hasAttachment;
+        if (hasAtt) {
+          try { c._attachments = await getAttachment(c.id); }
+          catch(e) { c._attachments = []; }
         }
       }
       const data = { periods: periods, target: target, certificates: certs, exportedAt: new Date().toISOString() };
@@ -1200,12 +1207,12 @@
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = 'daycounter-backup-' + new Date().toISOString().split('T')[0] + '.json';
+      a.download = 'oceandesk-backup-' + new Date().toISOString().split('T')[0] + '.json';
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
-      for (const c of certs) { delete c.attachment; }
+      for (const c of certs) { delete c._attachments; }
       toast(t('backupScaricato'));
     }
     async function importData(event) {
@@ -1226,11 +1233,13 @@
             }
             if (data.certificates && Array.isArray(data.certificates)) {
               for (const c of data.certificates) {
-                if (c.attachment) {
-                  try { await saveAttachment(c.id, c.attachment); c.hasAttachment = true; c.attachmentName = c.attachment.name; }
-                  catch(err) { c.hasAttachment = false; c.attachmentName = ''; }
-                  delete c.attachment;
+                const atts = c._attachments || c.attachment || [];
+                const attArr = Array.isArray(atts) ? atts : (atts ? [atts] : []);
+                if (attArr.length > 0) {
+                  try { await saveAttachment(c.id, attArr); c.attachments = attArr.map(a => ({ name: a.name, type: a.type })); c.hasAttachment = true; c.attachmentName = attArr[0].name; }
+                  catch(err) { c.hasAttachment = false; c.attachmentName = ''; c.attachments = []; }
                 }
+                delete c._attachments; delete c.attachment;
               }
               saveCertificates(data.certificates);
             }
@@ -1257,31 +1266,42 @@
       a.click();
       document.body.removeChild(a);
     }
-    function updateEditAttachmentUI() {
-      const rowExisting = document.getElementById('editCertFileRow');
-      const rowNew = document.getElementById('editCertFileNewRow');
-      const nameEl = document.getElementById('editCertFileName');
-      if (editingCertHasAttachment && !editingCertRemoveAttachment) {
-        nameEl.textContent = editingCertAttachmentName || editingCertAttachment?.name || '';
-        rowExisting.style.display = 'flex';
-        rowNew.style.display = 'none';
+    function renderEditAttachments() {
+      const area = document.getElementById('editAttachmentsArea');
+      area.innerHTML = '';
+      editingCertAttachments.forEach((att, idx) => {
+        if (editingCertAttachmentsRemoved.includes(idx)) return;
+        const row = document.createElement('div');
+        row.className = 'input-row';
+        row.style.marginBottom = '8px';
+        row.innerHTML = `<label style="min-width:50px">${att.name ? escapeHtml(att.name.substring(0,12)) : 'File'}</label>
+          <div style="flex:1; display:flex; align-items:center; gap:8px;">
+            <span style="font-size:13px; color:var(--text-secondary); flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${escapeHtml(att.name || '')}</span>
+            <button type="button" class="btn" style="flex:0 0 auto; width:auto; padding:6px 12px; font-size:12px; margin-top:0;" onclick="downloadEditAttachmentByIdx(${idx})">${t('scarica')}</button>
+            <button type="button" class="btn btn-danger" style="flex:0 0 auto; width:auto; padding:6px 12px; font-size:12px; margin-top:0;" onclick="removeEditAttachmentByIdx(${idx})">${t('rimuovi')}</button>
+          </div>`;
+        area.appendChild(row);
+      });
+      const newRow = document.getElementById('editCertFileNewRow');
+      if (editingCertAttachments.length - editingCertAttachmentsRemoved.length >= 2) {
+        newRow.style.display = 'none';
       } else {
-        rowExisting.style.display = 'none';
-        rowNew.style.display = 'flex';
+        newRow.style.display = 'flex';
       }
     }
-    async function downloadEditAttachment() {
-      if (!editingCertAttachment && editingCertHasAttachment) {
-        try { editingCertAttachment = await getAttachment(editingCertId); }
-        catch(e) { editingCertAttachment = null; }
+    async function downloadEditAttachmentByIdx(idx) {
+      let att = editingCertAttachments[idx];
+      if (!att || !att.data) {
+        const stored = await getAttachment(editingCertId);
+        const arr = Array.isArray(stored) ? stored : (stored ? [stored] : []);
+        att = arr[idx];
+        if (att) editingCertAttachments[idx] = att;
       }
-      if (editingCertAttachment) {
-        openAttachment(editingCertAttachment.data, editingCertAttachment.name);
-      }
+      if (att && att.data) openAttachment(att.data, att.name);
     }
-    function removeEditAttachment() {
-      editingCertRemoveAttachment = true;
-      updateEditAttachmentUI();
+    function removeEditAttachmentByIdx(idx) {
+      editingCertAttachmentsRemoved.push(idx);
+      renderEditAttachments();
     }
     async function downloadPDF(type) {
       const { jsPDF } = window.jspdf;
@@ -1290,7 +1310,7 @@
       const isEn = lang === 'en';
 
       doc.setFontSize(18);
-      doc.text('Day Counter Dashboard', 14, 20);
+      doc.text('Ocean Desk Dashboard', 14, 20);
       doc.setFontSize(10);
       doc.text(new Date().toLocaleDateString(isEn ? 'en-US' : 'it-IT'), 14, 26);
 
@@ -1347,12 +1367,13 @@
           const body = certs.map(c => {
             const s = getCertStatus(c.expiry);
             const statusText = s.label;
+            const attCount = (c.attachments && c.attachments.length) || (c.hasAttachment ? 1 : 0);
             return [
               c.name,
               c.code,
               formatDateIT(c.expiry),
               statusText,
-              c.attachment ? (isEn ? 'Yes' : 'Si') : (isEn ? 'No' : 'No')
+              attCount > 0 ? (isEn ? 'Yes (' + attCount + ')' : 'Si (' + attCount + ')') : (isEn ? 'No' : 'No')
             ];
           });
           doc.autoTable({
