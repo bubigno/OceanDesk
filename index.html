@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <meta name="theme-color" content="#1d598f">
+  <meta name="theme-color" content="#0f172a">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="DayCounter">
@@ -12,248 +12,349 @@
   <title>Day Counter Dashboard</title>
   <style>
     :root {
-      --bg: #f5f5f7; --card: #ffffff; --text: #1c1c1e; --text-secondary: #8e8e93;
-      --accent: #007aff; --accent-light: #e5f2ff; --border: #e5e5ea;
-      --danger: #ff3b30; --positive: #34c759; --warning: #ff9500;
-      --radius: 14px; --shadow: 0 2px 12px rgba(0,0,0,0.08);
-      --sky: #1d598f; --sky-light: #4a90c7; --brown: #8B4513;
+      --bg: #f0f2f5;
+      --bg-rgb: 240, 242, 245;
+      --card: #ffffff;
+      --card-rgb: 255, 255, 255;
+      --text: #1a1a1f;
+      --text-rgb: 26, 26, 31;
+      --text-secondary: #6e6e78;
+      --accent: #2563eb;
+      --accent-light: rgba(37, 99, 235, 0.08);
+      --accent-gradient: linear-gradient(135deg, #2563eb, #7c3aed);
+      --border: rgba(0, 0, 0, 0.06);
+      --danger: #ef4444;
+      --positive: #22c55e;
+      --warning: #f59e0b;
+      --radius-sm: 12px;
+      --radius: 20px;
+      --radius-lg: 28px;
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
+      --shadow: 0 4px 24px rgba(0,0,0,0.06);
+      --shadow-lg: 0 12px 40px rgba(0,0,0,0.12);
+      --sky: #1e3a5f;
+      --sky-light: #3b82f6;
+      --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      --transition-bounce: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
     }
     @media (prefers-color-scheme: dark) {
       :root {
-        --bg: #000000; --card: #1c1c1e; --text: #ffffff; --text-secondary: #8e8e93;
-        --accent: #0a84ff; --accent-light: rgba(10,132,255,0.15); --border: #38383a;
-        --shadow: 0 2px 12px rgba(0,0,0,0.3); --danger: #ff453a; --positive: #30d158; --warning: #ff9f0a;
-        --sky: #1a3a5c; --sky-light: #2a4a6c; --brown: #cd853f;
+        --bg: #0a0a0f;
+        --bg-rgb: 10, 10, 15;
+        --card: #15151a;
+        --card-rgb: 21, 21, 26;
+        --text: #f5f5f7;
+        --text-rgb: 245, 245, 247;
+        --text-secondary: #8e8e93;
+        --accent: #3b82f6;
+        --accent-light: rgba(59, 130, 246, 0.12);
+        --accent-gradient: linear-gradient(135deg, #3b82f6, #a855f7);
+        --border: rgba(255, 255, 255, 0.08);
+        --danger: #ef4444;
+        --positive: #22c55e;
+        --warning: #f59e0b;
+        --shadow: 0 4px 24px rgba(0,0,0,0.3);
+        --shadow-lg: 0 12px 40px rgba(0,0,0,0.4);
+        --sky: #0f172a;
+        --sky-light: #1e3a5f;
       }
     }
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    html { scroll-behavior: smooth; }
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       background: var(--bg); color: var(--text);
       padding: 20px; padding-top: max(20px, env(safe-area-inset-top));
       padding-bottom: max(20px, env(safe-area-inset-bottom)); min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
     }
-    .container { max-width: 520px; margin: 0 auto; }
+    .container { max-width: 560px; margin: 0 auto; }
 
     #splash {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: #1d598f;
+      background: linear-gradient(180deg, #1e3a5f 0%, #0f172a 100%);
       z-index: 9999; display: flex; flex-direction: column;
       align-items: center; justify-content: center;
-      transition: opacity 0.8s ease, visibility 0.8s ease;
+      transition: opacity 0.8s ease, visibility 0.8s ease, transform 0.8s ease;
     }
-    #splash.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
-    #splash .wheel { animation: spin 10s linear infinite; }
+    #splash.hidden { opacity: 0; visibility: hidden; pointer-events: none; transform: scale(1.05); }
+    #splash .wheel { animation: spin 12s linear infinite; filter: drop-shadow(0 20px 40px rgba(0,0,0,0.3)); }
     @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-    #splash h2 { margin-top: 24px; color: white; font-size: 22px; font-weight: 600; text-shadow: 0 1px 4px rgba(0,0,0,0.2); }
+    #splash h2 { margin-top: 28px; color: white; font-size: 24px; font-weight: 700; letter-spacing: -0.5px; opacity: 0.9; }
 
-    .nav-bar { display: flex; gap: 6px; margin-bottom: 20px;
-      background: var(--card); padding: 6px; border-radius: 12px; box-shadow: var(--shadow); align-items:center; }
-    .nav-btn { flex: 1; padding: 10px 8px; border: none; border-radius: 8px;
+    .app-header {
+      display: flex; align-items: center; gap: 14px;
+      margin-bottom: 24px; padding: 8px 4px;
+    }
+    .app-logo {
+      width: 44px; height: 44px; border-radius: 12px;
+      object-fit: cover; box-shadow: var(--shadow);
+    }
+    .app-title {
+      font-size: 26px; font-weight: 800; letter-spacing: -0.8px;
+      line-height: 1.1; color: var(--text);
+    }
+    .app-subtitle {
+      font-size: 13px; font-weight: 500; color: var(--text-secondary); margin-top: 2px;
+    }
+
+    .nav-bar-wrapper {
+      position: sticky; top: 8px; z-index: 50; margin-bottom: 24px;
+    }
+    .nav-bar {
+      display: flex; gap: 4px;
+      background: rgba(var(--card-rgb), 0.85);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      padding: 6px; border-radius: 16px;
+      box-shadow: var(--shadow); border: 1px solid var(--border);
+      align-items: center;
+    }
+    .nav-btn {
+      flex: 1; padding: 10px 8px; border: none; border-radius: 12px;
       font-size: 14px; font-weight: 600; cursor: pointer; background: transparent;
-      color: var(--text-secondary); transition: all 0.2s; font-family: inherit; }
-    .nav-btn.active { background: var(--accent); color: white; }
+      color: var(--text-secondary); transition: var(--transition);
+      font-family: inherit; position: relative; overflow: hidden;
+    }
+    .nav-btn.active {
+      background: var(--accent-gradient); color: white;
+      box-shadow: 0 2px 12px rgba(37, 99, 235, 0.3);
+    }
     .nav-btn.menu-btn { flex: 0 0 auto; padding: 10px 14px; font-size: 18px; line-height: 1; }
 
-    h1 { font-size: 26px; font-weight: 700; margin-bottom: 20px; letter-spacing: -0.5px; }
+    h1 { font-size: 28px; font-weight: 800; margin-bottom: 20px; letter-spacing: -0.8px; line-height: 1.2; }
+    .section-title { font-size: 20px; font-weight: 700; margin-bottom: 14px; margin-top: 4px; letter-spacing: -0.3px; }
 
-    .card { background: var(--card); border-radius: var(--radius);
-      padding: 18px; margin-bottom: 14px; box-shadow: var(--shadow); }
-    .card-title { font-size: 12px; font-weight: 600; text-transform: uppercase;
-      letter-spacing: 0.5px; color: var(--text-secondary); margin-bottom: 12px; }
-
-    .input-group { display: flex; flex-direction: column; gap: 10px; }
-    .input-row { display: flex; align-items: center; gap: 12px; }
-    .input-row label { font-size: 15px; font-weight: 500; min-width: 40px; color: var(--text-secondary); }
-    input[type="date"], input[type="text"], input[type="number"], select {
-      flex: 1; padding: 12px 14px; border: 1px solid var(--border); border-radius: 10px;
-      font-size: 16px; background: var(--bg); color: var(--text); font-family: inherit; -webkit-appearance: none; }
-    select { cursor: pointer; }
-    input:focus, select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-light); }
-
-    .target-box {
-      background: linear-gradient(135deg, var(--accent), #5856d6);
-      color: white; text-align: center; padding: 20px;
-      border-radius: var(--radius); margin-bottom: 14px;
+    .card {
+      background: var(--card); border-radius: var(--radius); padding: 22px;
+      margin-bottom: 16px; box-shadow: var(--shadow); border: 1px solid var(--border);
+      transition: var(--transition);
     }
-    .target-box label { font-size: 13px; opacity: 0.85; display: block; margin-bottom: 8px; }
+    .card:hover { box-shadow: var(--shadow-lg); transform: translateY(-1px); }
+    .card-title {
+      font-size: 11px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.8px; color: var(--text-secondary); margin-bottom: 16px;
+    }
+
+    .input-group { display: flex; flex-direction: column; gap: 12px; }
+    .input-row { display: flex; align-items: center; gap: 12px; }
+    .input-row label { font-size: 15px; font-weight: 600; min-width: 40px; color: var(--text-secondary); }
+    input[type="date"], input[type="text"], input[type="number"], select {
+      flex: 1; padding: 14px 16px; border: 1.5px solid var(--border); border-radius: 14px;
+      font-size: 16px; background: var(--bg); color: var(--text); font-family: inherit;
+      -webkit-appearance: none; transition: var(--transition);
+    }
+    select { cursor: pointer; }
+    input:focus, select:focus {
+      outline: none; border-color: var(--accent);
+      box-shadow: 0 0 0 4px var(--accent-light); background: var(--card);
+    }
+    input[type="file"] { padding: 10px 0; border: none; background: transparent; font-size: 14px; }
+
+    .target-box, .grand-total {
+      background: var(--accent-gradient); color: white; text-align: center; padding: 24px;
+      border-radius: var(--radius); margin-bottom: 16px; position: relative; overflow: hidden; border: none;
+    }
+    .target-box::before, .grand-total::before {
+      content: ''; position: absolute; top: -50%; right: -50%; width: 200%; height: 200%;
+      background: radial-gradient(circle, rgba(255,255,255,0.12) 0%, transparent 70%); pointer-events: none;
+    }
+    .target-box label { font-size: 13px; opacity: 0.85; display: block; margin-bottom: 10px; font-weight: 500; }
     .target-box input[type="number"] {
       background: rgba(255,255,255,0.2); border: 2px solid rgba(255,255,255,0.4);
-      color: white; font-size: 28px; font-weight: 700; text-align: center;
-      width: 100%; border-radius: 12px; padding: 12px;
+      color: white; font-size: 32px; font-weight: 700; text-align: center;
+      width: 100%; border-radius: 14px; padding: 14px;
     }
-    .target-box input::placeholder { color: rgba(255,255,255,0.6); }
-    .target-box input:focus { border-color: white; box-shadow: none; }
+    .target-box input::placeholder { color: rgba(255,255,255,0.5); }
+    .target-box input:focus { border-color: white; box-shadow: none; background: rgba(255,255,255,0.25); }
 
-    .year-select-wrap { text-align: center; margin-bottom: 10px; }
+    .year-select-wrap { text-align: center; margin-bottom: 12px; position: relative; z-index: 1; }
     .year-select-wrap select {
       background: rgba(255,255,255,0.2); border: 2px solid rgba(255,255,255,0.4);
       color: white; font-size: 16px; font-weight: 600; text-align: center;
-      width: auto; min-width: 160px; border-radius: 10px; padding: 8px 32px 8px 14px;
+      width: auto; min-width: 180px; border-radius: 12px; padding: 10px 36px 10px 16px;
       background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-      background-repeat: no-repeat; background-position: right 10px center;
+      background-repeat: no-repeat; background-position: right 12px center;
     }
     .year-select-wrap select option { background: var(--card); color: var(--text); }
 
-    .btn { width: 100%; padding: 14px; background: var(--accent); color: white;
-      border: none; border-radius: 12px; font-size: 17px; font-weight: 600;
-      cursor: pointer; margin-top: 4px; transition: transform 0.15s, opacity 0.15s; font-family: inherit; }
-    .btn:active { transform: scale(0.98); opacity: 0.9; }
-    .btn-secondary { background: var(--positive); margin-top: 10px; }
-    .btn-danger { background: var(--danger); }
-    .btn-warning { background: var(--warning); }
-
-    .total-box { text-align: center; padding: 24px 20px; }
-    .total-number { font-size: 52px; font-weight: 700; color: var(--accent); line-height: 1; letter-spacing: -1px; }
-    .total-label { font-size: 15px; color: var(--text-secondary); margin-top: 8px; }
-
-    .grand-total {
-      background: linear-gradient(135deg, var(--accent), #5856d6);
-      color: white; text-align: center; padding: 28px 20px;
+    .btn {
+      width: 100%; padding: 16px; background: var(--accent-gradient); color: white;
+      border: none; border-radius: 14px; font-size: 16px; font-weight: 600;
+      cursor: pointer; margin-top: 4px; transition: var(--transition);
+      font-family: inherit; position: relative; overflow: hidden;
     }
-    .grand-total .total-number { color: white; font-size: 56px; }
+    .btn:active { transform: scale(0.97); opacity: 0.9; }
+    .btn-secondary { background: linear-gradient(135deg, #22c55e, #16a34a); }
+    .btn-danger { background: linear-gradient(135deg, #ef4444, #dc2626); }
+    .btn-warning { background: linear-gradient(135deg, #f59e0b, #ea580c); }
+
+    .total-box { text-align: center; padding: 28px 20px; }
+    .total-number { font-size: 56px; font-weight: 800; color: var(--accent); line-height: 1; letter-spacing: -2px; }
+    .total-label { font-size: 15px; color: var(--text-secondary); margin-top: 10px; font-weight: 500; }
+    .grand-total .total-number { color: white; font-size: 60px; }
     .grand-total .total-label { color: rgba(255,255,255,0.8); }
 
-    .year-wrap { margin-bottom: 8px; }
-    .year-item { display: flex; flex-direction: column; padding: 12px 14px; background: var(--bg);
-      border-radius: 10px; border: 1px solid var(--border); cursor: pointer;
-      transition: transform 0.15s, background 0.15s; }
+    .year-wrap { margin-bottom: 10px; }
+    .year-item {
+      display: flex; flex-direction: column; padding: 14px 16px; background: var(--bg);
+      border-radius: 14px; border: 1.5px solid var(--border); cursor: pointer;
+      transition: var(--transition);
+    }
+    .year-item:hover { border-color: var(--accent); background: var(--card); }
     .year-item:active { transform: scale(0.98); }
-    .year-item.active-year { background: var(--card); border-color: var(--accent); }
+    .year-item.active-year {
+      background: var(--card); border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-light);
+    }
     .year-header { display: flex; justify-content: space-between; align-items: center; }
     .year-name { font-size: 15px; font-weight: 600; }
-    .year-days { font-size: 20px; font-weight: 700; color: var(--accent); }
-    .year-bar-bg { width: 100%; height: 5px; background: var(--border); border-radius: 3px; margin-top: 7px; overflow: hidden; }
-    .year-bar-fill { height: 100%; background: var(--accent); border-radius: 3px; width: 0%;
-      transition: width 0.7s cubic-bezier(0.22,1,0.36,1); }
+    .year-days { font-size: 22px; font-weight: 700; color: var(--accent); }
+    .year-bar-bg { width: 100%; height: 6px; background: var(--border); border-radius: 3px; margin-top: 10px; overflow: hidden; }
+    .year-bar-fill { height: 100%; background: var(--accent-gradient); border-radius: 3px; width: 0%;
+      transition: width 0.8s cubic-bezier(0.22,1,0.36,1); }
 
-    .detail-inline { margin-top: 10px; padding: 14px;
-      background: var(--bg); border-radius: 10px; border: 1px solid var(--border);
-      animation: slideDown 0.25s ease; }
-    @keyframes slideDown { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
+    .detail-inline { margin-top: 12px; padding: 16px;
+      background: var(--bg); border-radius: 14px; border: 1.5px solid var(--border);
+      animation: slideDown 0.3s ease; }
+    @keyframes slideDown { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
     .detail-row { display: flex; justify-content: space-between; align-items: center;
-      padding: 8px 0; border-bottom: 1px solid var(--border); }
+      padding: 10px 0; border-bottom: 1px solid var(--border); }
     .detail-row:last-child { border-bottom: none; }
     .detail-info { flex: 1; min-width: 0; }
-    .detail-name { font-size: 14px; font-weight: 500; }
-    .detail-days { font-size: 12px; color: var(--text-secondary); }
-    .detail-period-total { font-size: 15px; font-weight: 600; color: var(--accent); }
+    .detail-name { font-size: 14px; font-weight: 600; }
+    .detail-days { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+    .detail-period-total { font-size: 15px; font-weight: 700; color: var(--accent); }
 
-    .period-item { display: flex; justify-content: space-between; align-items: center; padding: 14px 16px;
-      background: var(--bg); border-radius: 10px; margin-bottom: 8px;
-      border: 1px solid var(--border); cursor: pointer; transition: transform 0.15s; }
-    .period-item:active { transform: scale(0.98); }
-    .period-info { flex: 1; min-width: 0; }
-    .period-name { font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .period-dates { font-size: 12px; color: var(--text-secondary); margin-top: 1px; }
-    .period-days { font-size: 20px; font-weight: 700; color: var(--accent); margin-right: 10px; flex-shrink: 0; }
-
-    .cert-status { display: inline-block; padding: 2px 6px; border-radius: 5px; font-size: 10px; font-weight: 600; margin-left: 6px; vertical-align: middle; }
-    .cert-status.valid { background: rgba(52,199,89,0.15); color: var(--positive); }
-    .cert-status.warning { background: rgba(255,149,0,0.15); color: var(--warning); }
-    .cert-status.expired { background: rgba(255,59,48,0.15); color: var(--danger); }
-
-    .cert-item { display: flex; justify-content: space-between; align-items: center; padding: 14px 16px;
-      background: var(--bg); border-radius: 10px; margin-bottom: 8px;
-      border: 1px solid var(--border); cursor: pointer; transition: transform 0.15s; }
-    .cert-item:active { transform: scale(0.98); }
+    .period-item, .cert-item {
+      display: flex; justify-content: space-between; align-items: center; padding: 16px;
+      background: var(--bg); border-radius: 14px; margin-bottom: 10px;
+      border: 1.5px solid var(--border); cursor: pointer; transition: var(--transition);
+    }
+    .period-item:hover, .cert-item:hover { background: var(--card); border-color: var(--accent); transform: translateX(3px); }
+    .period-item:active, .cert-item:active { transform: scale(0.98) translateX(0); }
     .cert-item.valid { border-left: 4px solid var(--positive); }
     .cert-item.warning { border-left: 4px solid var(--warning); }
     .cert-item.expired { border-left: 4px solid var(--danger); }
-    .cert-info { flex: 1; min-width: 0; }
-    .cert-name { font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .cert-code { font-size: 12px; color: var(--text-secondary); margin-top: 1px; }
-    .cert-days { font-size: 14px; font-weight: 600; margin-right: 4px; flex-shrink: 0; }
+    .period-info, .cert-info { flex: 1; min-width: 0; }
+    .period-name, .cert-name { font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .period-dates, .cert-code { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+    .period-days { font-size: 22px; font-weight: 700; color: var(--accent); margin-right: 10px; flex-shrink: 0; }
+    .cert-days { font-size: 15px; font-weight: 700; margin-right: 4px; flex-shrink: 0; }
     .cert-days.valid { color: var(--positive); }
     .cert-days.warning { color: var(--warning); }
     .cert-days.expired { color: var(--danger); }
+    .cert-status { display: inline-block; padding: 3px 8px; border-radius: 6px; font-size: 10px; font-weight: 700; margin-left: 6px; vertical-align: middle; letter-spacing: 0.3px; }
+    .cert-status.valid { background: rgba(34,197,94,0.12); color: var(--positive); }
+    .cert-status.warning { background: rgba(245,158,11,0.12); color: var(--warning); }
+    .cert-status.expired { background: rgba(239,68,68,0.12); color: var(--danger); }
 
-    .summary-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-    .summary-cell { background: var(--bg); border-radius: 10px; padding: 16px 10px; text-align: center; border: 1px solid var(--border); }
-    .summary-cell .num { font-size: 28px; font-weight: 700; }
-    .summary-cell .lbl { font-size: 11px; color: var(--text-secondary); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.3px; }
+    .summary-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    .summary-cell { background: var(--bg); border-radius: 14px; padding: 20px 10px; text-align: center; border: 1.5px solid var(--border); transition: var(--transition); }
+    .summary-cell:hover { transform: translateY(-2px); background: var(--card); }
+    .summary-cell .num { font-size: 32px; font-weight: 800; letter-spacing: -1px; }
+    .summary-cell .lbl { font-size: 11px; color: var(--text-secondary); margin-top: 6px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
     .summary-cell.valid .num { color: var(--positive); }
     .summary-cell.warning .num { color: var(--warning); }
     .summary-cell.expired .num { color: var(--danger); }
 
     .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); z-index: 1000;
-      display: flex; align-items: flex-end; justify-content: center;
-      opacity: 0; visibility: hidden; transition: opacity 0.3s, visibility 0.3s; }
+      background: rgba(0,0,0,0.4); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+      z-index: 1000; display: flex; align-items: flex-end; justify-content: center;
+      opacity: 0; visibility: hidden; transition: var(--transition); }
     .modal-overlay.show { opacity: 1; visibility: visible; }
     .modal-content { background: var(--card); width: 100%; max-width: 520px;
-      border-radius: 20px 20px 0 0; padding: 24px 20px max(24px, env(safe-area-inset-bottom));
-      transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.22,1,0.36,1); }
+      border-radius: 28px 28px 0 0; padding: 32px 24px max(32px, env(safe-area-inset-bottom));
+      transform: translateY(100%); transition: transform 0.4s cubic-bezier(0.22,1,0.36,1);
+      position: relative; box-shadow: 0 -8px 40px rgba(0,0,0,0.2); border: 1px solid var(--border); border-bottom: none; }
     .modal-overlay.show .modal-content { transform: translateY(0); }
-    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
-    .modal-title { font-size: 18px; font-weight: 700; }
-    .modal-close { width: 32px; height: 32px; border-radius: 50%; border: none;
-      background: var(--bg); color: var(--text-secondary); font-size: 20px;
-      cursor: pointer; display: flex; align-items: center; justify-content: center; }
-    .modal-actions { display: flex; gap: 10px; margin-top: 16px; }
+    .modal-content::before {
+      content: ''; position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
+      width: 40px; height: 5px; background: var(--border); border-radius: 3px; opacity: 0.6;
+    }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; margin-top: 4px; }
+    .modal-title { font-size: 20px; font-weight: 800; letter-spacing: -0.3px; }
+    .modal-close { width: 36px; height: 36px; border-radius: 50%; border: none;
+      background: var(--bg); color: var(--text-secondary); font-size: 22px;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      transition: var(--transition); }
+    .modal-close:hover { background: var(--border); color: var(--text); }
+    .modal-actions { display: flex; gap: 12px; margin-top: 20px; }
     .modal-actions .btn { margin-top: 0; flex: 1; }
 
-    .empty-state { text-align: center; padding: 32px 16px; color: var(--text-secondary); }
-    .empty-state svg { width: 48px; height: 48px; margin-bottom: 10px; opacity: 0.35; }
+    .toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%) translateY(80px);
+      background: rgba(var(--text-rgb), 0.92); color: var(--card); padding: 14px 28px; border-radius: 16px;
+      font-size: 14px; font-weight: 600; box-shadow: var(--shadow-lg); backdrop-filter: blur(10px);
+      z-index: 1001; transition: transform 0.4s cubic-bezier(0.22,1,0.36,1); pointer-events: none;
+      border: 1px solid var(--border); max-width: 90%; text-align: center; }
+    .toast.show { transform: translateX(-50%) translateY(0); }
+
+    .empty-state { text-align: center; padding: 40px 20px; color: var(--text-secondary); }
+    .empty-state svg { width: 56px; height: 56px; margin-bottom: 14px; opacity: 0.25; }
+    .empty-state p { font-size: 14px; font-weight: 500; }
 
     .hidden { display: none !important; }
-    .fade-in { animation: fadeIn 0.35s ease; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-    .badge { display: inline-block; padding: 2px 6px; border-radius: 5px; font-size: 10px; font-weight: 600; margin-left: 5px;
-      background: color-mix(in srgb, var(--warning) 15%, transparent); color: var(--warning); }
-    .section-title { font-size: 18px; font-weight: 700; margin-bottom: 10px; margin-top: 2px; }
-
-    .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(80px);
-      background: var(--text); color: var(--card); padding: 10px 20px; border-radius: 10px;
-      font-size: 14px; font-weight: 500; box-shadow: 0 4px 16px rgba(0,0,0,0.15);
-      z-index: 1001; transition: transform 0.3s cubic-bezier(0.22,1,0.36,1); pointer-events: none; }
-    .toast.show { transform: translateX(-50%) translateY(0); }
-    .backup-row { display: flex; gap: 10px; margin-top: 10px; }
-    .backup-row .btn { flex: 1; font-size: 15px; padding: 12px; margin-top: 0; }
-    .backup-row .btn-secondary { background: var(--positive); }
-    .backup-row .btn-warning { background: var(--warning); }
-    .ios-notice { background: var(--accent-light); color: var(--accent); padding: 12px 14px; border-radius: 10px; font-size: 13px; line-height: 1.5; margin-bottom: 14px; border: 1px solid var(--accent); }
+    .fade-in { animation: fadeIn 0.45s cubic-bezier(0.22, 1, 0.36, 1); }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(16px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+    .badge { display: inline-block; padding: 3px 8px; border-radius: 6px; font-size: 10px; font-weight: 700; margin-left: 6px;
+      background: rgba(245,158,11,0.12); color: var(--warning); letter-spacing: 0.3px; }
+    .backup-row { display: flex; gap: 10px; margin-top: 12px; }
+    .backup-row .btn { flex: 1; font-size: 15px; padding: 14px; margin-top: 0; }
+    .ios-notice { background: var(--accent-light); color: var(--accent); padding: 14px 16px; border-radius: 14px; font-size: 13px; line-height: 1.6; margin-bottom: 16px; border: 1.5px solid var(--accent); font-weight: 500; }
+    .lang-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; padding: 4px 0; }
+    .lang-row label { font-size: 15px; font-weight: 700; }
+    .lang-row select { width: auto; min-width: 140px; padding: 10px 36px 10px 14px;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236e6e78' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 12px center;
+    }
     #importFile { display: none; }
-
-    .lang-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; padding: 4px 0; }
-    .lang-row label { font-size: 15px; font-weight: 600; }
-    .lang-row select {
-      width: auto; min-width: 120px; padding: 8px 32px 8px 12px;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238e8e93' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-      background-repeat: no-repeat; background-position: right 10px center;
-    }
-    .spinner {
-      display: inline-block;
-      width: 16px; height: 16px;
-      border: 2.5px solid var(--border);
-      border-top-color: var(--accent);
-      border-radius: 50%;
-      animation: spin-loader 0.7s linear infinite;
-      vertical-align: middle;
-      margin-left: 6px;
-      opacity: 0;
-      transition: opacity 0.2s;
-    }
+    .spinner { display: inline-block; width: 16px; height: 16px; border: 2.5px solid var(--border);
+      border-top-color: var(--accent); border-radius: 50%; animation: spin-loader 0.7s linear infinite;
+      vertical-align: middle; margin-left: 6px; opacity: 0; transition: opacity 0.2s; }
     .spinner.show { opacity: 1; }
     @keyframes spin-loader { to { transform: rotate(360deg); } }
+
+    @media (max-width: 640px) {
+      .nav-bar-wrapper {
+        position: fixed; bottom: 0; top: auto; left: 0; right: 0;
+        margin: 0; padding: 0 16px max(16px, env(safe-area-inset-bottom)) 16px;
+      }
+      .nav-bar { border-radius: 24px; margin-bottom: 0; box-shadow: 0 -4px 24px rgba(0,0,0,0.08); }
+      body { padding-bottom: 100px; }
+      .toast { bottom: 110px; }
+      h1 { font-size: 24px; }
+    }
   </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
 </head>
 <body>
   <div id="splash">
-    <img class="wheel" src="timone.png" width="320" height="320" alt="Day Counter">
-</div>
+    <img class="wheel" src="timone.png" width="280" height="280" alt="Day Counter">
+    <h2>Day Counter</h2>
+  </div>
 
   <div class="container">
-    <div class="nav-bar">
+    <div class="app-header">
+      <img src="timone.png" class="app-logo" alt="Day Counter">
+      <div>
+        <div class="app-title">Day Counter</div>
+        <div class="app-subtitle" data-i18n="dashboard">Dashboard</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="nav-bar-wrapper">
+    <div class="nav-bar container">
       <button class="nav-btn active" onclick="showPage('dashboard')" id="nav-dash" data-i18n="dashboard">Dashboard</button>
       <button class="nav-btn" onclick="showPage('calculator')" id="nav-calc" data-i18n="calcola">Calcola</button>
       <button class="nav-btn" onclick="showPage('certificates')" id="nav-cert" data-i18n="certificati">Certificati</button>
-      <button class="nav-btn menu-btn" onclick="openMenu()" id="nav-menu">☰</button>
+      <button class="nav-btn menu-btn" onclick="openMenu()" id="nav-menu">&#9776;</button>
     </div>
+  </div>
 
-    <div id="page-dashboard">
+  <div class="container main-content">
+    <div id="page-dashboard" class="fade-in">
       <h1 data-i18n="dashboard">Dashboard</h1>
       <div class="card grand-total">
         <div class="year-select-wrap">
@@ -293,11 +394,11 @@
       </div>
 
       <div class="card">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
           <div class="card-title" data-i18n="ripartizioneGlobale" style="margin-bottom:0;">Ripartizione annuale globale</div>
           <div style="text-align:right;">
-            <div id="calcTotalDays" style="font-size:28px; font-weight:700; color:var(--accent); line-height:1;">0</div>
-            <div style="font-size:11px; color:var(--text-secondary); text-transform:uppercase; letter-spacing:0.3px;" data-i18n="giorniTotali">giorni totali salvati</div>
+            <div id="calcTotalDays" style="font-size:32px; font-weight:800; color:var(--accent); line-height:1; letter-spacing:-1px;">0</div>
+            <div style="font-size:11px; color:var(--text-secondary); text-transform:uppercase; letter-spacing:0.5px; font-weight:600;" data-i18n="giorniTotali">giorni totali salvati</div>
           </div>
         </div>
         <div id="calcGlobalYearList"></div>
@@ -349,7 +450,7 @@
         <button class="btn btn-secondary" onclick="exportData()" data-i18n="esporta">Esporta dati</button>
         <button class="btn btn-warning" onclick="document.getElementById('importFile').click()" data-i18n="importa">Importa dati</button>
       </div>
-      <div class="backup-row" style="margin-top:10px;">
+      <div class="backup-row" style="margin-top:12px;">
         <button class="btn" style="background:var(--accent);" onclick="downloadPDF('all')" data-i18n="pdfTutto">PDF completo</button>
         <button class="btn btn-secondary" onclick="downloadPDF('days')" data-i18n="pdfGiorni">PDF giorni</button>
         <button class="btn btn-warning" onclick="downloadPDF('certs')" data-i18n="pdfCert">PDF certificati</button>
@@ -388,8 +489,8 @@
         <div class="input-row" id="editCertFileRow"><label style="min-width:50px" data-i18n="allegato">Allegato</label>
           <div style="flex:1; display:flex; align-items:center; gap:8px;">
             <span id="editCertFileName" style="font-size:14px; color:var(--text-secondary); flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;"></span>
-            <button type="button" class="btn" style="flex:0 0 auto; width:auto; padding:6px 12px; font-size:13px; margin-top:0;" onclick="downloadEditAttachment()" data-i18n="scarica">Scarica</button>
-            <button type="button" class="btn btn-danger" style="flex:0 0 auto; width:auto; padding:6px 12px; font-size:13px; margin-top:0;" onclick="removeEditAttachment()" data-i18n="rimuovi">Rimuovi</button>
+            <button type="button" class="btn" style="flex:0 0 auto; width:auto; padding:8px 14px; font-size:13px; margin-top:0;" onclick="downloadEditAttachment()" data-i18n="scarica">Scarica</button>
+            <button type="button" class="btn btn-danger" style="flex:0 0 auto; width:auto; padding:8px 14px; font-size:13px; margin-top:0;" onclick="removeEditAttachment()" data-i18n="rimuovi">Rimuovi</button>
           </div>
         </div>
         <div class="input-row" id="editCertFileNewRow"><label style="min-width:50px" data-i18n="nuovoAllegato">Nuovo</label><input type="file" id="editCertFile" accept="image/*,application/pdf" style="padding:8px 0; border:none; background:transparent; font-size:14px;"></div>
@@ -483,7 +584,7 @@
     function setLang(lang) {
       localStorage.setItem(LANG_KEY, lang);
       applyLang();
-    renderDashboard();
+      renderDashboard();
       renderDashboard();
       renderCalcData();
       renderCertificates();
@@ -665,11 +766,15 @@
     function showPage(page) {
       closeMenu();
       ['dashboard','calculator','certificates'].forEach(p => {
-        document.getElementById('page-' + p).classList.add('hidden');
+        const el = document.getElementById('page-' + p);
+        el.classList.add('hidden');
+        el.classList.remove('fade-in');
         const navId = p === 'dashboard' ? 'nav-dash' : p === 'calculator' ? 'nav-calc' : 'nav-cert';
         document.getElementById(navId).classList.remove('active');
       });
-      document.getElementById('page-' + page).classList.remove('hidden');
+      const activeEl = document.getElementById('page-' + page);
+      activeEl.classList.remove('hidden');
+      activeEl.classList.add('fade-in');
       const activeNavId = page === 'dashboard' ? 'nav-dash' : page === 'calculator' ? 'nav-calc' : 'nav-cert';
       document.getElementById(activeNavId).classList.add('active');
       if (page === 'dashboard') renderDashboard();
@@ -785,10 +890,10 @@
         div.className = 'cert-item ' + s.class;
         div.onclick = () => openCertModal(c.id);
         const daysText = s.days >= 0 ? `${t('tra')} ${s.days} ${t('gg')}` : `${Math.abs(s.days)} ${t('ggFa')}`;
-        const attachIcon = c.hasAttachment ? `<span style="margin-left:6px;opacity:0.6;">📎</span>` : '';
+        const attachIcon = c.hasAttachment ? `<span style="margin-left:6px;opacity:0.6;">&#128206;</span>` : '';
         div.innerHTML = `<div class="cert-info">
           <div class="cert-name">${escapeHtml(c.name)}${attachIcon} <span class="cert-status ${s.class}">${s.label}</span></div>
-          <div class="cert-code">${t('codice')}: ${escapeHtml(c.code)} — ${t('scad')}: ${formatDateIT(c.expiry)}</div>
+          <div class="cert-code">${t('codice')}: ${escapeHtml(c.code)} &mdash; ${t('scad')}: ${formatDateIT(c.expiry)}</div>
         </div>
         <div class="cert-days ${s.class}">${daysText}</div>`;
         list.appendChild(div);
@@ -970,11 +1075,11 @@
               const diffClass = isMissing ? 'negative' : 'positive';
               const diffText = isMissing ? t('giorniMancanti') : t('giorniOltre');
               const diffBoxBg = isMissing
-                ? 'background: rgba(255,59,48,0.10); border-color: var(--danger);'
-                : 'background: rgba(52,199,89,0.10); border-color: var(--positive);';
+                ? 'background: rgba(239,68,68,0.10); border-color: var(--danger);'
+                : 'background: rgba(34,197,94,0.10); border-color: var(--positive);';
 
-              detailHtml += `<div style="padding:14px 16px; border-radius:12px; border:1.5px solid; margin-bottom:14px; ${diffBoxBg} text-align:center;">
-                <div style="font-size:13px; color:var(--text-secondary); margin-bottom:4px;">${t('target')} ${target} ${t('gg')} — ${t('totaleAnno', y)}: ${days} ${t('gg')}</div>
+              detailHtml += `<div style="padding:14px 16px; border-radius:14px; border:1.5px solid; margin-bottom:14px; ${diffBoxBg} text-align:center;">
+                <div style="font-size:13px; color:var(--text-secondary); margin-bottom:4px;">${t('target')} ${target} ${t('gg')} &mdash; ${t('totaleAnno', y)}: ${days} ${t('gg')}</div>
                 <div style="font-size:32px; font-weight:700; color:var(--${diffClass}); line-height:1;">${Math.abs(yearDiff)}</div>
                 <div style="font-size:13px; color:var(--text-secondary); margin-top:4px;">${diffText}</div>
               </div>`;
@@ -990,7 +1095,7 @@
                 detailHtml += `<div class="detail-row">
                   <div class="detail-info">
                     <div class="detail-name">${escapeHtml(p.name)}</div>
-                    <div class="detail-days">${formatDateIT(p.start)} → ${formatDateIT(p.end)}</div>
+                    <div class="detail-days">${formatDateIT(p.start)} &rarr; ${formatDateIT(p.end)}</div>
                   </div>
                   <div class="detail-period-total">${py.days} ${t('gg')}</div>
                 </div>`;
@@ -1027,7 +1132,7 @@
           div.onclick = () => openEditModal(p.id);
           div.innerHTML = `<div class="period-info">
             <div class="period-name">${escapeHtml(p.name)}</div>
-            <div class="period-dates">${formatDateIT(p.start)} → ${formatDateIT(p.end)}</div>
+            <div class="period-dates">${formatDateIT(p.start)} &rarr; ${formatDateIT(p.end)}</div>
           </div>
           <div class="period-days">${p.total}</div>`;
           listEl.appendChild(div);
