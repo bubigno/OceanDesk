@@ -391,7 +391,7 @@
         </div>
       </div>
 
-      <div class="card">
+      <div class="card" id="calcYearCard" style="display:none;">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
           <div class="card-title" data-i18n="ripartizioneGlobale" style="margin-bottom:0;">Ripartizione annuale globale</div>
           <div style="text-align:right;">
@@ -401,7 +401,7 @@
         </div>
         <div id="calcGlobalYearList"></div>
       </div>
-      <div class="card">
+      <div class="card" id="calcSavedCard" style="display:none;">
         <div class="section-title" data-i18n="periodiSalvati">Periodi salvati</div>
         <div id="calcSavedPeriodsList"></div>
       </div>
@@ -415,16 +415,16 @@
           <div class="input-row"><label style="min-width:50px" data-i18n="nome">Nome</label><input type="text" id="certName" placeholder="Es. Brevetto nautico..."></div>
           <div class="input-row"><label style="min-width:50px" data-i18n="codice">Codice</label><input type="text" id="certCode" placeholder="Es. ABC-12345"></div>
           <div class="input-row"><label style="min-width:50px" data-i18n="scad">Scad.</label><input type="date" id="certExpiry"></div>
-          <div class="input-row"><label style="min-width:50px">Allegato 1</label>
+          <div class="input-row"><label style="min-width:50px" data-i18n="allegato">Allegato</label>
             <input type="file" id="certFile1" accept="image/*,application/pdf" style="flex:1; padding:8px 0; border:none; background:transparent; font-size:14px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:100%;">
           </div>
-          <div class="input-row"><label style="min-width:50px">Allegato 2</label>
+          <div class="input-row"><label style="min-width:50px"></label>
             <input type="file" id="certFile2" accept="image/*,application/pdf" style="flex:1; padding:8px 0; border:none; background:transparent; font-size:14px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:100%;">
           </div>
           <button class="btn" onclick="addCertificate()" data-i18n="aggiungi">Aggiungi</button>
         </div>
       </div>
-      <div class="card">
+      <div class="card" id="certSavedCard" style="display:none;">
         <div class="section-title" data-i18n="certificatiSalvati">Certificati salvati</div>
         <div id="certificatesList"></div>
       </div>
@@ -890,8 +890,9 @@
     function renderCertificates() {
       const list = document.getElementById('certificatesList');
       const certs = getCertificates();
+      document.getElementById('certSavedCard').style.display = certs.length > 0 ? '' : 'none';
       if (certs.length === 0) {
-        list.innerHTML = `<div class="empty-state"><p style="font-size:13px">${t('nessunCert')}</p></div>`;
+        list.innerHTML = '';
         return;
       }
       const sorted = certs.slice().sort((a, b) => new Date(a.expiry) - new Date(b.expiry));
@@ -1047,6 +1048,10 @@
 
       const grandTotal = periods.reduce((sum, p) => sum + p.total, 0);
       anim(document.getElementById('calcTotalDays'), grandTotal, 700);
+
+      const hasData = periods.length > 0;
+      document.getElementById('calcYearCard').style.display = hasData ? '' : 'none';
+      document.getElementById('calcSavedCard').style.display = hasData ? '' : 'none';
 
       const yearTotals = {};
       periods.forEach(p => p.years.forEach(y => { yearTotals[y.year] = (yearTotals[y.year] || 0) + y.days; }));
