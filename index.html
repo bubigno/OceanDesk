@@ -356,7 +356,7 @@
     <div id="page-dashboard" class="fade-in">
       <div class="card grand-total" style="margin-top:8px;">
         <div class="year-select-wrap">
-          <select id="dashYearSelect" onchange="localStorage.setItem(DASH_YEAR_KEY, this.value); renderDashboard();">
+          <select id="dashYearSelect" onchange="renderDashboard()">
             <option value="all" data-i18n="tuttiAnni">Tutti gli anni</option>
           </select>
         </div>
@@ -409,24 +409,19 @@
 
     <div id="page-certificates" class="hidden">
       <h1 data-i18n="certificati">Certificati</h1>
-      <div class="card" style="padding:0; overflow:hidden;">
-        <div style="display:flex; justify-content:space-between; align-items:center; padding:18px 22px; cursor:pointer;" onclick="toggleCertForm()">
-          <span style="font-size:15px; font-weight:700;" data-i18n="aggiungiCert">Aggiungi certificato</span>
-          <span id="certFormToggle" style="font-size:22px; font-weight:700; color:var(--accent); transition:transform 0.3s;">+</span>
-        </div>
-        <div id="certFormBody" class="hidden" style="padding:0 22px 22px;">
-          <div class="input-group">
-            <div class="input-row"><label style="min-width:50px" data-i18n="nome">Nome</label><input type="text" id="certName" placeholder="Es. Brevetto nautico..."></div>
-            <div class="input-row"><label style="min-width:50px" data-i18n="codice">Codice</label><input type="text" id="certCode" placeholder="Es. ABC-12345"></div>
-            <div class="input-row"><label style="min-width:50px" data-i18n="scad">Scad.</label><input type="date" id="certExpiry"></div>
-            <div class="input-row"><label style="min-width:50px" data-i18n="allegato">Allegato</label>
-              <input type="file" id="certFile1" accept="image/*,application/pdf" style="flex:1; padding:8px 0; border:none; background:transparent; font-size:14px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:100%;">
-            </div>
-            <div class="input-row"><label style="min-width:50px"></label>
-              <input type="file" id="certFile2" accept="image/*,application/pdf" style="flex:1; padding:8px 0; border:none; background:transparent; font-size:14px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:100%;">
-            </div>
-            <button class="btn" onclick="addCertificate()" data-i18n="aggiungi">Aggiungi</button>
+      <div class="card">
+        <div class="card-title" data-i18n="aggiungiCert">Aggiungi certificato</div>
+        <div class="input-group">
+          <div class="input-row"><label style="min-width:50px" data-i18n="nome">Nome</label><input type="text" id="certName" placeholder="Es. Brevetto nautico..."></div>
+          <div class="input-row"><label style="min-width:50px" data-i18n="codice">Codice</label><input type="text" id="certCode" placeholder="Es. ABC-12345"></div>
+          <div class="input-row"><label style="min-width:50px" data-i18n="scad">Scad.</label><input type="date" id="certExpiry"></div>
+          <div class="input-row"><label style="min-width:50px" data-i18n="allegato">Allegato</label>
+            <input type="file" id="certFile1" accept="image/*,application/pdf" style="flex:1; padding:8px 0; border:none; background:transparent; font-size:14px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:100%;">
           </div>
+          <div class="input-row"><label style="min-width:50px"></label>
+            <input type="file" id="certFile2" accept="image/*,application/pdf" style="flex:1; padding:8px 0; border:none; background:transparent; font-size:14px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:100%;">
+          </div>
+          <button class="btn" onclick="addCertificate()" data-i18n="aggiungi">Aggiungi</button>
         </div>
       </div>
       <div class="card" id="certSavedCard" style="display:none;">
@@ -460,15 +455,9 @@
         <button class="btn btn-warning" onclick="document.getElementById('importFile').click()" data-i18n="importa">Importa dati</button>
       </div>
       <div class="backup-row" style="margin-top:12px;">
-        <select id="pdfSelect" onchange="if(this.value){downloadPDF(this.value);this.value='';}" style="flex:1; padding:14px 16px; border:1.5px solid var(--border); border-radius:14px; font-size:15px; font-weight:600; background:var(--bg); color:var(--text); cursor:pointer;">
-          <option value="">&#128196; Scarica PDF...</option>
-          <option value="all" data-i18n="pdfTutto">PDF completo</option>
-          <option value="days" data-i18n="pdfGiorni">PDF giorni</option>
-          <option value="certs" data-i18n="pdfCert">PDF certificati</option>
-        </select>
-      </div>
-      <div class="backup-row" style="margin-top:12px;">
-        <button class="btn btn-danger" onclick="resetAllData()">&#128465; Reset dati</button>
+        <button class="btn" style="background:var(--accent);" onclick="downloadPDF('all')" data-i18n="pdfTutto">PDF completo</button>
+        <button class="btn btn-secondary" onclick="downloadPDF('days')" data-i18n="pdfGiorni">PDF giorni</button>
+        <button class="btn btn-warning" onclick="downloadPDF('certs')" data-i18n="pdfCert">PDF certificati</button>
       </div>
     </div>
   </div>
@@ -789,40 +778,6 @@
       if (page === 'certificates') renderCertificates();
     }
 
-    async function resetAllData() {
-      if (!confirm('Sei sicuro di voler cancellare TUTTI i dati? Questa azione non può essere annullata.')) return;
-      localStorage.removeItem(STORAGE_KEY);
-      localStorage.removeItem(TARGET_KEY);
-      localStorage.removeItem(CERT_KEY);
-      localStorage.removeItem(LANG_KEY);
-      localStorage.removeItem(DASH_YEAR_KEY);
-      try {
-        const db = await openAttachmentDB();
-        const tx = db.transaction(ATTACHMENT_STORE, 'readwrite');
-        tx.objectStore(ATTACHMENT_STORE).clear();
-      } catch(e) {}
-      document.getElementById('targetDays').value = '';
-      document.getElementById('periodName').value = '';
-      document.getElementById('startDate').value = '2023-01-01';
-      document.getElementById('endDate').value = new Date().toISOString().split('T')[0];
-      document.getElementById('certName').value = '';
-      document.getElementById('certCode').value = '';
-      document.getElementById('certExpiry').value = '';
-      document.getElementById('certFile1').value = '';
-      document.getElementById('certFile2').value = '';
-      openYear = null;
-      renderDashboard();
-      renderCalcData();
-      renderCertificates();
-      toast('Dati cancellati');
-      closeMenu();
-    }
-    function toggleCertForm() {
-      const body = document.getElementById('certFormBody');
-      const icon = document.getElementById('certFormToggle');
-      body.classList.toggle('hidden');
-      icon.style.transform = body.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(45deg)';
-    }
     function toggleIosNotice() {
       const tip = document.getElementById('iosTooltip');
       tip.classList.toggle('hidden');
@@ -840,7 +795,7 @@
       const certs = getCertificates();
 
       const select = document.getElementById('dashYearSelect');
-      const savedYear = localStorage.getItem(DASH_YEAR_KEY);
+      const currentVal = select.value;
 
       const yearSet = new Set();
       periods.forEach(p => p.years.forEach(y => yearSet.add(y.year)));
@@ -849,11 +804,8 @@
       let opts = `<option value="all">${t('tuttiAnni')}</option>`;
       years.forEach(y => { opts += `<option value="${y}">${t('anno')} ${y}</option>`; });
       select.innerHTML = opts;
-
-      if (savedYear && (savedYear === 'all' || yearSet.has(parseInt(savedYear)))) {
-        select.value = savedYear;
-      } else if (select.value && (select.value === 'all' || yearSet.has(parseInt(select.value)))) {
-        // keep current
+      if (currentVal && (currentVal === 'all' || yearSet.has(parseInt(currentVal)))) {
+        select.value = currentVal;
       } else { select.value = 'all'; }
 
       const selected = select.value;
