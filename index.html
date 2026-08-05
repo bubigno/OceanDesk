@@ -346,7 +346,7 @@
   <div class="nav-bar-wrapper">
     <div class="nav-bar container">
       <button class="nav-btn active" onclick="showPage('dashboard')" id="nav-dash" data-i18n="dashboard">Dashboard</button>
-      <button class="nav-btn" onclick="showPage('calculator')" id="nav-calc" data-i18n="calcola">Calcola</button>
+      <button class="nav-btn" onclick="showPage('calculator')" id="nav-calc" data-i18n="giorni">Giorni</button>
       <button class="nav-btn" onclick="showPage('certificates')" id="nav-cert" data-i18n="certificati">Certificati</button>
       <button class="nav-btn menu-btn" onclick="openMenu()" id="nav-menu">&#9776;</button>
     </div>
@@ -356,7 +356,7 @@
     <div id="page-dashboard" class="fade-in">
       <div class="card grand-total" style="margin-top:8px;">
         <div class="year-select-wrap">
-          <select id="dashYearSelect" onchange="renderDashboard()">
+          <select id="dashYearSelect" onchange="localStorage.setItem(DASH_YEAR_KEY, this.value); renderDashboard();">
             <option value="all" data-i18n="tuttiAnni">Tutti gli anni</option>
           </select>
         </div>
@@ -366,28 +366,33 @@
       <div class="card">
         <div class="card-title" data-i18n="riepilogoCert">Riepilogo certificati</div>
         <div class="summary-grid" id="certSummary">
-          <div class="summary-cell valid"><div class="num" id="dashCertValid">0</div><div class="lbl" data-i18n="validi">Validi</div></div>
-          <div class="summary-cell warning"><div class="num" id="dashCertWarn">0</div><div class="lbl" data-i18n="inScadenza">In scadenza</div></div>
-          <div class="summary-cell expired"><div class="num" id="dashCertExp">0</div><div class="lbl" data-i18n="scaduti">Scaduti</div></div>
+          <div class="summary-cell valid" onclick="goToCerts('valid')" style="cursor:pointer;"><div class="num" id="dashCertValid">0</div><div class="lbl" data-i18n="validi">Validi</div></div>
+          <div class="summary-cell warning" onclick="goToCerts('warning')" style="cursor:pointer;"><div class="num" id="dashCertWarn">0</div><div class="lbl" data-i18n="inScadenza">In scadenza</div></div>
+          <div class="summary-cell expired" onclick="goToCerts('expired')" style="cursor:pointer;"><div class="num" id="dashCertExp">0</div><div class="lbl" data-i18n="scaduti">Scaduti</div></div>
         </div>
       </div>
     </div>
 
     <div id="page-calculator" class="hidden">
-      <h1 data-i18n="calcola">Calcola</h1>
+      <h1 data-i18n="giorni">Giorni</h1>
       <div class="target-box">
         <label data-i18n="giorniTarget">Giorni target</label>
         <input type="number" id="targetDays" placeholder="0" min="0" onchange="saveTarget()">
       </div>
-      <div class="card">
-        <div class="card-title" data-i18n="selezionaPeriodo">Seleziona il periodo</div>
-        <div class="input-group">
-          <div class="input-row"><label data-i18n="da">Da</label><input type="date" id="startDate"></div>
-          <div class="input-row"><label data-i18n="a">A</label><input type="date" id="endDate"></div>
-          <div class="input-row"><label style="min-width:40px" data-i18n="nome">Nome</label>
-            <input type="text" id="periodName" placeholder="Es. Progetto Alpha, Vacanza..."></div>
-          <button class="btn" onclick="calculate()" data-i18n="calcolaSalva">Calcola e salva</button>
-          <button class="btn" onclick="resetCalculator()" style="background:var(--text-secondary); margin-top:8px;" data-i18n="reset">Reset</button>
+      <div class="card" style="padding:0; overflow:hidden;">
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:18px 22px; cursor:pointer;" onclick="toggleCalcForm()">
+          <span style="font-size:15px; font-weight:700;" data-i18n="selezionaPeriodo">Seleziona il periodo</span>
+          <span id="calcFormToggle" style="font-size:22px; font-weight:700; color:var(--accent); transition:transform 0.3s;">+</span>
+        </div>
+        <div id="calcFormBody" class="hidden" style="padding:0 22px 22px;">
+          <div class="input-group">
+            <div class="input-row"><label data-i18n="da">Da</label><input type="date" id="startDate"></div>
+            <div class="input-row"><label data-i18n="a">A</label><input type="date" id="endDate"></div>
+            <div class="input-row"><label style="min-width:40px" data-i18n="nome">Nome</label>
+              <input type="text" id="periodName" placeholder="Es. Progetto Alpha, Vacanza..."></div>
+            <button class="btn" onclick="calculate()" data-i18n="calcolaSalva">Calcola e salva</button>
+            <button class="btn" onclick="resetCalculator()" style="background:var(--text-secondary); margin-top:8px;" data-i18n="reset">Reset</button>
+          </div>
         </div>
       </div>
 
@@ -409,24 +414,51 @@
 
     <div id="page-certificates" class="hidden">
       <h1 data-i18n="certificati">Certificati</h1>
-      <div class="card">
-        <div class="card-title" data-i18n="aggiungiCert">Aggiungi certificato</div>
-        <div class="input-group">
-          <div class="input-row"><label style="min-width:50px" data-i18n="nome">Nome</label><input type="text" id="certName" placeholder="Es. Brevetto nautico..."></div>
-          <div class="input-row"><label style="min-width:50px" data-i18n="codice">Codice</label><input type="text" id="certCode" placeholder="Es. ABC-12345"></div>
-          <div class="input-row"><label style="min-width:50px" data-i18n="scad">Scad.</label><input type="date" id="certExpiry"></div>
-          <div class="input-row"><label style="min-width:50px" data-i18n="allegato">Allegato</label>
-            <input type="file" id="certFile1" accept="image/*,application/pdf" style="flex:1; padding:8px 0; border:none; background:transparent; font-size:14px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:100%;">
+      <div class="card" style="padding:0; overflow:hidden;">
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:18px 22px; cursor:pointer;" onclick="toggleCertForm()">
+          <span style="font-size:15px; font-weight:700;" data-i18n="aggiungiCert">Aggiungi certificato</span>
+          <span id="certFormToggle" style="font-size:22px; font-weight:700; color:var(--accent); transition:transform 0.3s;">+</span>
+        </div>
+        <div id="certFormBody" class="hidden" style="padding:0 22px 22px;">
+          <div class="input-group">
+            <div class="input-row"><label style="min-width:50px" data-i18n="nome">Nome</label><input type="text" id="certName" placeholder="Es. Brevetto nautico..."></div>
+            <div class="input-row"><label style="min-width:50px" data-i18n="codice">Codice</label><input type="text" id="certCode" placeholder="Es. ABC-12345"></div>
+            <div class="input-row"><label style="min-width:50px" data-i18n="scad">Scad.</label><input type="date" id="certExpiry"></div>
+            <div class="input-row">
+              <label style="min-width:50px" data-i18n="allegato">Allegato</label>
+              <div style="flex:1; position:relative; overflow:hidden; border:1.5px solid var(--border); border-radius:14px; background:var(--bg);">
+                <input type="file" id="certFile1" accept="image/*,application/pdf" onchange="updateCertFileLabel(this)" style="position:absolute; top:0; left:0; width:100%; height:100%; opacity:0; cursor:pointer; z-index:2;">
+                <div id="certFileLabel" style="padding:14px 16px; font-size:14px; color:var(--text-secondary); text-align:center; pointer-events:none; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                  Scegli file...
+                </div>
+              </div>
+            </div>
+            <button class="btn" onclick="addCertificate()" data-i18n="aggiungi">Aggiungi</button>
           </div>
-          <div class="input-row"><label style="min-width:50px"></label>
-            <input type="file" id="certFile2" accept="image/*,application/pdf" style="flex:1; padding:8px 0; border:none; background:transparent; font-size:14px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:100%;">
-          </div>
-          <button class="btn" onclick="addCertificate()" data-i18n="aggiungi">Aggiungi</button>
         </div>
       </div>
-      <div class="card" id="certSavedCard" style="display:none;">
-        <div class="section-title" data-i18n="certificatiSalvati">Certificati salvati</div>
-        <div id="certificatesList"></div>
+      <div id="certSavedCard" style="display:none;">
+        <div id="certSectionExpired" style="display:none; margin-bottom:16px;">
+          <div class="section-title" style="color:var(--danger); display:flex; align-items:center; gap:8px;">
+            <span style="width:8px;height:8px;border-radius:50%;background:var(--danger);display:inline-block;"></span>
+            <span data-i18n="scaduti">Scaduti</span>
+          </div>
+          <div id="certificatesListExpired"></div>
+        </div>
+        <div id="certSectionWarning" style="display:none; margin-bottom:16px;">
+          <div class="section-title" style="color:var(--warning); display:flex; align-items:center; gap:8px;">
+            <span style="width:8px;height:8px;border-radius:50%;background:var(--warning);display:inline-block;"></span>
+            <span data-i18n="inScadenza">In scadenza</span>
+          </div>
+          <div id="certificatesListWarning"></div>
+        </div>
+        <div id="certSectionValid" style="display:none;">
+          <div class="section-title" style="color:var(--positive); display:flex; align-items:center; gap:8px;">
+            <span style="width:8px;height:8px;border-radius:50%;background:var(--positive);display:inline-block;"></span>
+            <span data-i18n="validi">Validi</span>
+          </div>
+          <div id="certificatesListValid"></div>
+        </div>
       </div>
     </div>
   </div>
@@ -455,9 +487,15 @@
         <button class="btn btn-warning" onclick="document.getElementById('importFile').click()" data-i18n="importa">Importa dati</button>
       </div>
       <div class="backup-row" style="margin-top:12px;">
-        <button class="btn" style="background:var(--accent);" onclick="downloadPDF('all')" data-i18n="pdfTutto">PDF completo</button>
-        <button class="btn btn-secondary" onclick="downloadPDF('days')" data-i18n="pdfGiorni">PDF giorni</button>
-        <button class="btn btn-warning" onclick="downloadPDF('certs')" data-i18n="pdfCert">PDF certificati</button>
+        <select id="pdfSelect" onchange="if(this.value){downloadPDF(this.value);this.value='';}" style="flex:1; padding:14px 16px; border:1.5px solid var(--border); border-radius:14px; font-size:15px; font-weight:600; background:var(--bg); color:var(--text); cursor:pointer;">
+          <option value="">&#128196; Scarica PDF...</option>
+          <option value="all" data-i18n="pdfTutto">PDF completo</option>
+          <option value="days" data-i18n="pdfGiorni">PDF giorni</option>
+          <option value="certs" data-i18n="pdfCert">PDF certificati</option>
+        </select>
+      </div>
+      <div class="backup-row" style="margin-top:12px;">
+        <button class="btn btn-danger" onclick="resetAllData()">&#128465; Reset dati</button>
       </div>
     </div>
   </div>
@@ -509,7 +547,7 @@
     const LANG_KEY = 'daycounter_lang';
     const i18n = {
       it: {
-        dashboard: 'Dashboard', calcola: 'Calcola', certificati: 'Certificati', menu: 'Menu',
+        dashboard: 'Dashboard', calcola: 'Calcola', giorni: 'Giorni', certificati: 'Certificati', menu: 'Menu',
         tuttiAnni: 'Tutti gli anni', giorniTotali: 'giorni totali salvati',
         riepilogoCert: 'Riepilogo certificati', validi: 'Validi', inScadenza: 'In scadenza', scaduti: 'Scaduti',
         giorniTarget: 'Giorni target', selezionaPeriodo: 'Seleziona il periodo',
@@ -542,7 +580,7 @@
         valido: 'Valido', periodoDefault: 'Periodo', anno: 'Anno'
       },
       en: {
-        dashboard: 'Dashboard', calcola: 'Calculate', certificati: 'Certificates', menu: 'Menu',
+        dashboard: 'Dashboard', calcola: 'Calculate', giorni: 'Days', certificati: 'Certificates', menu: 'Menu',
         tuttiAnni: 'All years', giorniTotali: 'total saved days',
         riepilogoCert: 'Certificates summary', validi: 'Valid', inScadenza: 'Expiring soon', scaduti: 'Expired',
         giorniTarget: 'Target days', selezionaPeriodo: 'Select period',
@@ -620,6 +658,7 @@
     let editingCertAttachments = [];
     let editingCertAttachmentsRemoved = [];
     let openYear = null;
+    let certScrollTarget = null;
 
     // ===== INDEXEDDB ATTACHMENTS =====
     const ATTACHMENT_DB = 'daycounter_attachments';
@@ -673,6 +712,7 @@
     const STORAGE_KEY = 'daycounter_periods';
     const TARGET_KEY = 'daycounter_target';
     const CERT_KEY = 'daycounter_certificates';
+    const DASH_YEAR_KEY = 'daycounter_dash_year';
 
     // ===== UTILS =====
     function isLeapYear(year) {
@@ -748,6 +788,7 @@
     }
     function saveCertificates(certs) { localStorage.setItem(CERT_KEY, JSON.stringify(certs)); }
     function getCertStatus(expiryStr) {
+      if (!expiryStr) return { class: 'valid', label: t('valido'), days: 9999 };
       const today = new Date(); today.setHours(0,0,0,0);
       const exp = new Date(expiryStr + 'T00:00:00');
       const diffMs = exp - today;
@@ -759,6 +800,10 @@
 
     setTimeout(() => { document.getElementById('splash').classList.add('hidden'); }, 2500);
 
+    function goToCerts(filter) {
+      certScrollTarget = filter;
+      showPage('certificates');
+    }
     function showPage(page) {
       closeMenu();
       ['dashboard','calculator','certificates'].forEach(p => {
@@ -778,6 +823,57 @@
       if (page === 'certificates') renderCertificates();
     }
 
+    async function resetAllData() {
+      if (!confirm('Sei sicuro di voler cancellare TUTTI i dati? Questa azione non può essere annullata.')) return;
+      localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem(TARGET_KEY);
+      localStorage.removeItem(CERT_KEY);
+      localStorage.removeItem(LANG_KEY);
+      localStorage.removeItem(DASH_YEAR_KEY);
+      try {
+        const db = await openAttachmentDB();
+        const tx = db.transaction(ATTACHMENT_STORE, 'readwrite');
+        tx.objectStore(ATTACHMENT_STORE).clear();
+      } catch(e) {}
+      document.getElementById('targetDays').value = '';
+      document.getElementById('periodName').value = '';
+      document.getElementById('startDate').value = '2023-01-01';
+      document.getElementById('endDate').value = new Date().toISOString().split('T')[0];
+      document.getElementById('certName').value = '';
+      document.getElementById('certCode').value = '';
+      document.getElementById('certExpiry').value = '';
+      document.getElementById('certFile1').value = '';
+      document.getElementById('certFileLabel').textContent = 'Scegli file...';
+      document.getElementById('certFileLabel').style.color = 'var(--text-secondary)';
+      openYear = null;
+      renderDashboard();
+      renderCalcData();
+      renderCertificates();
+      toast('Dati cancellati');
+      closeMenu();
+    }
+    function updateCertFileLabel(input) {
+      const label = document.getElementById('certFileLabel');
+      if (input.files && input.files[0]) {
+        label.textContent = input.files[0].name;
+        label.style.color = 'var(--text)';
+      } else {
+        label.textContent = 'Scegli file...';
+        label.style.color = 'var(--text-secondary)';
+      }
+    }
+    function toggleCalcForm() {
+      const body = document.getElementById('calcFormBody');
+      const icon = document.getElementById('calcFormToggle');
+      body.classList.toggle('hidden');
+      icon.style.transform = body.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(45deg)';
+    }
+    function toggleCertForm() {
+      const body = document.getElementById('certFormBody');
+      const icon = document.getElementById('certFormToggle');
+      body.classList.toggle('hidden');
+      icon.style.transform = body.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(45deg)';
+    }
     function toggleIosNotice() {
       const tip = document.getElementById('iosTooltip');
       tip.classList.toggle('hidden');
@@ -795,7 +891,7 @@
       const certs = getCertificates();
 
       const select = document.getElementById('dashYearSelect');
-      const currentVal = select.value;
+      const savedYear = localStorage.getItem(DASH_YEAR_KEY);
 
       const yearSet = new Set();
       periods.forEach(p => p.years.forEach(y => yearSet.add(y.year)));
@@ -804,8 +900,11 @@
       let opts = `<option value="all">${t('tuttiAnni')}</option>`;
       years.forEach(y => { opts += `<option value="${y}">${t('anno')} ${y}</option>`; });
       select.innerHTML = opts;
-      if (currentVal && (currentVal === 'all' || yearSet.has(parseInt(currentVal)))) {
-        select.value = currentVal;
+
+      if (savedYear && (savedYear === 'all' || yearSet.has(parseInt(savedYear)))) {
+        select.value = savedYear;
+      } else if (select.value && (select.value === 'all' || yearSet.has(parseInt(select.value)))) {
+        // keep current
       } else { select.value = 'all'; }
 
       const selected = select.value;
@@ -841,7 +940,7 @@
       const name = document.getElementById('certName').value.trim();
       const code = document.getElementById('certCode').value.trim();
       const expiry = document.getElementById('certExpiry').value;
-      if (!name || !expiry) { toast(t('compilaTutti')); return; }
+      if (!name && !expiry) { toast(t('compilaTutti')); return; }
 
       async function doSave(attachments) {
         const certs = getCertificates();
@@ -859,14 +958,13 @@
         document.getElementById('certFile1').value = '';
         document.getElementById('certFile2').value = '';
         renderCertificates();
+        renderDashboard();
         toast(t('certAggiunto'));
       }
 
       const files = [];
       const f1 = document.getElementById('certFile1').files?.[0];
-      const f2 = document.getElementById('certFile2').files?.[0];
       if (f1) files.push(f1);
-      if (f2) files.push(f2);
 
       if (files.length === 0) {
         doSave([]);
@@ -888,15 +986,31 @@
     }
 
     function renderCertificates() {
-      const list = document.getElementById('certificatesList');
       const certs = getCertificates();
-      document.getElementById('certSavedCard').style.display = certs.length > 0 ? '' : 'none';
+      const savedCard = document.getElementById('certSavedCard');
+      const secExp = document.getElementById('certSectionExpired');
+      const secWarn = document.getElementById('certSectionWarning');
+      const secVal = document.getElementById('certSectionValid');
+      const listExp = document.getElementById('certificatesListExpired');
+      const listWarn = document.getElementById('certificatesListWarning');
+      const listVal = document.getElementById('certificatesListValid');
+
+      savedCard.style.display = certs.length > 0 ? '' : 'none';
       if (certs.length === 0) {
-        list.innerHTML = '';
+        listExp.innerHTML = ''; listWarn.innerHTML = ''; listVal.innerHTML = '';
+        secExp.style.display = 'none'; secWarn.style.display = 'none'; secVal.style.display = 'none';
         return;
       }
-      const sorted = certs.slice().sort((a, b) => new Date(a.expiry) - new Date(b.expiry));
-      list.innerHTML = '';
+
+      const sorted = certs.slice().sort((a, b) => {
+        const da = a.expiry ? new Date(a.expiry) : new Date('2099-12-31');
+        const db = b.expiry ? new Date(b.expiry) : new Date('2099-12-31');
+        return da - db;
+      });
+
+      listExp.innerHTML = ''; listWarn.innerHTML = ''; listVal.innerHTML = '';
+      let hasExp = false, hasWarn = false, hasVal = false;
+
       sorted.forEach(c => {
         const s = getCertStatus(c.expiry);
         const div = document.createElement('div');
@@ -905,13 +1019,35 @@
         const daysText = s.days >= 0 ? `${t('tra')} ${s.days} ${t('gg')}` : `${Math.abs(s.days)} ${t('ggFa')}`;
         const attCount = (c.attachments && c.attachments.length) || (c.hasAttachment ? 1 : 0);
         const attachIcon = attCount > 0 ? `<span style="margin-left:6px;opacity:0.6;font-size:12px;">&#128206;${attCount > 1 ? '×' + attCount : ''}</span>` : '';
+        const codeLine = c.code ? `${t('codice')}: ${escapeHtml(c.code)} &mdash; ` : '';
+        const expiryLine = c.expiry ? `${t('scad')}: ${formatDateIT(c.expiry)}` : '';
         div.innerHTML = `<div class="cert-info">
-          <div class="cert-name">${escapeHtml(c.name)}${attachIcon} <span class="cert-status ${s.class}">${s.label}</span></div>
-          <div class="cert-code">${t('codice')}: ${escapeHtml(c.code)} &mdash; ${t('scad')}: ${formatDateIT(c.expiry)}</div>
+          <div class="cert-name">${escapeHtml(c.name || '')}${attachIcon} <span class="cert-status ${s.class}">${s.label}</span></div>
+          <div class="cert-code">${codeLine}${expiryLine}</div>
         </div>
         <div class="cert-days ${s.class}">${daysText}</div>`;
-        list.appendChild(div);
+
+        if (s.class === 'expired') { listExp.appendChild(div); hasExp = true; }
+        else if (s.class === 'warning') { listWarn.appendChild(div); hasWarn = true; }
+        else { listVal.appendChild(div); hasVal = true; }
       });
+
+      secExp.style.display = hasExp ? '' : 'none';
+      secWarn.style.display = hasWarn ? '' : 'none';
+      secVal.style.display = hasVal ? '' : 'none';
+
+      // scroll alla sezione target se arrivo dalla dashboard
+      if (certScrollTarget) {
+        setTimeout(() => {
+          const targetId = certScrollTarget === 'expired' ? 'certSectionExpired' :
+                           certScrollTarget === 'warning' ? 'certSectionWarning' : 'certSectionValid';
+          const el = document.getElementById(targetId);
+          if (el && el.style.display !== 'none') {
+            el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+          certScrollTarget = null;
+        }, 350);
+      }
     }
 
     async function openCertModal(id) {
@@ -952,7 +1088,7 @@
       const name = document.getElementById('editCertName').value.trim();
       const code = document.getElementById('editCertCode').value.trim();
       const expiry = document.getElementById('editCertExpiry').value;
-      if (!name || !expiry) { toast(t('compilaTutti')); return; }
+      if (!name && !expiry) { toast(t('compilaTutti')); return; }
 
       let attachments = editingCertAttachments.filter((_, i) => !editingCertAttachmentsRemoved.includes(i));
       const fileInput = document.getElementById('editCertFile');
@@ -966,7 +1102,7 @@
           const attMeta = attachments.map(a => ({ name: a.name, type: a.type }));
           certs[idx] = { ...certs[idx], name, code, expiry, attachments: attMeta, hasAttachment: attMeta.length > 0, attachmentName: attMeta[0]?.name || '' };
           saveCertificates(certs);
-          closeCertModal(); renderCertificates(); toast(t('certAggiornato'));
+          closeCertModal(); renderCertificates(); renderDashboard(); toast(t('certAggiornato'));
         };
         reader.readAsDataURL(file);
         return;
@@ -978,7 +1114,7 @@
       const attMeta = attachments.map(a => ({ name: a.name, type: a.type }));
       certs[idx] = { ...certs[idx], name, code, expiry, attachments: attMeta, hasAttachment: attMeta.length > 0, attachmentName: attMeta[0]?.name || '' };
       saveCertificates(certs);
-      closeCertModal(); renderCertificates(); toast(t('certAggiornato'));
+      closeCertModal(); renderCertificates(); renderDashboard(); toast(t('certAggiornato'));
     }
     async function deleteEditCert() {
       if (!editingCertId) return;
@@ -990,7 +1126,7 @@
       }
       const filtered = certs.filter(x => x.id !== editingCertId);
       saveCertificates(filtered);
-      closeCertModal(); renderCertificates(); toast(t('certEliminato'));
+      closeCertModal(); renderCertificates(); renderDashboard(); toast(t('certEliminato'));
     }
 
     function getDaysInRange(startStr, endStr) {
@@ -1033,6 +1169,7 @@
       toast(t('periodoSalvato'));
       document.getElementById('periodName').value = '';
       renderCalcData();
+      renderDashboard();
     }
 
     function resetCalculator() {
@@ -1186,14 +1323,14 @@
       periods[idx].start = start; periods[idx].end = end;
       recalcPeriod(periods[idx]);
       savePeriods(periods);
-      closeEditModal(); renderCalcData(); toast(t('periodoAggiornato'));
+      closeEditModal(); renderCalcData(); renderDashboard(); toast(t('periodoAggiornato'));
     }
     function deleteEditPeriod() {
       if (!editingId) return;
       if (!confirm(t('eliminaPeriodo'))) return;
       let periods = getSavedPeriods().filter(x => x.id !== editingId);
       savePeriods(periods);
-      closeEditModal(); renderCalcData(); toast(t('periodoEliminato'));
+      closeEditModal(); renderCalcData(); renderDashboard(); toast(t('periodoEliminato'));
     }
 
     async function exportData() {
