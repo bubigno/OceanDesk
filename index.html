@@ -391,7 +391,7 @@
             <div class="input-row"><label style="min-width:40px" data-i18n="nome">Nome</label>
               <input type="text" id="periodName" placeholder="Es. Progetto Alpha, Vacanza..."></div>
             <button class="btn" onclick="calculate()" data-i18n="calcolaSalva">Calcola e salva</button>
-            <button class="btn" onclick="resetCalculator()" style="background:var(--text-secondary); margin-top:8px;" data-i18n="reset">Reset</button>
+            <button class="btn" onclick="resetCalculator()" style="background:var(--text-secondary); margin-top:8px;" data-i18n="pulisci">Pulisci</button>
           </div>
         </div>
       </div>
@@ -434,6 +434,7 @@
               </div>
             </div>
             <button class="btn" onclick="addCertificate()" data-i18n="aggiungi">Aggiungi</button>
+            <button class="btn" onclick="clearCertForm()" style="background:var(--text-secondary); margin-top:8px;" data-i18n="pulisci">Pulisci</button>
           </div>
         </div>
       </div>
@@ -563,7 +564,7 @@
         nessunDato: 'Nessun dato disponibile', compilaTutti: 'Compila tutti i campi',
         certAggiunto: 'Certificato aggiunto', certAggiornato: 'Certificato aggiornato',
         certEliminato: 'Certificato eliminato', periodoSalvato: 'Periodo salvato!',
-        campiResettati: 'Campi resettati', periodoAggiornato: 'Periodo aggiornato',
+        pulisci: 'Pulisci', campiResettati: 'Campi resettati', periodoAggiornato: 'Periodo aggiornato',
         periodoEliminato: 'Periodo eliminato', backupScaricato: 'Backup scaricato!',
         fileNonValido: 'File non valido', erroreJSON: 'Errore nel file JSON',
         datiImportati: 'Dati importati con successo!', erroreSalvataggio: 'Errore nel salvataggio allegato', selezionaDate: 'Seleziona entrambe le date',
@@ -596,7 +597,7 @@
         nessunDato: 'No data available', compilaTutti: 'Fill in all fields',
         certAggiunto: 'Certificate added', certAggiornato: 'Certificate updated',
         certEliminato: 'Certificate deleted', periodoSalvato: 'Period saved!',
-        campiResettati: 'Fields reset', periodoAggiornato: 'Period updated',
+        pulisci: 'Clear', campiResettati: 'Fields reset', periodoAggiornato: 'Period updated',
         periodoEliminato: 'Period deleted', backupScaricato: 'Backup downloaded!',
         fileNonValido: 'Invalid file', erroreJSON: 'JSON file error',
         datiImportati: 'Data imported successfully!', erroreSalvataggio: 'Error saving attachment', selezionaDate: 'Select both dates',
@@ -862,6 +863,17 @@
         label.style.color = 'var(--text-secondary)';
       }
     }
+
+    function clearCertForm() {
+      document.getElementById('certName').value = '';
+      document.getElementById('certCode').value = '';
+      document.getElementById('certExpiry').value = '';
+      document.getElementById('certFile1').value = '';
+      const certFileLabel = document.getElementById('certFileLabel');
+      certFileLabel.textContent = 'Scegli file...';
+      certFileLabel.style.color = 'var(--text-secondary)';
+      toast(t('campiResettati'));
+    }
     function toggleCalcForm() {
       const body = document.getElementById('calcFormBody');
       const icon = document.getElementById('calcFormToggle');
@@ -956,7 +968,9 @@
         document.getElementById('certCode').value = '';
         document.getElementById('certExpiry').value = '';
         document.getElementById('certFile1').value = '';
-        document.getElementById('certFile2').value = '';
+        const certFileLabel = document.getElementById('certFileLabel');
+        certFileLabel.textContent = 'Scegli file...';
+        certFileLabel.style.color = 'var(--text-secondary)';
         renderCertificates();
         renderDashboard();
         toast(t('certAggiunto'));
