@@ -376,7 +376,7 @@
         <div class="total-number" id="dashTotalDays">0</div>
         <div class="total-label" id="dashTotalLabel" data-i18n="giorniTotali">giorni totali salvati</div>
       </div>
-      <div class="card">
+      <div class="card" id="dashCertCard">
         <div class="card-title" data-i18n="riepilogoCert">Riepilogo certificati</div>
         <div class="summary-grid" id="certSummary">
           <div class="summary-cell valid" onclick="goToCerts('valid')" style="cursor:pointer;"><div class="num" id="dashCertValid">0</div><div class="lbl" data-i18n="validi">Validi</div></div>
@@ -385,22 +385,6 @@
         </div>
       </div>
     </div>
-      <div class="card">
-        <div class="card-title" data-i18n="riepilogoVeh">Riepilogo veicoli</div>
-        <div class="summary-grid" id="vehSummary">
-          <div class="summary-cell valid" onclick="goToVehicles('valid')" style="cursor:pointer;"><div class="num" id="dashVehValid">0</div><div class="lbl" data-i18n="validi">Validi</div></div>
-          <div class="summary-cell warning" onclick="goToVehicles('warning')" style="cursor:pointer;"><div class="num" id="dashVehWarn">0</div><div class="lbl" data-i18n="inScadenza">In scadenza</div></div>
-          <div class="summary-cell expired" onclick="goToVehicles('expired')" style="cursor:pointer;"><div class="num" id="dashVehExp">0</div><div class="lbl" data-i18n="scaduti">Scaduti</div></div>
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-title" data-i18n="riepilogoDoc">Riepilogo documenti</div>
-        <div class="summary-grid" id="docSummary">
-          <div class="summary-cell valid" onclick="goToDocuments('valid')" style="cursor:pointer;"><div class="num" id="dashDocValid">0</div><div class="lbl" data-i18n="validi">Validi</div></div>
-          <div class="summary-cell warning" onclick="goToDocuments('warning')" style="cursor:pointer;"><div class="num" id="dashDocWarn">0</div><div class="lbl" data-i18n="inScadenza">In scadenza</div></div>
-          <div class="summary-cell expired" onclick="goToDocuments('expired')" style="cursor:pointer;"><div class="num" id="dashDocExp">0</div><div class="lbl" data-i18n="scaduti">Scaduti</div></div>
-        </div>
-      </div>
 
     <div id="page-calculator" class="hidden">
       <h1 data-i18n="giorni">Giorni</h1>
@@ -599,22 +583,31 @@
         <button class="modal-close" onclick="closeMenu()">&times;</button>
       </div>
       <div style="margin-bottom:20px;">
-        <div style="font-size:13px; font-weight:700; color:var(--text-secondary); margin-bottom:12px; text-transform:uppercase; letter-spacing:0.5px;" data-i18n="tabsVisibili">Tabs visibili</div>
+        <div style="font-size:13px; font-weight:700; color:var(--text-secondary); margin-bottom:12px; text-transform:uppercase; letter-spacing:0.5px;" data-i18n="tabsVisibili">Tabs</div>
         <div class="tab-toggle-row">
           <span data-i18n="giorni">Giorni</span>
           <label class="switch"><input type="checkbox" id="toggle-giorni" onchange="toggleTab('giorni')"><span class="slider"></span></label>
         </div>
         <div class="tab-toggle-row">
           <span data-i18n="certificati">Certificati</span>
-          <label class="switch"><input type="checkbox" id="toggle-certificati" onchange="toggleTab('certificati')"><span class="slider"></span></label>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <input type="number" id="warnCertDays" value="90" min="1" max="999" style="width:60px; padding:6px 8px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; font-weight:700; text-align:center; background:var(--bg); color:var(--text);" onchange="saveWarningDays('cert', this.value)">
+            <label class="switch"><input type="checkbox" id="toggle-certificati" onchange="toggleTab('certificati')"><span class="slider"></span></label>
+          </div>
         </div>
         <div class="tab-toggle-row">
           <span data-i18n="veicoli">Veicoli</span>
-          <label class="switch"><input type="checkbox" id="toggle-veicoli" onchange="toggleTab('veicoli')"><span class="slider"></span></label>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <input type="number" id="warnVehDays" value="90" min="1" max="999" style="width:60px; padding:6px 8px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; font-weight:700; text-align:center; background:var(--bg); color:var(--text);" onchange="saveWarningDays('veh', this.value)">
+            <label class="switch"><input type="checkbox" id="toggle-veicoli" onchange="toggleTab('veicoli')"><span class="slider"></span></label>
+          </div>
         </div>
         <div class="tab-toggle-row">
           <span data-i18n="documenti">Documenti</span>
-          <label class="switch"><input type="checkbox" id="toggle-documenti" onchange="toggleTab('documenti')"><span class="slider"></span></label>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <input type="number" id="warnDocDays" value="90" min="1" max="999" style="width:60px; padding:6px 8px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; font-weight:700; text-align:center; background:var(--bg); color:var(--text);" onchange="saveWarningDays('doc', this.value)">
+            <label class="switch"><input type="checkbox" id="toggle-documenti" onchange="toggleTab('documenti')"><span class="slider"></span></label>
+          </div>
         </div>
       </div>
       <div class="lang-row">
@@ -775,6 +768,7 @@
         veicoliSalvati: 'Veicoli salvati', documentiSalvati: 'Documenti salvati',
         riepilogoVeh: 'Riepilogo veicoli', riepilogoDoc: 'Riepilogo documenti',
         tabsVisibili: 'Tabs visibili',
+        preavvisoScadenza: 'Preavviso scadenza (gg)',
         veicoloAggiunto: 'Veicolo aggiunto', veicoloAggiornato: 'Veicolo aggiornato',
         veicoloEliminato: 'Veicolo eliminato', documentoAggiunto: 'Documento aggiunto',
         documentoAggiornato: 'Documento aggiornato', documentoEliminato: 'Documento eliminato',
@@ -820,6 +814,7 @@
         veicoliSalvati: 'Saved vehicles', documentiSalvati: 'Saved documents',
         riepilogoVeh: 'Vehicles summary', riepilogoDoc: 'Documents summary',
         tabsVisibili: 'Visible tabs',
+        preavvisoScadenza: 'Expiry warning (days)',
         veicoloAggiunto: 'Vehicle added', veicoloAggiornato: 'Vehicle updated',
         veicoloEliminato: 'Vehicle deleted', documentoAggiunto: 'Document added',
         documentoAggiornato: 'Document updated', documentoEliminato: 'Document deleted',
@@ -877,6 +872,10 @@
 const VEHICLE_KEY = 'daycounter_vehicles';
     const DOCUMENT_KEY = 'daycounter_documents';
     const TAB_VISIBILITY_KEY = 'daycounter_tab_visibility';
+    const WARN_CERT_KEY = 'daycounter_warn_cert_days';
+    const WARN_VEH_KEY = 'daycounter_warn_veh_days';
+    const WARN_DOC_KEY = 'daycounter_warn_doc_days';
+
     let editingVehId = null;
     let editingVehAttachments = [];
     let editingVehAttachmentsRemoved = [];
@@ -1019,8 +1018,9 @@ const VEHICLE_KEY = 'daycounter_vehicles';
       const exp = new Date(expiryStr + 'T00:00:00');
       const diffMs = exp - today;
       const diffDays = Math.ceil(diffMs / 86400000);
+      const warnDays = parseInt(localStorage.getItem(WARN_CERT_KEY)) || 90;
       if (diffDays < 0) return { class: 'expired', label: t('scaduto'), days: diffDays };
-      if (diffDays <= 90) return { class: 'warning', label: t('inScadenzaLabel'), days: diffDays };
+      if (diffDays <= warnDays) return { class: 'warning', label: t('inScadenzaLabel'), days: diffDays };
       return { class: 'valid', label: t('valido'), days: diffDays };
     }
 
@@ -1061,6 +1061,9 @@ const VEHICLE_KEY = 'daycounter_vehicles';
       localStorage.removeItem(LANG_KEY);
       localStorage.removeItem(DASH_YEAR_KEY);
       localStorage.removeItem(TAB_VISIBILITY_KEY);
+      localStorage.removeItem(WARN_CERT_KEY);
+      localStorage.removeItem(WARN_VEH_KEY);
+      localStorage.removeItem(WARN_DOC_KEY);
       try {
         const db = await openAttachmentDB();
         const tx = db.transaction(ATTACHMENT_STORE, 'readwrite');
@@ -1189,27 +1192,9 @@ const VEHICLE_KEY = 'daycounter_vehicles';
       document.getElementById('dashCertWarn').textContent = warn;
       document.getElementById('dashCertExp').textContent = exp;
 
-      let vValid = 0, vWarn = 0, vExp = 0;
-      getVehicles().forEach(c => {
-        const s = getVehStatus(c.expiry);
-        if (s.class === 'valid') vValid++;
-        else if (s.class === 'warning') vWarn++;
-        else vExp++;
-      });
-      document.getElementById('dashVehValid').textContent = vValid;
-      document.getElementById('dashVehWarn').textContent = vWarn;
-      document.getElementById('dashVehExp').textContent = vExp;
-
-      let dValid = 0, dWarn = 0, dExp = 0;
-      getDocuments().forEach(c => {
-        const s = getDocStatus(c.expiry);
-        if (s.class === 'valid') dValid++;
-        else if (s.class === 'warning') dWarn++;
-        else dExp++;
-      });
-      document.getElementById('dashDocValid').textContent = dValid;
-      document.getElementById('dashDocWarn').textContent = dWarn;
-      document.getElementById('dashDocExp').textContent = dExp;
+      const vis = getTabVisibility();
+      const certCard = document.getElementById('dashCertCard');
+      if (certCard) certCard.style.display = vis.certificati !== false ? '' : 'none';
     }
 
     function addCertificate() {
@@ -1638,7 +1623,7 @@ const VEHICLE_KEY = 'daycounter_vehicles';
           catch(e) { c._attachments = []; }
         }
       }
-      const data = { periods: periods, target: target, certificates: certs, vehicles: vehs, documents: docs, exportedAt: new Date().toISOString() };
+      const data = { periods: periods, target: target, certificates: certs, vehicles: vehs, documents: docs, warningDays: getWarningDays(), exportedAt: new Date().toISOString() };
       const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -2396,6 +2381,7 @@ const VEHICLE_KEY = 'daycounter_vehicles';
       v[tab] = document.getElementById('toggle-' + tab).checked;
       saveTabVisibility(v);
       updateNavVisibility();
+      renderDashboard();
       const activeNav = document.querySelector('.nav-btn.active');
       if (activeNav) {
         const map = { 'nav-calc': 'giorni', 'nav-cert': 'certificati', 'nav-veh': 'veicoli', 'nav-doc': 'documenti' };
@@ -2413,6 +2399,35 @@ const VEHICLE_KEY = 'daycounter_vehicles';
       if (navVeh) navVeh.style.display = v.veicoli ? '' : 'none';
       if (navDoc) navDoc.style.display = v.documenti ? '' : 'none';
     }
+    
+    // ===== WARNING DAYS =====
+    function getWarningDays() {
+      return {
+        cert: parseInt(localStorage.getItem(WARN_CERT_KEY)) || 90,
+        veh: parseInt(localStorage.getItem(WARN_VEH_KEY)) || 90,
+        doc: parseInt(localStorage.getItem(WARN_DOC_KEY)) || 90
+      };
+    }
+    function saveWarningDays(type, value) {
+      const val = parseInt(value);
+      if (!val || val < 1) return;
+      const key = type === 'cert' ? WARN_CERT_KEY : type === 'veh' ? WARN_VEH_KEY : WARN_DOC_KEY;
+      localStorage.setItem(key, String(val));
+      renderDashboard();
+      renderCertificates();
+      renderVehicles();
+      renderDocuments();
+    }
+    function initWarningDays() {
+      const w = getWarningDays();
+      const elCert = document.getElementById('warnCertDays');
+      const elVeh = document.getElementById('warnVehDays');
+      const elDoc = document.getElementById('warnDocDays');
+      if (elCert) elCert.value = w.cert;
+      if (elVeh) elVeh.value = w.veh;
+      if (elDoc) elDoc.value = w.doc;
+    }
+
     function initTabToggles() {
       const v = getTabVisibility();
       const tGiorni = document.getElementById('toggle-giorni');
@@ -2429,6 +2444,7 @@ const VEHICLE_KEY = 'daycounter_vehicles';
     applyLang();
     renderDashboard();
     initTabToggles();
+    initWarningDays();
 
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('sw.js').then(reg => {
