@@ -324,6 +324,17 @@
       .toast { bottom: 110px; }
       h1 { font-size: 24px; }
     }
+
+    .tab-toggle-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); }
+    .tab-toggle-row:last-child { border-bottom: none; }
+    .tab-toggle-row span { font-size: 15px; font-weight: 600; }
+    .switch { position: relative; display: inline-block; width: 48px; height: 28px; }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--border); transition: .3s; border-radius: 28px; }
+    .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 4px; bottom: 4px; background-color: white; transition: .3s; border-radius: 50%; }
+    input:checked + .slider { background-color: var(--accent); }
+    input:checked + .slider:before { transform: translateX(20px); }
+
   </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
@@ -348,6 +359,8 @@
       <button class="nav-btn active" onclick="showPage('dashboard')" id="nav-dash" data-i18n="dashboard">Dashboard</button>
       <button class="nav-btn" onclick="showPage('calculator')" id="nav-calc" data-i18n="giorni">Giorni</button>
       <button class="nav-btn" onclick="showPage('certificates')" id="nav-cert" data-i18n="certificati">Certificati</button>
+      <button class="nav-btn" onclick="showPage('vehicles')" id="nav-veh" data-i18n="veicoli">Veicoli</button>
+      <button class="nav-btn" onclick="showPage('documents')" id="nav-doc" data-i18n="documenti">Documenti</button>
       <button class="nav-btn menu-btn" onclick="openMenu()" id="nav-menu">&#9776;</button>
     </div>
   </div>
@@ -372,6 +385,22 @@
         </div>
       </div>
     </div>
+      <div class="card">
+        <div class="card-title" data-i18n="riepilogoVeh">Riepilogo veicoli</div>
+        <div class="summary-grid" id="vehSummary">
+          <div class="summary-cell valid" onclick="goToVehicles('valid')" style="cursor:pointer;"><div class="num" id="dashVehValid">0</div><div class="lbl" data-i18n="validi">Validi</div></div>
+          <div class="summary-cell warning" onclick="goToVehicles('warning')" style="cursor:pointer;"><div class="num" id="dashVehWarn">0</div><div class="lbl" data-i18n="inScadenza">In scadenza</div></div>
+          <div class="summary-cell expired" onclick="goToVehicles('expired')" style="cursor:pointer;"><div class="num" id="dashVehExp">0</div><div class="lbl" data-i18n="scaduti">Scaduti</div></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title" data-i18n="riepilogoDoc">Riepilogo documenti</div>
+        <div class="summary-grid" id="docSummary">
+          <div class="summary-cell valid" onclick="goToDocuments('valid')" style="cursor:pointer;"><div class="num" id="dashDocValid">0</div><div class="lbl" data-i18n="validi">Validi</div></div>
+          <div class="summary-cell warning" onclick="goToDocuments('warning')" style="cursor:pointer;"><div class="num" id="dashDocWarn">0</div><div class="lbl" data-i18n="inScadenza">In scadenza</div></div>
+          <div class="summary-cell expired" onclick="goToDocuments('expired')" style="cursor:pointer;"><div class="num" id="dashDocExp">0</div><div class="lbl" data-i18n="scaduti">Scaduti</div></div>
+        </div>
+      </div>
 
     <div id="page-calculator" class="hidden">
       <h1 data-i18n="giorni">Giorni</h1>
@@ -464,11 +493,129 @@
     </div>
   </div>
 
+    <div id="page-vehicles" class="hidden">
+      <h1 data-i18n="veicoli">Veicoli</h1>
+      <div class="card" style="padding:0; overflow:hidden;">
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:18px 22px; cursor:pointer;" onclick="toggleVehForm()">
+          <span style="font-size:15px; font-weight:700;" data-i18n="aggiungiVeicolo">Aggiungi veicolo</span>
+          <span id="vehFormToggle" style="font-size:22px; font-weight:700; color:var(--accent); transition:transform 0.3s;">+</span>
+        </div>
+        <div id="vehFormBody" class="hidden" style="padding:0 22px 22px;">
+          <div class="input-group">
+            <div class="input-row"><label style="min-width:50px" data-i18n="nome">Nome</label><input type="text" id="vehName" placeholder="Es. Auto, Moto..."></div>
+            <div class="input-row"><label style="min-width:50px" data-i18n="codice">Codice</label><input type="text" id="vehCode" placeholder="Es. AB123CD"></div>
+            <div class="input-row"><label style="min-width:50px" data-i18n="scad">Scad.</label><input type="date" id="vehExpiry"></div>
+            <div class="input-row">
+              <label style="min-width:50px" data-i18n="allegato">Allegato</label>
+              <div style="flex:1; position:relative; overflow:hidden; border:1.5px solid var(--border); border-radius:14px; background:var(--bg);">
+                <input type="file" id="vehFile1" accept="image/*,application/pdf" onchange="updateVehFileLabel(this)" style="position:absolute; top:0; left:0; width:100%; height:100%; opacity:0; cursor:pointer; z-index:2;">
+                <div id="vehFileLabel" style="padding:14px 16px; font-size:14px; color:var(--text-secondary); text-align:center; pointer-events:none; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Scegli file...</div>
+              </div>
+            </div>
+            <button class="btn" onclick="addVehicle()" data-i18n="aggiungi">Aggiungi</button>
+            <button class="btn" onclick="clearVehForm()" style="background:var(--text-secondary); margin-top:8px;" data-i18n="pulisci">Pulisci</button>
+          </div>
+        </div>
+      </div>
+      <div id="vehSavedCard" style="display:none;">
+        <div id="vehSectionExpired" style="display:none; margin-bottom:16px;">
+          <div class="section-title" style="color:var(--danger); display:flex; align-items:center; gap:8px;">
+            <span style="width:8px;height:8px;border-radius:50%;background:var(--danger);display:inline-block;"></span>
+            <span data-i18n="scaduti">Scaduti</span>
+          </div>
+          <div id="vehiclesListExpired"></div>
+        </div>
+        <div id="vehSectionWarning" style="display:none; margin-bottom:16px;">
+          <div class="section-title" style="color:var(--warning); display:flex; align-items:center; gap:8px;">
+            <span style="width:8px;height:8px;border-radius:50%;background:var(--warning);display:inline-block;"></span>
+            <span data-i18n="inScadenza">In scadenza</span>
+          </div>
+          <div id="vehiclesListWarning"></div>
+        </div>
+        <div id="vehSectionValid" style="display:none;">
+          <div class="section-title" style="color:var(--positive); display:flex; align-items:center; gap:8px;">
+            <span style="width:8px;height:8px;border-radius:50%;background:var(--positive);display:inline-block;"></span>
+            <span data-i18n="validi">Validi</span>
+          </div>
+          <div id="vehiclesListValid"></div>
+        </div>
+      </div>
+    </div>
+
+
+    <div id="page-documents" class="hidden">
+      <h1 data-i18n="documenti">Documenti</h1>
+      <div class="card" style="padding:0; overflow:hidden;">
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:18px 22px; cursor:pointer;" onclick="toggleDocForm()">
+          <span style="font-size:15px; font-weight:700;" data-i18n="aggiungiDocumento">Aggiungi documento</span>
+          <span id="docFormToggle" style="font-size:22px; font-weight:700; color:var(--accent); transition:transform 0.3s;">+</span>
+        </div>
+        <div id="docFormBody" class="hidden" style="padding:0 22px 22px;">
+          <div class="input-group">
+            <div class="input-row"><label style="min-width:50px" data-i18n="nome">Nome</label><input type="text" id="docName" placeholder="Es. Passaporto, Patente..."></div>
+            <div class="input-row"><label style="min-width:50px" data-i18n="codice">Codice</label><input type="text" id="docCode" placeholder="Es. XX123456"></div>
+            <div class="input-row"><label style="min-width:50px" data-i18n="scad">Scad.</label><input type="date" id="docExpiry"></div>
+            <div class="input-row">
+              <label style="min-width:50px" data-i18n="allegato">Allegato</label>
+              <div style="flex:1; position:relative; overflow:hidden; border:1.5px solid var(--border); border-radius:14px; background:var(--bg);">
+                <input type="file" id="docFile1" accept="image/*,application/pdf" onchange="updateDocFileLabel(this)" style="position:absolute; top:0; left:0; width:100%; height:100%; opacity:0; cursor:pointer; z-index:2;">
+                <div id="docFileLabel" style="padding:14px 16px; font-size:14px; color:var(--text-secondary); text-align:center; pointer-events:none; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Scegli file...</div>
+              </div>
+            </div>
+            <button class="btn" onclick="addDocument()" data-i18n="aggiungi">Aggiungi</button>
+            <button class="btn" onclick="clearDocForm()" style="background:var(--text-secondary); margin-top:8px;" data-i18n="pulisci">Pulisci</button>
+          </div>
+        </div>
+      </div>
+      <div id="docSavedCard" style="display:none;">
+        <div id="docSectionExpired" style="display:none; margin-bottom:16px;">
+          <div class="section-title" style="color:var(--danger); display:flex; align-items:center; gap:8px;">
+            <span style="width:8px;height:8px;border-radius:50%;background:var(--danger);display:inline-block;"></span>
+            <span data-i18n="scaduti">Scaduti</span>
+          </div>
+          <div id="documentsListExpired"></div>
+        </div>
+        <div id="docSectionWarning" style="display:none; margin-bottom:16px;">
+          <div class="section-title" style="color:var(--warning); display:flex; align-items:center; gap:8px;">
+            <span style="width:8px;height:8px;border-radius:50%;background:var(--warning);display:inline-block;"></span>
+            <span data-i18n="inScadenza">In scadenza</span>
+          </div>
+          <div id="documentsListWarning"></div>
+        </div>
+        <div id="docSectionValid" style="display:none;">
+          <div class="section-title" style="color:var(--positive); display:flex; align-items:center; gap:8px;">
+            <span style="width:8px;height:8px;border-radius:50%;background:var(--positive);display:inline-block;"></span>
+            <span data-i18n="validi">Validi</span>
+          </div>
+          <div id="documentsListValid"></div>
+        </div>
+      </div>
+    </div>
+
   <div class="modal-overlay" id="menuOverlay" onclick="closeMenu(event)">
     <div class="modal-content" onclick="event.stopPropagation()">
       <div class="modal-header">
         <div class="modal-title" data-i18n="menu">Menu</div>
         <button class="modal-close" onclick="closeMenu()">&times;</button>
+      </div>
+      <div style="margin-bottom:20px;">
+        <div style="font-size:13px; font-weight:700; color:var(--text-secondary); margin-bottom:12px; text-transform:uppercase; letter-spacing:0.5px;" data-i18n="tabsVisibili">Tabs visibili</div>
+        <div class="tab-toggle-row">
+          <span data-i18n="giorni">Giorni</span>
+          <label class="switch"><input type="checkbox" id="toggle-giorni" onchange="toggleTab('giorni')"><span class="slider"></span></label>
+        </div>
+        <div class="tab-toggle-row">
+          <span data-i18n="certificati">Certificati</span>
+          <label class="switch"><input type="checkbox" id="toggle-certificati" onchange="toggleTab('certificati')"><span class="slider"></span></label>
+        </div>
+        <div class="tab-toggle-row">
+          <span data-i18n="veicoli">Veicoli</span>
+          <label class="switch"><input type="checkbox" id="toggle-veicoli" onchange="toggleTab('veicoli')"><span class="slider"></span></label>
+        </div>
+        <div class="tab-toggle-row">
+          <span data-i18n="documenti">Documenti</span>
+          <label class="switch"><input type="checkbox" id="toggle-documenti" onchange="toggleTab('documenti')"><span class="slider"></span></label>
+        </div>
       </div>
       <div class="lang-row">
         <label data-i18n="lingua">Lingua</label>
@@ -493,10 +640,53 @@
           <option value="all" data-i18n="pdfTutto">PDF completo</option>
           <option value="days" data-i18n="pdfGiorni">PDF giorni</option>
           <option value="certs" data-i18n="pdfCert">PDF certificati</option>
+          <option value="vehicles" data-i18n="pdfVeicoli">PDF veicoli</option>
+          <option value="documents" data-i18n="pdfDocumenti">PDF documenti</option>
         </select>
       </div>
       <div class="backup-row" style="margin-top:12px;">
         <button class="btn btn-danger" onclick="resetAllData()">&#128465; Reset dati</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="vehicleModal" onclick="closeVehModal(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <div class="modal-title" data-i18n="modificaVeicolo">Modifica veicolo</div>
+        <button class="modal-close" onclick="closeVehModal()">&times;</button>
+      </div>
+      <div class="input-group">
+        <div class="input-row"><label style="min-width:50px" data-i18n="nome">Nome</label><input type="text" id="editVehName"></div>
+        <div class="input-row"><label style="min-width:50px" data-i18n="codice">Codice</label><input type="text" id="editVehCode"></div>
+        <div class="input-row"><label style="min-width:50px" data-i18n="scad">Scad.</label><input type="date" id="editVehExpiry"></div>
+        <div id="editVehAttachmentsArea"></div>
+        <div class="input-row" id="editVehFileNewRow"><label style="min-width:50px" data-i18n="nuovoAllegato">Nuovo</label><input type="file" id="editVehFile" accept="image/*,application/pdf" style="padding:8px 0; border:none; background:transparent; font-size:14px;"></div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-danger" onclick="deleteEditVeh()" data-i18n="elimina">Elimina</button>
+        <button class="btn" onclick="saveEditVeh()" data-i18n="salva">Salva</button>
+      </div>
+    </div>
+  </div>
+
+
+  <div class="modal-overlay" id="documentModal" onclick="closeDocModal(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <div class="modal-title" data-i18n="modificaDocumento">Modifica documento</div>
+        <button class="modal-close" onclick="closeDocModal()">&times;</button>
+      </div>
+      <div class="input-group">
+        <div class="input-row"><label style="min-width:50px" data-i18n="nome">Nome</label><input type="text" id="editDocName"></div>
+        <div class="input-row"><label style="min-width:50px" data-i18n="codice">Codice</label><input type="text" id="editDocCode"></div>
+        <div class="input-row"><label style="min-width:50px" data-i18n="scad">Scad.</label><input type="date" id="editDocExpiry"></div>
+        <div id="editDocAttachmentsArea"></div>
+        <div class="input-row" id="editDocFileNewRow"><label style="min-width:50px" data-i18n="nuovoAllegato">Nuovo</label><input type="file" id="editDocFile" accept="image/*,application/pdf" style="padding:8px 0; border:none; background:transparent; font-size:14px;"></div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-danger" onclick="deleteEditDoc()" data-i18n="elimina">Elimina</button>
+        <button class="btn" onclick="saveEditDoc()" data-i18n="salva">Salva</button>
       </div>
     </div>
   </div>
@@ -578,7 +768,19 @@
         target: 'Target', giorniMancanti: 'giorni mancanti al target',
         giorniOltre: 'giorni oltre il target', totaleAnno: (y) => `Totale anno ${y}`,
         tra: 'tra', ggFa: 'gg fa', gg: 'gg', scaduto: 'Scaduto', inScadenzaLabel: 'In scadenza',
-        valido: 'Valido', periodoDefault: 'Periodo', anno: 'Anno'
+        valido: 'Valido', periodoDefault: 'Periodo', anno: 'Anno',
+        veicoli: 'Veicoli', documenti: 'Documenti',
+        aggiungiVeicolo: 'Aggiungi veicolo', aggiungiDocumento: 'Aggiungi documento',
+        modificaVeicolo: 'Modifica veicolo', modificaDocumento: 'Modifica documento',
+        veicoliSalvati: 'Veicoli salvati', documentiSalvati: 'Documenti salvati',
+        riepilogoVeh: 'Riepilogo veicoli', riepilogoDoc: 'Riepilogo documenti',
+        tabsVisibili: 'Tabs visibili',
+        veicoloAggiunto: 'Veicolo aggiunto', veicoloAggiornato: 'Veicolo aggiornato',
+        veicoloEliminato: 'Veicolo eliminato', documentoAggiunto: 'Documento aggiunto',
+        documentoAggiornato: 'Documento aggiornato', documentoEliminato: 'Documento eliminato',
+        eliminaVeicolo: 'Eliminare questo veicolo?', eliminaDocumento: 'Eliminare questo documento?',
+        nessunVeicolo: 'Nessun veicolo salvato', nessunDocumento: 'Nessun documento salvato',
+        pdfVeicoli: 'PDF veicoli', pdfDocumenti: 'PDF documenti',
       },
       en: {
         dashboard: 'Dashboard', calcola: 'Calculate', giorni: 'Days', certificati: 'Certificates', menu: 'Menu',
@@ -611,7 +813,19 @@
         target: 'Target', giorniMancanti: 'days missing to target',
         giorniOltre: 'days over target', totaleAnno: (y) => `Year ${y} total`,
         tra: 'in', ggFa: 'days ago', gg: 'days', scaduto: 'Expired', inScadenzaLabel: 'Expiring',
-        valido: 'Valid', periodoDefault: 'Period', anno: 'Year'
+        valido: 'Valid', periodoDefault: 'Period', anno: 'Year',
+        veicoli: 'Vehicles', documenti: 'Documents',
+        aggiungiVeicolo: 'Add vehicle', aggiungiDocumento: 'Add document',
+        modificaVeicolo: 'Edit vehicle', modificaDocumento: 'Edit document',
+        veicoliSalvati: 'Saved vehicles', documentiSalvati: 'Saved documents',
+        riepilogoVeh: 'Vehicles summary', riepilogoDoc: 'Documents summary',
+        tabsVisibili: 'Visible tabs',
+        veicoloAggiunto: 'Vehicle added', veicoloAggiornato: 'Vehicle updated',
+        veicoloEliminato: 'Vehicle deleted', documentoAggiunto: 'Document added',
+        documentoAggiornato: 'Document updated', documentoEliminato: 'Document deleted',
+        eliminaVeicolo: 'Delete this vehicle?', eliminaDocumento: 'Delete this document?',
+        nessunVeicolo: 'No vehicles saved', nessunDocumento: 'No documents saved',
+        pdfVeicoli: 'PDF vehicles', pdfDocumenti: 'PDF documents',
       }
     };
 
@@ -660,6 +874,17 @@
     let editingCertAttachmentsRemoved = [];
     let openYear = null;
     let certScrollTarget = null;
+const VEHICLE_KEY = 'daycounter_vehicles';
+    const DOCUMENT_KEY = 'daycounter_documents';
+    const TAB_VISIBILITY_KEY = 'daycounter_tab_visibility';
+    let editingVehId = null;
+    let editingVehAttachments = [];
+    let editingVehAttachmentsRemoved = [];
+    let editingDocId = null;
+    let editingDocAttachments = [];
+    let editingDocAttachmentsRemoved = [];
+    let vehScrollTarget = null;
+    let docScrollTarget = null;
 
     // ===== INDEXEDDB ATTACHMENTS =====
     const ATTACHMENT_DB = 'daycounter_attachments';
@@ -807,21 +1032,23 @@
     }
     function showPage(page) {
       closeMenu();
-      ['dashboard','calculator','certificates'].forEach(p => {
+      ['dashboard','calculator','certificates','vehicles','documents'].forEach(p => {
         const el = document.getElementById('page-' + p);
-        el.classList.add('hidden');
-        el.classList.remove('fade-in');
-        const navId = p === 'dashboard' ? 'nav-dash' : p === 'calculator' ? 'nav-calc' : 'nav-cert';
-        document.getElementById(navId).classList.remove('active');
+        if (el) { el.classList.add('hidden'); el.classList.remove('fade-in'); }
+        const navId = p === 'dashboard' ? 'nav-dash' : p === 'calculator' ? 'nav-calc' : p === 'certificates' ? 'nav-cert' : p === 'vehicles' ? 'nav-veh' : 'nav-doc';
+        const navEl = document.getElementById(navId);
+        if (navEl) navEl.classList.remove('active');
       });
       const activeEl = document.getElementById('page-' + page);
-      activeEl.classList.remove('hidden');
-      activeEl.classList.add('fade-in');
-      const activeNavId = page === 'dashboard' ? 'nav-dash' : page === 'calculator' ? 'nav-calc' : 'nav-cert';
-      document.getElementById(activeNavId).classList.add('active');
+      if (activeEl) { activeEl.classList.remove('hidden'); activeEl.classList.add('fade-in'); }
+      const activeNavId = page === 'dashboard' ? 'nav-dash' : page === 'calculator' ? 'nav-calc' : page === 'certificates' ? 'nav-cert' : page === 'vehicles' ? 'nav-veh' : 'nav-doc';
+      const activeNavEl = document.getElementById(activeNavId);
+      if (activeNavEl) activeNavEl.classList.add('active');
       if (page === 'dashboard') renderDashboard();
       if (page === 'calculator') renderCalcData();
       if (page === 'certificates') renderCertificates();
+      if (page === 'vehicles') renderVehicles();
+      if (page === 'documents') renderDocuments();
     }
 
     async function resetAllData() {
@@ -829,8 +1056,11 @@
       localStorage.removeItem(STORAGE_KEY);
       localStorage.removeItem(TARGET_KEY);
       localStorage.removeItem(CERT_KEY);
+      localStorage.removeItem(VEHICLE_KEY);
+      localStorage.removeItem(DOCUMENT_KEY);
       localStorage.removeItem(LANG_KEY);
       localStorage.removeItem(DASH_YEAR_KEY);
+      localStorage.removeItem(TAB_VISIBILITY_KEY);
       try {
         const db = await openAttachmentDB();
         const tx = db.transaction(ATTACHMENT_STORE, 'readwrite');
@@ -846,6 +1076,18 @@
       document.getElementById('certFile1').value = '';
       document.getElementById('certFileLabel').textContent = 'Scegli file...';
       document.getElementById('certFileLabel').style.color = 'var(--text-secondary)';
+      document.getElementById('vehName').value = '';
+      document.getElementById('vehCode').value = '';
+      document.getElementById('vehExpiry').value = '';
+      document.getElementById('vehFile1').value = '';
+      document.getElementById('vehFileLabel').textContent = 'Scegli file...';
+      document.getElementById('vehFileLabel').style.color = 'var(--text-secondary)';
+      document.getElementById('docName').value = '';
+      document.getElementById('docCode').value = '';
+      document.getElementById('docExpiry').value = '';
+      document.getElementById('docFile1').value = '';
+      document.getElementById('docFileLabel').textContent = 'Scegli file...';
+      document.getElementById('docFileLabel').style.color = 'var(--text-secondary)';
       openYear = null;
       renderDashboard();
       renderCalcData();
@@ -946,6 +1188,28 @@
       document.getElementById('dashCertValid').textContent = valid;
       document.getElementById('dashCertWarn').textContent = warn;
       document.getElementById('dashCertExp').textContent = exp;
+
+      let vValid = 0, vWarn = 0, vExp = 0;
+      getVehicles().forEach(c => {
+        const s = getVehStatus(c.expiry);
+        if (s.class === 'valid') vValid++;
+        else if (s.class === 'warning') vWarn++;
+        else vExp++;
+      });
+      document.getElementById('dashVehValid').textContent = vValid;
+      document.getElementById('dashVehWarn').textContent = vWarn;
+      document.getElementById('dashVehExp').textContent = vExp;
+
+      let dValid = 0, dWarn = 0, dExp = 0;
+      getDocuments().forEach(c => {
+        const s = getDocStatus(c.expiry);
+        if (s.class === 'valid') dValid++;
+        else if (s.class === 'warning') dWarn++;
+        else dExp++;
+      });
+      document.getElementById('dashDocValid').textContent = dValid;
+      document.getElementById('dashDocWarn').textContent = dWarn;
+      document.getElementById('dashDocExp').textContent = dExp;
     }
 
     function addCertificate() {
@@ -1351,6 +1615,8 @@
       const periods = getSavedPeriods();
       const target = getTarget();
       const certs = getCertificates();
+      const vehs = getVehicles();
+      const docs = getDocuments();
       for (const c of certs) {
         const hasAtt = (c.attachments && c.attachments.length > 0) || c.hasAttachment;
         if (hasAtt) {
@@ -1358,7 +1624,21 @@
           catch(e) { c._attachments = []; }
         }
       }
-      const data = { periods: periods, target: target, certificates: certs, exportedAt: new Date().toISOString() };
+      for (const c of vehs) {
+        const hasAtt = (c.attachments && c.attachments.length > 0) || c.hasAttachment;
+        if (hasAtt) {
+          try { c._attachments = await getAttachment(c.id); }
+          catch(e) { c._attachments = []; }
+        }
+      }
+      for (const c of docs) {
+        const hasAtt = (c.attachments && c.attachments.length > 0) || c.hasAttachment;
+        if (hasAtt) {
+          try { c._attachments = await getAttachment(c.id); }
+          catch(e) { c._attachments = []; }
+        }
+      }
+      const data = { periods: periods, target: target, certificates: certs, vehicles: vehs, documents: docs, exportedAt: new Date().toISOString() };
       const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -1399,6 +1679,30 @@
               }
               saveCertificates(data.certificates);
             }
+            if (data.vehicles && Array.isArray(data.vehicles)) {
+              for (const c of data.vehicles) {
+                const atts = c._attachments || c.attachment || [];
+                const attArr = Array.isArray(atts) ? atts : (atts ? [atts] : []);
+                if (attArr.length > 0) {
+                  try { await saveAttachment(c.id, attArr); c.attachments = attArr.map(a => ({ name: a.name, type: a.type })); c.hasAttachment = true; c.attachmentName = attArr[0].name; }
+                  catch(err) { c.hasAttachment = false; c.attachmentName = ''; c.attachments = []; }
+                }
+                delete c._attachments; delete c.attachment;
+              }
+              saveVehicles(data.vehicles);
+            }
+            if (data.documents && Array.isArray(data.documents)) {
+              for (const c of data.documents) {
+                const atts = c._attachments || c.attachment || [];
+                const attArr = Array.isArray(atts) ? atts : (atts ? [atts] : []);
+                if (attArr.length > 0) {
+                  try { await saveAttachment(c.id, attArr); c.attachments = attArr.map(a => ({ name: a.name, type: a.type })); c.hasAttachment = true; c.attachmentName = attArr[0].name; }
+                  catch(err) { c.hasAttachment = false; c.attachmentName = ''; c.attachments = []; }
+                }
+                delete c._attachments; delete c.attachment;
+              }
+              saveDocuments(data.documents);
+            }
             renderDashboard();
             toast(t('datiImportati'));
           }
@@ -1411,6 +1715,505 @@
     }
     function escapeHtml(text) {
       const div = document.createElement('div'); div.textContent = text; return div.innerHTML;
+    }
+
+    
+    // ===== VEHICLES =====
+    function getVehicles() {
+      try { return JSON.parse(localStorage.getItem(VEHICLE_KEY)) || []; } catch(e) { return []; }
+    }
+    function saveVehicles(items) { localStorage.setItem(VEHICLE_KEY, JSON.stringify(items)); }
+    function getVehStatus(expiryStr) {
+      if (!expiryStr) return { class: 'valid', label: t('valido'), days: 9999 };
+      const today = new Date(); today.setHours(0,0,0,0);
+      const exp = new Date(expiryStr + 'T00:00:00');
+      const diffMs = exp - today;
+      const diffDays = Math.ceil(diffMs / 86400000);
+      if (diffDays < 0) return { class: 'expired', label: t('scaduto'), days: diffDays };
+      if (diffDays <= 90) return { class: 'warning', label: t('inScadenzaLabel'), days: diffDays };
+      return { class: 'valid', label: t('valido'), days: diffDays };
+    }
+    function addVehicle() {
+      const name = document.getElementById('vehName').value.trim();
+      const code = document.getElementById('vehCode').value.trim();
+      const expiry = document.getElementById('vehExpiry').value;
+      if (!name && !expiry) { toast(t('compilaTutti')); return; }
+      async function doSave(attachments) {
+        const items = getVehicles();
+        const newId = Date.now();
+        const attMeta = attachments.map(a => ({ name: a.name, type: a.type }));
+        items.push({ id: newId, name, code, expiry, attachments: attMeta });
+        saveVehicles(items);
+        if (attachments.length > 0) {
+          try { await saveAttachment(newId, attachments); }
+          catch(err) { toast(t('erroreSalvataggio')); }
+        }
+        document.getElementById('vehName').value = '';
+        document.getElementById('vehCode').value = '';
+        document.getElementById('vehExpiry').value = '';
+        document.getElementById('vehFile1').value = '';
+        const label = document.getElementById('vehFileLabel');
+        label.textContent = 'Scegli file...';
+        label.style.color = 'var(--text-secondary)';
+        renderVehicles();
+        renderDashboard();
+        toast(t('veicoloAggiunto'));
+      }
+      const files = [];
+      const f1 = document.getElementById('vehFile1').files?.[0];
+      if (f1) files.push(f1);
+      if (files.length === 0) { doSave([]); return; }
+      const attachments = [];
+      let loaded = 0;
+      files.forEach(file => {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          attachments.push({ name: file.name, type: file.type, data: e.target.result });
+          loaded++;
+          if (loaded === files.length) doSave(attachments);
+        };
+        reader.onerror = function() { toast(t('erroreSalvataggio')); };
+        reader.readAsDataURL(file);
+      });
+    }
+    function renderVehicles() {
+      const items = getVehicles();
+      const savedCard = document.getElementById('vehSavedCard');
+      const secExp = document.getElementById('vehSectionExpired');
+      const secWarn = document.getElementById('vehSectionWarning');
+      const secVal = document.getElementById('vehSectionValid');
+      const listExp = document.getElementById('vehiclesListExpired');
+      const listWarn = document.getElementById('vehiclesListWarning');
+      const listVal = document.getElementById('vehiclesListValid');
+      savedCard.style.display = items.length > 0 ? '' : 'none';
+      if (items.length === 0) {
+        listExp.innerHTML = ''; listWarn.innerHTML = ''; listVal.innerHTML = '';
+        secExp.style.display = 'none'; secWarn.style.display = 'none'; secVal.style.display = 'none';
+        return;
+      }
+      const sorted = items.slice().sort((a, b) => {
+        const da = a.expiry ? new Date(a.expiry) : new Date('2099-12-31');
+        const db = b.expiry ? new Date(b.expiry) : new Date('2099-12-31');
+        return da - db;
+      });
+      listExp.innerHTML = ''; listWarn.innerHTML = ''; listVal.innerHTML = '';
+      let hasExp = false, hasWarn = false, hasVal = false;
+      sorted.forEach(c => {
+        const s = getVehStatus(c.expiry);
+        const div = document.createElement('div');
+        div.className = 'cert-item ' + s.class;
+        div.onclick = () => openVehicleModal(c.id);
+        const daysText = s.days >= 0 ? `${t('tra')} ${s.days} ${t('gg')}` : `${Math.abs(s.days)} ${t('ggFa')}`;
+        const attCount = (c.attachments && c.attachments.length) || (c.hasAttachment ? 1 : 0);
+        const attachIcon = attCount > 0 ? `<span style="margin-left:6px;opacity:0.6;font-size:12px;">&#128206;${attCount > 1 ? '×' + attCount : ''}</span>` : '';
+        const codeLine = c.code ? `${t('codice')}: ${escapeHtml(c.code)} &mdash; ` : '';
+        const expiryLine = c.expiry ? `${t('scad')}: ${formatDateIT(c.expiry)}` : '';
+        div.innerHTML = `<div class="cert-info">
+          <div class="cert-name">${escapeHtml(c.name || '')}${attachIcon} <span class="cert-status ${s.class}">${s.label}</span></div>
+          <div class="cert-code">${codeLine}${expiryLine}</div>
+        </div>
+        <div class="cert-days ${s.class}">${daysText}</div>`;
+        if (s.class === 'expired') { listExp.appendChild(div); hasExp = true; }
+        else if (s.class === 'warning') { listWarn.appendChild(div); hasWarn = true; }
+        else { listVal.appendChild(div); hasVal = true; }
+      });
+      secExp.style.display = hasExp ? '' : 'none';
+      secWarn.style.display = hasWarn ? '' : 'none';
+      secVal.style.display = hasVal ? '' : 'none';
+      if (vehScrollTarget) {
+        setTimeout(() => {
+          const targetId = vehScrollTarget === 'expired' ? 'vehSectionExpired' : vehScrollTarget === 'warning' ? 'vehSectionWarning' : 'vehSectionValid';
+          const el = document.getElementById(targetId);
+          if (el && el.style.display !== 'none') el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          vehScrollTarget = null;
+        }, 350);
+      }
+    }
+    async function openVehicleModal(id) {
+      const items = getVehicles();
+      const c = items.find(x => x.id === id);
+      if (!c) return;
+      editingVehId = id;
+      editingVehAttachments = [];
+      editingVehAttachmentsRemoved = [];
+      try {
+        const stored = await getAttachment(id);
+        if (Array.isArray(stored)) editingVehAttachments = stored;
+        else if (stored) editingVehAttachments = [stored];
+      } catch(e) {}
+      if (editingVehAttachments.length === 0 && c.hasAttachment && c.attachmentName) {
+        editingVehAttachments = [{ name: c.attachmentName, type: 'application/octet-stream', data: null }];
+      }
+      document.getElementById('editVehName').value = c.name;
+      document.getElementById('editVehCode').value = c.code;
+      document.getElementById('editVehExpiry').value = c.expiry;
+      document.getElementById('editVehFile').value = '';
+      renderEditVehAttachments();
+      document.getElementById('vehicleModal').classList.add('show');
+    }
+    function closeVehModal(e) {
+      if (e && e.target !== e.currentTarget) return;
+      document.getElementById('vehicleModal').classList.remove('show');
+      editingVehId = null;
+      editingVehAttachments = [];
+      editingVehAttachmentsRemoved = [];
+    }
+    async function saveEditVeh() {
+      if (!editingVehId) return;
+      const items = getVehicles();
+      const idx = items.findIndex(x => x.id === editingVehId);
+      if (idx === -1) return;
+      const name = document.getElementById('editVehName').value.trim();
+      const code = document.getElementById('editVehCode').value.trim();
+      const expiry = document.getElementById('editVehExpiry').value;
+      if (!name && !expiry) { toast(t('compilaTutti')); return; }
+      let attachments = editingVehAttachments.filter((_, i) => !editingVehAttachmentsRemoved.includes(i));
+      const fileInput = document.getElementById('editVehFile');
+      if (fileInput.files && fileInput.files[0]) {
+        const file = fileInput.files[0];
+        const reader = new FileReader();
+        reader.onload = async function(e) {
+          attachments.push({ name: file.name, type: file.type, data: e.target.result });
+          if (attachments.length > 2) attachments = attachments.slice(-2);
+          try { await saveAttachment(editingVehId, attachments); } catch(err) { toast(t('erroreSalvataggio')); }
+          const attMeta = attachments.map(a => ({ name: a.name, type: a.type }));
+          items[idx] = { ...items[idx], name, code, expiry, attachments: attMeta, hasAttachment: attMeta.length > 0, attachmentName: attMeta[0]?.name || '' };
+          saveVehicles(items);
+          closeVehModal(); renderVehicles(); renderDashboard(); toast(t('veicoloAggiornato'));
+        };
+        reader.readAsDataURL(file);
+        return;
+      }
+      if (editingVehAttachmentsRemoved.length > 0) {
+        try { await saveAttachment(editingVehId, attachments); } catch(e) {}
+      }
+      const attMeta = attachments.map(a => ({ name: a.name, type: a.type }));
+      items[idx] = { ...items[idx], name, code, expiry, attachments: attMeta, hasAttachment: attMeta.length > 0, attachmentName: attMeta[0]?.name || '' };
+      saveVehicles(items);
+      closeVehModal(); renderVehicles(); renderDashboard(); toast(t('veicoloAggiornato'));
+    }
+    async function deleteEditVeh() {
+      if (!editingVehId) return;
+      if (!confirm(t('eliminaVeicolo'))) return;
+      const items = getVehicles();
+      const item = items.find(x => x.id === editingVehId);
+      if (item && ((item.attachments && item.attachments.length > 0) || item.hasAttachment)) {
+        try { await deleteAttachment(editingVehId); } catch(e) {}
+      }
+      const filtered = items.filter(x => x.id !== editingVehId);
+      saveVehicles(filtered);
+      closeVehModal(); renderVehicles(); renderDashboard(); toast(t('veicoloEliminato'));
+    }
+    function renderEditVehAttachments() {
+      const area = document.getElementById('editVehAttachmentsArea');
+      area.innerHTML = '';
+      editingVehAttachments.forEach((att, idx) => {
+        if (editingVehAttachmentsRemoved.includes(idx)) return;
+        const row = document.createElement('div');
+        row.className = 'input-row';
+        row.style.marginBottom = '8px';
+        row.innerHTML = `<label style="min-width:50px">${att.name ? escapeHtml(att.name.substring(0,12)) : 'File'}</label>
+          <div style="flex:1; display:flex; align-items:center; gap:8px;">
+            <span style="font-size:13px; color:var(--text-secondary); flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${escapeHtml(att.name || '')}</span>
+            <button type="button" class="btn" style="flex:0 0 auto; width:auto; padding:6px 12px; font-size:12px; margin-top:0;" onclick="downloadEditVehAttachmentByIdx(${idx})">${t('scarica')}</button>
+            <button type="button" class="btn btn-danger" style="flex:0 0 auto; width:auto; padding:6px 12px; font-size:12px; margin-top:0;" onclick="removeEditVehAttachmentByIdx(${idx})">${t('rimuovi')}</button>
+          </div>`;
+        area.appendChild(row);
+      });
+      const newRow = document.getElementById('editVehFileNewRow');
+      if (editingVehAttachments.length - editingVehAttachmentsRemoved.length >= 2) {
+        newRow.style.display = 'none';
+      } else {
+        newRow.style.display = 'flex';
+      }
+    }
+    async function downloadEditVehAttachmentByIdx(idx) {
+      let att = editingVehAttachments[idx];
+      if (!att || !att.data) {
+        const stored = await getAttachment(editingVehId);
+        const arr = Array.isArray(stored) ? stored : (stored ? [stored] : []);
+        att = arr[idx];
+        if (att) editingVehAttachments[idx] = att;
+      }
+      if (att && att.data) openAttachment(att.data, att.name);
+    }
+    function removeEditVehAttachmentByIdx(idx) {
+      editingVehAttachmentsRemoved.push(idx);
+      renderEditVehAttachments();
+    }
+    function updateVehFileLabel(input) {
+      const label = document.getElementById('vehFileLabel');
+      if (input.files && input.files[0]) { label.textContent = input.files[0].name; label.style.color = 'var(--text)'; }
+      else { label.textContent = 'Scegli file...'; label.style.color = 'var(--text-secondary)'; }
+    }
+    function clearVehForm() {
+      document.getElementById('vehName').value = '';
+      document.getElementById('vehCode').value = '';
+      document.getElementById('vehExpiry').value = '';
+      document.getElementById('vehFile1').value = '';
+      const label = document.getElementById('vehFileLabel');
+      label.textContent = 'Scegli file...';
+      label.style.color = 'var(--text-secondary)';
+      toast(t('campiResettati'));
+    }
+    function toggleVehForm() {
+      const body = document.getElementById('vehFormBody');
+      const icon = document.getElementById('vehFormToggle');
+      body.classList.toggle('hidden');
+      icon.style.transform = body.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(45deg)';
+    }
+    function goToVehicles(filter) {
+      vehScrollTarget = filter;
+      showPage('vehicles');
+    }
+
+    // ===== DOCUMENTS =====
+    function getDocuments() {
+      try { return JSON.parse(localStorage.getItem(DOCUMENT_KEY)) || []; } catch(e) { return []; }
+    }
+    function saveDocuments(items) { localStorage.setItem(DOCUMENT_KEY, JSON.stringify(items)); }
+    function getDocStatus(expiryStr) {
+      if (!expiryStr) return { class: 'valid', label: t('valido'), days: 9999 };
+      const today = new Date(); today.setHours(0,0,0,0);
+      const exp = new Date(expiryStr + 'T00:00:00');
+      const diffMs = exp - today;
+      const diffDays = Math.ceil(diffMs / 86400000);
+      if (diffDays < 0) return { class: 'expired', label: t('scaduto'), days: diffDays };
+      if (diffDays <= 90) return { class: 'warning', label: t('inScadenzaLabel'), days: diffDays };
+      return { class: 'valid', label: t('valido'), days: diffDays };
+    }
+    function addDocument() {
+      const name = document.getElementById('docName').value.trim();
+      const code = document.getElementById('docCode').value.trim();
+      const expiry = document.getElementById('docExpiry').value;
+      if (!name && !expiry) { toast(t('compilaTutti')); return; }
+      async function doSave(attachments) {
+        const items = getDocuments();
+        const newId = Date.now();
+        const attMeta = attachments.map(a => ({ name: a.name, type: a.type }));
+        items.push({ id: newId, name, code, expiry, attachments: attMeta });
+        saveDocuments(items);
+        if (attachments.length > 0) {
+          try { await saveAttachment(newId, attachments); }
+          catch(err) { toast(t('erroreSalvataggio')); }
+        }
+        document.getElementById('docName').value = '';
+        document.getElementById('docCode').value = '';
+        document.getElementById('docExpiry').value = '';
+        document.getElementById('docFile1').value = '';
+        const label = document.getElementById('docFileLabel');
+        label.textContent = 'Scegli file...';
+        label.style.color = 'var(--text-secondary)';
+        renderDocuments();
+        renderDashboard();
+        toast(t('documentoAggiunto'));
+      }
+      const files = [];
+      const f1 = document.getElementById('docFile1').files?.[0];
+      if (f1) files.push(f1);
+      if (files.length === 0) { doSave([]); return; }
+      const attachments = [];
+      let loaded = 0;
+      files.forEach(file => {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          attachments.push({ name: file.name, type: file.type, data: e.target.result });
+          loaded++;
+          if (loaded === files.length) doSave(attachments);
+        };
+        reader.onerror = function() { toast(t('erroreSalvataggio')); };
+        reader.readAsDataURL(file);
+      });
+    }
+    function renderDocuments() {
+      const items = getDocuments();
+      const savedCard = document.getElementById('docSavedCard');
+      const secExp = document.getElementById('docSectionExpired');
+      const secWarn = document.getElementById('docSectionWarning');
+      const secVal = document.getElementById('docSectionValid');
+      const listExp = document.getElementById('documentsListExpired');
+      const listWarn = document.getElementById('documentsListWarning');
+      const listVal = document.getElementById('documentsListValid');
+      savedCard.style.display = items.length > 0 ? '' : 'none';
+      if (items.length === 0) {
+        listExp.innerHTML = ''; listWarn.innerHTML = ''; listVal.innerHTML = '';
+        secExp.style.display = 'none'; secWarn.style.display = 'none'; secVal.style.display = 'none';
+        return;
+      }
+      const sorted = items.slice().sort((a, b) => {
+        const da = a.expiry ? new Date(a.expiry) : new Date('2099-12-31');
+        const db = b.expiry ? new Date(b.expiry) : new Date('2099-12-31');
+        return da - db;
+      });
+      listExp.innerHTML = ''; listWarn.innerHTML = ''; listVal.innerHTML = '';
+      let hasExp = false, hasWarn = false, hasVal = false;
+      sorted.forEach(c => {
+        const s = getDocStatus(c.expiry);
+        const div = document.createElement('div');
+        div.className = 'cert-item ' + s.class;
+        div.onclick = () => openDocumentModal(c.id);
+        const daysText = s.days >= 0 ? `${t('tra')} ${s.days} ${t('gg')}` : `${Math.abs(s.days)} ${t('ggFa')}`;
+        const attCount = (c.attachments && c.attachments.length) || (c.hasAttachment ? 1 : 0);
+        const attachIcon = attCount > 0 ? `<span style="margin-left:6px;opacity:0.6;font-size:12px;">&#128206;${attCount > 1 ? '×' + attCount : ''}</span>` : '';
+        const codeLine = c.code ? `${t('codice')}: ${escapeHtml(c.code)} &mdash; ` : '';
+        const expiryLine = c.expiry ? `${t('scad')}: ${formatDateIT(c.expiry)}` : '';
+        div.innerHTML = `<div class="cert-info">
+          <div class="cert-name">${escapeHtml(c.name || '')}${attachIcon} <span class="cert-status ${s.class}">${s.label}</span></div>
+          <div class="cert-code">${codeLine}${expiryLine}</div>
+        </div>
+        <div class="cert-days ${s.class}">${daysText}</div>`;
+        if (s.class === 'expired') { listExp.appendChild(div); hasExp = true; }
+        else if (s.class === 'warning') { listWarn.appendChild(div); hasWarn = true; }
+        else { listVal.appendChild(div); hasVal = true; }
+      });
+      secExp.style.display = hasExp ? '' : 'none';
+      secWarn.style.display = hasWarn ? '' : 'none';
+      secVal.style.display = hasVal ? '' : 'none';
+      if (docScrollTarget) {
+        setTimeout(() => {
+          const targetId = docScrollTarget === 'expired' ? 'docSectionExpired' : docScrollTarget === 'warning' ? 'docSectionWarning' : 'docSectionValid';
+          const el = document.getElementById(targetId);
+          if (el && el.style.display !== 'none') el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          docScrollTarget = null;
+        }, 350);
+      }
+    }
+    async function openDocumentModal(id) {
+      const items = getDocuments();
+      const c = items.find(x => x.id === id);
+      if (!c) return;
+      editingDocId = id;
+      editingDocAttachments = [];
+      editingDocAttachmentsRemoved = [];
+      try {
+        const stored = await getAttachment(id);
+        if (Array.isArray(stored)) editingDocAttachments = stored;
+        else if (stored) editingDocAttachments = [stored];
+      } catch(e) {}
+      if (editingDocAttachments.length === 0 && c.hasAttachment && c.attachmentName) {
+        editingDocAttachments = [{ name: c.attachmentName, type: 'application/octet-stream', data: null }];
+      }
+      document.getElementById('editDocName').value = c.name;
+      document.getElementById('editDocCode').value = c.code;
+      document.getElementById('editDocExpiry').value = c.expiry;
+      document.getElementById('editDocFile').value = '';
+      renderEditDocAttachments();
+      document.getElementById('documentModal').classList.add('show');
+    }
+    function closeDocModal(e) {
+      if (e && e.target !== e.currentTarget) return;
+      document.getElementById('documentModal').classList.remove('show');
+      editingDocId = null;
+      editingDocAttachments = [];
+      editingDocAttachmentsRemoved = [];
+    }
+    async function saveEditDoc() {
+      if (!editingDocId) return;
+      const items = getDocuments();
+      const idx = items.findIndex(x => x.id === editingDocId);
+      if (idx === -1) return;
+      const name = document.getElementById('editDocName').value.trim();
+      const code = document.getElementById('editDocCode').value.trim();
+      const expiry = document.getElementById('editDocExpiry').value;
+      if (!name && !expiry) { toast(t('compilaTutti')); return; }
+      let attachments = editingDocAttachments.filter((_, i) => !editingDocAttachmentsRemoved.includes(i));
+      const fileInput = document.getElementById('editDocFile');
+      if (fileInput.files && fileInput.files[0]) {
+        const file = fileInput.files[0];
+        const reader = new FileReader();
+        reader.onload = async function(e) {
+          attachments.push({ name: file.name, type: file.type, data: e.target.result });
+          if (attachments.length > 2) attachments = attachments.slice(-2);
+          try { await saveAttachment(editingDocId, attachments); } catch(err) { toast(t('erroreSalvataggio')); }
+          const attMeta = attachments.map(a => ({ name: a.name, type: a.type }));
+          items[idx] = { ...items[idx], name, code, expiry, attachments: attMeta, hasAttachment: attMeta.length > 0, attachmentName: attMeta[0]?.name || '' };
+          saveDocuments(items);
+          closeDocModal(); renderDocuments(); renderDashboard(); toast(t('documentoAggiornato'));
+        };
+        reader.readAsDataURL(file);
+        return;
+      }
+      if (editingDocAttachmentsRemoved.length > 0) {
+        try { await saveAttachment(editingDocId, attachments); } catch(e) {}
+      }
+      const attMeta = attachments.map(a => ({ name: a.name, type: a.type }));
+      items[idx] = { ...items[idx], name, code, expiry, attachments: attMeta, hasAttachment: attMeta.length > 0, attachmentName: attMeta[0]?.name || '' };
+      saveDocuments(items);
+      closeDocModal(); renderDocuments(); renderDashboard(); toast(t('documentoAggiornato'));
+    }
+    async function deleteEditDoc() {
+      if (!editingDocId) return;
+      if (!confirm(t('eliminaDocumento'))) return;
+      const items = getDocuments();
+      const item = items.find(x => x.id === editingDocId);
+      if (item && ((item.attachments && item.attachments.length > 0) || item.hasAttachment)) {
+        try { await deleteAttachment(editingDocId); } catch(e) {}
+      }
+      const filtered = items.filter(x => x.id !== editingDocId);
+      saveDocuments(filtered);
+      closeDocModal(); renderDocuments(); renderDashboard(); toast(t('documentoEliminato'));
+    }
+    function renderEditDocAttachments() {
+      const area = document.getElementById('editDocAttachmentsArea');
+      area.innerHTML = '';
+      editingDocAttachments.forEach((att, idx) => {
+        if (editingDocAttachmentsRemoved.includes(idx)) return;
+        const row = document.createElement('div');
+        row.className = 'input-row';
+        row.style.marginBottom = '8px';
+        row.innerHTML = `<label style="min-width:50px">${att.name ? escapeHtml(att.name.substring(0,12)) : 'File'}</label>
+          <div style="flex:1; display:flex; align-items:center; gap:8px;">
+            <span style="font-size:13px; color:var(--text-secondary); flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${escapeHtml(att.name || '')}</span>
+            <button type="button" class="btn" style="flex:0 0 auto; width:auto; padding:6px 12px; font-size:12px; margin-top:0;" onclick="downloadEditDocAttachmentByIdx(${idx})">${t('scarica')}</button>
+            <button type="button" class="btn btn-danger" style="flex:0 0 auto; width:auto; padding:6px 12px; font-size:12px; margin-top:0;" onclick="removeEditDocAttachmentByIdx(${idx})">${t('rimuovi')}</button>
+          </div>`;
+        area.appendChild(row);
+      });
+      const newRow = document.getElementById('editDocFileNewRow');
+      if (editingDocAttachments.length - editingDocAttachmentsRemoved.length >= 2) {
+        newRow.style.display = 'none';
+      } else {
+        newRow.style.display = 'flex';
+      }
+    }
+    async function downloadEditDocAttachmentByIdx(idx) {
+      let att = editingDocAttachments[idx];
+      if (!att || !att.data) {
+        const stored = await getAttachment(editingDocId);
+        const arr = Array.isArray(stored) ? stored : (stored ? [stored] : []);
+        att = arr[idx];
+        if (att) editingDocAttachments[idx] = att;
+      }
+      if (att && att.data) openAttachment(att.data, att.name);
+    }
+    function removeEditDocAttachmentByIdx(idx) {
+      editingDocAttachmentsRemoved.push(idx);
+      renderEditDocAttachments();
+    }
+    function updateDocFileLabel(input) {
+      const label = document.getElementById('docFileLabel');
+      if (input.files && input.files[0]) { label.textContent = input.files[0].name; label.style.color = 'var(--text)'; }
+      else { label.textContent = 'Scegli file...'; label.style.color = 'var(--text-secondary)'; }
+    }
+    function clearDocForm() {
+      document.getElementById('docName').value = '';
+      document.getElementById('docCode').value = '';
+      document.getElementById('docExpiry').value = '';
+      document.getElementById('docFile1').value = '';
+      const label = document.getElementById('docFileLabel');
+      label.textContent = 'Scegli file...';
+      label.style.color = 'var(--text-secondary)';
+      toast(t('campiResettati'));
+    }
+    function toggleDocForm() {
+      const body = document.getElementById('docFormBody');
+      const icon = document.getElementById('docFormToggle');
+      body.classList.toggle('hidden');
+      icon.style.transform = body.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(45deg)';
+    }
+    function goToDocuments(filter) {
+      docScrollTarget = filter;
+      showPage('documents');
     }
 
     function openAttachment(data, name) {
@@ -1515,31 +2318,63 @@
         doc.setFontSize(14);
         doc.text(isEn ? 'Certificates' : 'Certificati', 14, y);
         y += 8;
-
         if (certs.length === 0) {
           doc.setFontSize(11);
           doc.text(isEn ? 'No certificates saved' : 'Nessun certificato salvato', 14, y);
+          y += 10;
         } else {
           const body = certs.map(c => {
             const s = getCertStatus(c.expiry);
             const statusText = s.label;
             const attCount = (c.attachments && c.attachments.length) || (c.hasAttachment ? 1 : 0);
-            return [
-              c.name,
-              c.code,
-              formatDateIT(c.expiry),
-              statusText,
-              attCount > 0 ? (isEn ? 'Yes (' + attCount + ')' : 'Si (' + attCount + ')') : (isEn ? 'No' : 'No')
-            ];
+            return [c.name, c.code, formatDateIT(c.expiry), statusText, attCount > 0 ? (isEn ? 'Yes (' + attCount + ')' : 'Si (' + attCount + ')') : (isEn ? 'No' : 'No')];
           });
-          doc.autoTable({
-            startY: y,
-            head: [[isEn ? 'Name' : 'Nome', isEn ? 'Code' : 'Codice', isEn ? 'Expiry' : 'Scadenza', isEn ? 'Status' : 'Stato', isEn ? 'Attachment' : 'Allegato']],
-            body: body,
-            theme: 'grid',
-            styles: { fontSize: 10 },
-            headStyles: { fillColor: [29, 89, 143] }
+          doc.autoTable({ startY: y, head: [[isEn ? 'Name' : 'Nome', isEn ? 'Code' : 'Codice', isEn ? 'Expiry' : 'Scadenza', isEn ? 'Status' : 'Stato', isEn ? 'Attachment' : 'Allegato']], body: body, theme: 'grid', styles: { fontSize: 10 }, headStyles: { fillColor: [29, 89, 143] } });
+          y = doc.lastAutoTable.finalY + 10;
+        }
+      }
+
+      if (type === 'all') { y += 5; }
+
+      if (type === 'all' || type === 'vehicles') {
+        const vehs = getVehicles();
+        doc.setFontSize(14);
+        doc.text(isEn ? 'Vehicles' : 'Veicoli', 14, y);
+        y += 8;
+        if (vehs.length === 0) {
+          doc.setFontSize(11);
+          doc.text(isEn ? 'No vehicles saved' : 'Nessun veicolo salvato', 14, y);
+          y += 10;
+        } else {
+          const body = vehs.map(c => {
+            const s = getVehStatus(c.expiry);
+            const statusText = s.label;
+            const attCount = (c.attachments && c.attachments.length) || (c.hasAttachment ? 1 : 0);
+            return [c.name, c.code, formatDateIT(c.expiry), statusText, attCount > 0 ? (isEn ? 'Yes (' + attCount + ')' : 'Si (' + attCount + ')') : (isEn ? 'No' : 'No')];
           });
+          doc.autoTable({ startY: y, head: [[isEn ? 'Name' : 'Nome', isEn ? 'Code' : 'Codice', isEn ? 'Expiry' : 'Scadenza', isEn ? 'Status' : 'Stato', isEn ? 'Attachment' : 'Allegato']], body: body, theme: 'grid', styles: { fontSize: 10 }, headStyles: { fillColor: [29, 89, 143] } });
+          y = doc.lastAutoTable.finalY + 10;
+        }
+      }
+
+      if (type === 'all') { y += 5; }
+
+      if (type === 'all' || type === 'documents') {
+        const docs = getDocuments();
+        doc.setFontSize(14);
+        doc.text(isEn ? 'Documents' : 'Documenti', 14, y);
+        y += 8;
+        if (docs.length === 0) {
+          doc.setFontSize(11);
+          doc.text(isEn ? 'No documents saved' : 'Nessun documento salvato', 14, y);
+        } else {
+          const body = docs.map(c => {
+            const s = getDocStatus(c.expiry);
+            const statusText = s.label;
+            const attCount = (c.attachments && c.attachments.length) || (c.hasAttachment ? 1 : 0);
+            return [c.name, c.code, formatDateIT(c.expiry), statusText, attCount > 0 ? (isEn ? 'Yes (' + attCount + ')' : 'Si (' + attCount + ')') : (isEn ? 'No' : 'No')];
+          });
+          doc.autoTable({ startY: y, head: [[isEn ? 'Name' : 'Nome', isEn ? 'Code' : 'Codice', isEn ? 'Expiry' : 'Scadenza', isEn ? 'Status' : 'Stato', isEn ? 'Attachment' : 'Allegato']], body: body, theme: 'grid', styles: { fontSize: 10 }, headStyles: { fillColor: [29, 89, 143] } });
         }
       }
 
@@ -1549,8 +2384,51 @@
     document.getElementById('endDate').value = new Date().toISOString().split('T')[0];
     document.getElementById('startDate').value = '2023-01-01';
     document.getElementById('targetDays').value = getTarget() || '';
+    
+    // ===== TAB VISIBILITY =====
+    function getTabVisibility() {
+      try { return JSON.parse(localStorage.getItem(TAB_VISIBILITY_KEY)) || { giorni: true, certificati: true, veicoli: true, documenti: true }; }
+      catch(e) { return { giorni: true, certificati: true, veicoli: true, documenti: true }; }
+    }
+    function saveTabVisibility(v) { localStorage.setItem(TAB_VISIBILITY_KEY, JSON.stringify(v)); }
+    function toggleTab(tab) {
+      const v = getTabVisibility();
+      v[tab] = document.getElementById('toggle-' + tab).checked;
+      saveTabVisibility(v);
+      updateNavVisibility();
+      const activeNav = document.querySelector('.nav-btn.active');
+      if (activeNav) {
+        const map = { 'nav-calc': 'giorni', 'nav-cert': 'certificati', 'nav-veh': 'veicoli', 'nav-doc': 'documenti' };
+        if (map[activeNav.id] && !v[map[activeNav.id]]) showPage('dashboard');
+      }
+    }
+    function updateNavVisibility() {
+      const v = getTabVisibility();
+      const navCalc = document.getElementById('nav-calc');
+      const navCert = document.getElementById('nav-cert');
+      const navVeh = document.getElementById('nav-veh');
+      const navDoc = document.getElementById('nav-doc');
+      if (navCalc) navCalc.style.display = v.giorni ? '' : 'none';
+      if (navCert) navCert.style.display = v.certificati ? '' : 'none';
+      if (navVeh) navVeh.style.display = v.veicoli ? '' : 'none';
+      if (navDoc) navDoc.style.display = v.documenti ? '' : 'none';
+    }
+    function initTabToggles() {
+      const v = getTabVisibility();
+      const tGiorni = document.getElementById('toggle-giorni');
+      const tCert = document.getElementById('toggle-certificati');
+      const tVeh = document.getElementById('toggle-veicoli');
+      const tDoc = document.getElementById('toggle-documenti');
+      if (tGiorni) tGiorni.checked = v.giorni !== false;
+      if (tCert) tCert.checked = v.certificati !== false;
+      if (tVeh) tVeh.checked = v.veicoli !== false;
+      if (tDoc) tDoc.checked = v.documenti !== false;
+      updateNavVisibility();
+    }
+
     applyLang();
     renderDashboard();
+    initTabToggles();
 
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('sw.js').then(reg => {
