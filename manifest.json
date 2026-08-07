@@ -1,6 +1,6 @@
 {
-  "name": "Day Counter Dashboard",
-  "short_name": "DayCounter",
+  "name": "Ocean Desk",
+  "short_name": "OceanDesk",
   "start_url": ".",
   "display": "standalone",
   "background_color": "#1d598f",

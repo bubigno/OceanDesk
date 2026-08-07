@@ -336,16 +336,27 @@
       border-top-color: var(--accent); border-radius: 50%; animation: spin-loader 0.7s linear infinite;
       vertical-align: middle; margin-left: 6px; opacity: 0; transition: opacity 0.2s; }
     .spinner.show { opacity: 1; }
+    .action-card { transition: var(--transition-bounce); position:relative; }
+    .action-card:hover { transform: translateY(-4px) scale(1.02); box-shadow: var(--shadow-lg); }
+    .action-card:active { transform: scale(0.96); }
+    .page-header { display:flex; align-items:center; gap:12px; margin-bottom:20px; margin-top:4px; }
+    .page-header h1 { margin-bottom:0; }
+    .back-btn { width:40px; height:40px; border-radius:12px; background:var(--card); border:1.5px solid var(--border); color:var(--text); font-size:20px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:var(--transition); font-family:inherit; flex-shrink:0; }
+    .back-btn:hover { background:var(--accent); color:white; border-color:var(--accent); }
+    .back-btn:active { transform:scale(0.92); }
+    @media (min-width: 1280px) {
+      .dashboard-grid { grid-template-columns: repeat(4, 1fr) !important; }
+    }
+    @media (max-width: 640px) {
+      .action-card { padding: 20px 12px !important; }
+      .action-card div[style*="font-size:40px"] { font-size: 32px !important; }
+      .action-card div[style*="font-size:36px"] { font-size: 28px !important; }
+    }
     @keyframes spin-loader { to { transform: rotate(360deg); } }
 
     @media (max-width: 640px) {
-      .nav-bar-wrapper {
-        position: fixed; bottom: 0; top: auto; left: 0; right: 0;
-        margin: 0; padding: 0 16px max(16px, env(safe-area-inset-bottom)) 16px;
-      }
-      .nav-bar { border-radius: 24px; margin-bottom: 0; box-shadow: 0 -4px 24px rgba(0,0,0,0.08); }
-      body { padding-bottom: 100px; }
-      .toast { bottom: 110px; }
+      body { padding-bottom: max(20px, env(safe-area-inset-bottom)); }
+      .toast { bottom: 20px; }
       h1 { font-size: 24px; }
     }
     @media (min-width: 1024px) {
@@ -375,28 +386,59 @@
   </div>
 
   <div class="container">
-    <div class="app-header">
+    <div class="app-header" style="position:sticky; top:0; z-index:40; background:var(--bg); padding-top:max(12px, env(safe-area-inset-top)); margin-bottom:16px;">
       <img src="timone.png" class="app-logo" alt="Ocean Desk">
-      <div>
+      <div style="flex:1;">
         <div class="app-title">Ocean Desk</div>
-        <div class="app-subtitle"></div>
+        <div class="app-subtitle" id="appSubtitle"></div>
       </div>
+      <button class="nav-btn menu-btn" onclick="openMenu()" style="width:44px;height:44px;border-radius:12px;background:var(--card);border:1px solid var(--border);color:var(--text);font-size:20px;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:var(--shadow);transition:var(--transition);flex-shrink:0;">&#9776;</button>
     </div>
   </div>
 
-  <div class="nav-bar-wrapper">
-    <div class="nav-bar container">
-      <button class="nav-btn active" onclick="showPage('dashboard')" id="nav-dash" data-i18n="dashboard">Dashboard</button>
-      <button class="nav-btn" onclick="showPage('calculator')" id="nav-calc" data-i18n="giorni">Giorni</button>
-      <button class="nav-btn" onclick="showPage('certificates')" id="nav-cert" data-i18n="certificati">Certificati</button>
-      <button class="nav-btn" onclick="showPage('vehicles')" id="nav-veh" data-i18n="veicoli">Veicoli</button>
-      <button class="nav-btn" onclick="showPage('documents')" id="nav-doc" data-i18n="documenti">Documenti</button>
-      <button class="nav-btn menu-btn" onclick="openMenu()" id="nav-menu">&#9776;</button>
-    </div>
-  </div>
+
 
   <div class="container main-content">
     <div id="page-dashboard" class="fade-in">
+      <div class="dashboard-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:20px;">
+        <div class="card action-card" onclick="showPage('calculator')" style="cursor:pointer; text-align:center; padding:28px 16px; position:relative; overflow:hidden;">
+          <div style="font-size:40px; margin-bottom:10px; line-height:1;">&#128197;</div>
+          <div style="font-size:16px; font-weight:700; margin-bottom:6px;" data-i18n="giorni">Giorni</div>
+          <div style="font-size:36px; font-weight:800; color:var(--accent); line-height:1;" id="actionDaysTotal">0</div>
+          <div style="font-size:12px; color:var(--text-secondary); margin-top:6px;" data-i18n="giorniTotali">giorni totali</div>
+          <div style="position:absolute; top:0; right:0; width:60px; height:60px; background:var(--accent-light); border-radius:0 0 0 60px; opacity:0.5;"></div>
+        </div>
+        <div class="card action-card" onclick="showPage('certificates')" style="cursor:pointer; text-align:center; padding:28px 16px; position:relative; overflow:hidden;">
+          <div style="font-size:40px; margin-bottom:10px; line-height:1;">&#128220;</div>
+          <div style="font-size:16px; font-weight:700; margin-bottom:6px;" data-i18n="certificati">Certificati</div>
+          <div style="display:flex; justify-content:center; gap:10px; margin-top:10px;">
+            <div style="text-align:center;"><div style="font-size:22px; font-weight:800; color:var(--positive); line-height:1;" id="actionCertValid">0</div><div style="font-size:10px; color:var(--text-secondary); margin-top:4px; text-transform:uppercase; font-weight:600; letter-spacing:0.3px;" data-i18n="validi">Validi</div></div>
+            <div style="text-align:center;"><div style="font-size:22px; font-weight:800; color:var(--warning); line-height:1;" id="actionCertWarn">0</div><div style="font-size:10px; color:var(--text-secondary); margin-top:4px; text-transform:uppercase; font-weight:600; letter-spacing:0.3px;" data-i18n="inScadenza">In scadenza</div></div>
+            <div style="text-align:center;"><div style="font-size:22px; font-weight:800; color:var(--danger); line-height:1;" id="actionCertExp">0</div><div style="font-size:10px; color:var(--text-secondary); margin-top:4px; text-transform:uppercase; font-weight:600; letter-spacing:0.3px;" data-i18n="scaduti">Scaduti</div></div>
+          </div>
+          <div style="position:absolute; top:0; right:0; width:60px; height:60px; background:rgba(34,197,94,0.08); border-radius:0 0 0 60px; opacity:0.5;"></div>
+        </div>
+        <div class="card action-card" onclick="showPage('vehicles')" style="cursor:pointer; text-align:center; padding:28px 16px; position:relative; overflow:hidden;">
+          <div style="font-size:40px; margin-bottom:10px; line-height:1;">&#128663;</div>
+          <div style="font-size:16px; font-weight:700; margin-bottom:6px;" data-i18n="veicoli">Veicoli</div>
+          <div style="display:flex; justify-content:center; gap:10px; margin-top:10px;">
+            <div style="text-align:center;"><div style="font-size:22px; font-weight:800; color:var(--positive); line-height:1;" id="actionVehValid">0</div><div style="font-size:10px; color:var(--text-secondary); margin-top:4px; text-transform:uppercase; font-weight:600; letter-spacing:0.3px;" data-i18n="validi">Validi</div></div>
+            <div style="text-align:center;"><div style="font-size:22px; font-weight:800; color:var(--warning); line-height:1;" id="actionVehWarn">0</div><div style="font-size:10px; color:var(--text-secondary); margin-top:4px; text-transform:uppercase; font-weight:600; letter-spacing:0.3px;" data-i18n="inScadenza">In scadenza</div></div>
+            <div style="text-align:center;"><div style="font-size:22px; font-weight:800; color:var(--danger); line-height:1;" id="actionVehExp">0</div><div style="font-size:10px; color:var(--text-secondary); margin-top:4px; text-transform:uppercase; font-weight:600; letter-spacing:0.3px;" data-i18n="scaduti">Scaduti</div></div>
+          </div>
+          <div style="position:absolute; top:0; right:0; width:60px; height:60px; background:rgba(59,130,246,0.08); border-radius:0 0 0 60px; opacity:0.5;"></div>
+        </div>
+        <div class="card action-card" onclick="showPage('documents')" style="cursor:pointer; text-align:center; padding:28px 16px; position:relative; overflow:hidden;">
+          <div style="font-size:40px; margin-bottom:10px; line-height:1;">&#128193;</div>
+          <div style="font-size:16px; font-weight:700; margin-bottom:6px;" data-i18n="documenti">Documenti</div>
+          <div style="display:flex; justify-content:center; gap:10px; margin-top:10px;">
+            <div style="text-align:center;"><div style="font-size:22px; font-weight:800; color:var(--positive); line-height:1;" id="actionDocValid">0</div><div style="font-size:10px; color:var(--text-secondary); margin-top:4px; text-transform:uppercase; font-weight:600; letter-spacing:0.3px;" data-i18n="validi">Validi</div></div>
+            <div style="text-align:center;"><div style="font-size:22px; font-weight:800; color:var(--warning); line-height:1;" id="actionDocWarn">0</div><div style="font-size:10px; color:var(--text-secondary); margin-top:4px; text-transform:uppercase; font-weight:600; letter-spacing:0.3px;" data-i18n="inScadenza">In scadenza</div></div>
+            <div style="text-align:center;"><div style="font-size:22px; font-weight:800; color:var(--danger); line-height:1;" id="actionDocExp">0</div><div style="font-size:10px; color:var(--text-secondary); margin-top:4px; text-transform:uppercase; font-weight:600; letter-spacing:0.3px;" data-i18n="scaduti">Scaduti</div></div>
+          </div>
+          <div style="position:absolute; top:0; right:0; width:60px; height:60px; background:rgba(168,85,247,0.08); border-radius:0 0 0 60px; opacity:0.5;"></div>
+        </div>
+      </div>
       <div class="card grand-total" id="dashDaysCard" style="margin-top:8px;">
         <div class="year-select-wrap">
           <select id="dashYearSelect" onchange="localStorage.setItem(DASH_YEAR_KEY, this.value); renderDashboard();">
@@ -433,7 +475,10 @@
     </div>
 
     <div id="page-calculator" class="hidden">
-      <h1 data-i18n="giorni">Giorni</h1>
+      <div class="page-header">
+        <button class="back-btn" onclick="showPage('dashboard')">&#8592;</button>
+        <h1 data-i18n="giorni">Giorni</h1>
+      </div>
       <div class="target-box">
         <label data-i18n="giorniTarget">Giorni target</label>
         <input type="number" id="targetDays" placeholder="0" min="0" onchange="saveTarget()">
@@ -472,7 +517,10 @@
     </div>
 
     <div id="page-certificates" class="hidden">
-      <h1 data-i18n="certificati">Certificati</h1>
+      <div class="page-header">
+        <button class="back-btn" onclick="showPage('dashboard')">&#8592;</button>
+        <h1 data-i18n="certificati">Certificati</h1>
+      </div>
       <div class="card" style="padding:0; overflow:hidden;">
         <div style="display:flex; justify-content:space-between; align-items:center; padding:18px 22px; cursor:pointer;" onclick="toggleCertForm()">
           <span style="font-size:15px; font-weight:700;" data-i18n="aggiungiCert">Aggiungi certificato</span>
@@ -524,7 +572,10 @@
   </div>
 
     <div id="page-vehicles" class="hidden">
-      <h1 data-i18n="veicoli">Veicoli</h1>
+      <div class="page-header">
+        <button class="back-btn" onclick="showPage('dashboard')">&#8592;</button>
+        <h1 data-i18n="veicoli">Veicoli</h1>
+      </div>
       <div class="card" style="padding:0; overflow:hidden;">
         <div style="display:flex; justify-content:space-between; align-items:center; padding:18px 22px; cursor:pointer;" onclick="toggleVehForm()">
           <span style="font-size:15px; font-weight:700;" data-i18n="aggiungiVeicolo">Aggiungi veicolo</span>
@@ -583,7 +634,10 @@
 
 
     <div id="page-documents" class="hidden">
-      <h1 data-i18n="documenti">Documenti</h1>
+      <div class="page-header">
+        <button class="back-btn" onclick="showPage('dashboard')">&#8592;</button>
+        <h1 data-i18n="documenti">Documenti</h1>
+      </div>
       <div class="card" style="padding:0; overflow:hidden;">
         <div style="display:flex; justify-content:space-between; align-items:center; padding:18px 22px; cursor:pointer;" onclick="toggleDocForm()">
           <span style="font-size:15px; font-weight:700;" data-i18n="aggiungiDocumento">Aggiungi documento</span>
@@ -1101,18 +1155,13 @@ const VEHICLE_KEY = 'daycounter_vehicles';
     }
     function showPage(page) {
       closeMenu();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
       ['dashboard','calculator','certificates','vehicles','documents'].forEach(p => {
         const el = document.getElementById('page-' + p);
         if (el) { el.classList.add('hidden'); el.classList.remove('fade-in'); }
-        const navId = p === 'dashboard' ? 'nav-dash' : p === 'calculator' ? 'nav-calc' : p === 'certificates' ? 'nav-cert' : p === 'vehicles' ? 'nav-veh' : 'nav-doc';
-        const navEl = document.getElementById(navId);
-        if (navEl) navEl.classList.remove('active');
       });
       const activeEl = document.getElementById('page-' + page);
       if (activeEl) { activeEl.classList.remove('hidden'); activeEl.classList.add('fade-in'); }
-      const activeNavId = page === 'dashboard' ? 'nav-dash' : page === 'calculator' ? 'nav-calc' : page === 'certificates' ? 'nav-cert' : page === 'vehicles' ? 'nav-veh' : 'nav-doc';
-      const activeNavEl = document.getElementById(activeNavId);
-      if (activeNavEl) activeNavEl.classList.add('active');
       if (page === 'dashboard') renderDashboard();
       if (page === 'calculator') renderCalcData();
       if (page === 'certificates') renderCertificates();
@@ -1297,6 +1346,19 @@ const VEHICLE_KEY = 'daycounter_vehicles';
       if (certCard) certCard.style.display = (vis.certificati !== false && certs.length > 0) ? '' : 'none';
       if (vehCard) vehCard.style.display = (vis.veicoli !== false && vehs.length > 0) ? '' : 'none';
       if (docCard) docCard.style.display = (vis.documenti !== false && docs.length > 0) ? '' : 'none';
+
+      // Action cards
+      const locale = getLang() === 'en' ? 'en-US' : 'it-IT';
+      document.getElementById('actionDaysTotal').textContent = total.toLocaleString(locale);
+      document.getElementById('actionCertValid').textContent = cValid;
+      document.getElementById('actionCertWarn').textContent = cWarn;
+      document.getElementById('actionCertExp').textContent = cExp;
+      document.getElementById('actionVehValid').textContent = vValid;
+      document.getElementById('actionVehWarn').textContent = vWarn;
+      document.getElementById('actionVehExp').textContent = vExp;
+      document.getElementById('actionDocValid').textContent = dValid;
+      document.getElementById('actionDocWarn').textContent = dWarn;
+      document.getElementById('actionDocExp').textContent = dExp;
     }
 
     function addCertificate() {
