@@ -1149,7 +1149,6 @@ const VEHICLE_KEY = 'daycounter_vehicles';
       document.getElementById('certFileLabel').textContent = 'Scegli file...';
       document.getElementById('certFileLabel').style.color = 'var(--text-secondary)';
       document.getElementById('vehName').value = '';
-      document.getElementById('vehCode').value = '';
       document.getElementById('vehExpiry').value = '';
       document.getElementById('vehFile1').value = '';
       document.getElementById('vehFileLabel').textContent = 'Scegli file...';
@@ -1385,6 +1384,7 @@ const VEHICLE_KEY = 'daycounter_vehicles';
         const daysText = s.days >= 0 ? `${t('tra')} ${s.days} ${t('gg')}` : `${Math.abs(s.days)} ${t('ggFa')}`;
         const attCount = (c.attachments && c.attachments.length) || (c.hasAttachment ? 1 : 0);
         const attachIcon = attCount > 0 ? `<span style="margin-left:6px;opacity:0.6;font-size:12px;">&#128206;${attCount > 1 ? '×' + attCount : ''}</span>` : '';
+        const codeLine = c.code ? escapeHtml(c.code) + ' &mdash; ' : '';
         const priceLine = c.price ? `${t('prezzo')}: ${escapeHtml(c.price)} &mdash; ` : '';
         const noteLine = c.note ? `${t('nota')}: ${escapeHtml(c.note)} &mdash; ` : '';
         const expiryLine = c.expiry ? `${t('scad')}: ${formatDateIT(c.expiry)}` : '';
@@ -1840,7 +1840,6 @@ const VEHICLE_KEY = 'daycounter_vehicles';
           catch(err) { toast(t('erroreSalvataggio')); }
         }
         document.getElementById('vehName').value = '';
-        document.getElementById('vehCode').value = '';
         document.getElementById('vehExpiry').value = '';
         document.getElementById('vehFile1').value = '';
         const label = document.getElementById('vehFileLabel');
@@ -1897,6 +1896,7 @@ const VEHICLE_KEY = 'daycounter_vehicles';
         const daysText = s.days >= 0 ? `${t('tra')} ${s.days} ${t('gg')}` : `${Math.abs(s.days)} ${t('ggFa')}`;
         const attCount = (c.attachments && c.attachments.length) || (c.hasAttachment ? 1 : 0);
         const attachIcon = attCount > 0 ? `<span style="margin-left:6px;opacity:0.6;font-size:12px;">&#128206;${attCount > 1 ? '×' + attCount : ''}</span>` : '';
+        const codeLine = c.code ? escapeHtml(c.code) + ' &mdash; ' : '';
         const priceLine = c.price ? `${t('prezzo')}: ${escapeHtml(c.price)} &mdash; ` : '';
         const noteLine = c.note ? `${t('nota')}: ${escapeHtml(c.note)} &mdash; ` : '';
         const expiryLine = c.expiry ? `${t('scad')}: ${formatDateIT(c.expiry)}` : '';
@@ -2151,6 +2151,7 @@ const VEHICLE_KEY = 'daycounter_vehicles';
         const daysText = s.days >= 0 ? `${t('tra')} ${s.days} ${t('gg')}` : `${Math.abs(s.days)} ${t('ggFa')}`;
         const attCount = (c.attachments && c.attachments.length) || (c.hasAttachment ? 1 : 0);
         const attachIcon = attCount > 0 ? `<span style="margin-left:6px;opacity:0.6;font-size:12px;">&#128206;${attCount > 1 ? '×' + attCount : ''}</span>` : '';
+        const codeLine = c.code ? escapeHtml(c.code) + ' &mdash; ' : '';
         const priceLine = c.price ? `${t('prezzo')}: ${escapeHtml(c.price)} &mdash; ` : '';
         const noteLine = c.note ? `${t('nota')}: ${escapeHtml(c.note)} &mdash; ` : '';
         const expiryLine = c.expiry ? `${t('scad')}: ${formatDateIT(c.expiry)}` : '';
@@ -2223,7 +2224,7 @@ const VEHICLE_KEY = 'daycounter_vehicles';
           if (attachments.length > 2) attachments = attachments.slice(-2);
           try { await saveAttachment(editingDocId, attachments); } catch(err) { toast(t('erroreSalvataggio')); }
           const attMeta = attachments.map(a => ({ name: a.name, type: a.type }));
-          items[idx] = { ...items[idx], name, price, note, expiry, attachments: attMeta, hasAttachment: attMeta.length > 0, attachmentName: attMeta[0]?.name || '' };
+          items[idx] = { ...items[idx], name, code, expiry, attachments: attMeta, hasAttachment: attMeta.length > 0, attachmentName: attMeta[0]?.name || '' };
           saveDocuments(items);
           closeDocModal(); renderDocuments(); renderDashboard(); toast(t('documentoAggiornato'));
         };
@@ -2234,7 +2235,7 @@ const VEHICLE_KEY = 'daycounter_vehicles';
         try { await saveAttachment(editingDocId, attachments); } catch(e) {}
       }
       const attMeta = attachments.map(a => ({ name: a.name, type: a.type }));
-      items[idx] = { ...items[idx], name, price, note, expiry, attachments: attMeta, hasAttachment: attMeta.length > 0, attachmentName: attMeta[0]?.name || '' };
+      items[idx] = { ...items[idx], name, code, expiry, attachments: attMeta, hasAttachment: attMeta.length > 0, attachmentName: attMeta[0]?.name || '' };
       saveDocuments(items);
       closeDocModal(); renderDocuments(); renderDashboard(); toast(t('documentoAggiornato'));
     }
