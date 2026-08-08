@@ -374,6 +374,11 @@
     .total-number { font-size: clamp(36px, 10vw, 72px); }
     .period-name, .cert-name { white-space: normal; overflow-wrap: anywhere; word-break: break-word; }
     .detail-name { white-space: normal; overflow-wrap: anywhere; word-break: break-word; }
+    .status-accordion { animation: slideDown 0.35s ease; }
+    .status-list-item:last-child { border-bottom: none !important; }
+    .status-pill { transition: var(--transition-bounce); }
+    .status-pill:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
+    .status-pill:active { transform: scale(0.96); }
     @media (max-width: 640px) {
       body { padding-bottom: max(20px, env(safe-area-inset-bottom)); }
       .toast { bottom: 20px; }
@@ -406,13 +411,17 @@
   </div>
 
   <div class="container">
-    <div class="app-header" style="position:sticky; top:0; z-index:40; background:var(--bg); padding-top:max(12px, env(safe-area-inset-top)); margin-bottom:16px;">
-      <img src="timone.png" class="app-logo" alt="Ocean Desk">
-      <div style="flex:1;">
-        <div class="app-title">Ocean Desk</div>
-        <div class="app-subtitle" id="appSubtitle"></div>
+    <div class="app-header" style="position:sticky; top:0; z-index:40; background: linear-gradient(135deg, var(--sky) 0%, var(--sky-light) 100%); margin: -20px -16px 20px; padding: max(20px, env(safe-area-inset-top)) 16px 20px; border-radius: 0 0 var(--radius-lg) var(--radius-lg); box-shadow: var(--shadow-lg);">
+      <div style="display:flex; align-items:center; gap:14px; max-width:1140px; margin:0 auto; width:100%;">
+        <div style="width:48px; height:48px; border-radius:14px; background:rgba(255,255,255,0.15); backdrop-filter:blur(10px); display:flex; align-items:center; justify-content:center; flex-shrink:0; border:1px solid rgba(255,255,255,0.2);">
+          <img src="timone.png" style="width:32px; height:32px; object-fit:contain; filter:brightness(0) invert(1);" alt="Ocean Desk">
+        </div>
+        <div style="flex:1;">
+          <div style="font-size:clamp(22px, 5vw, 28px); font-weight:800; color:white; letter-spacing:-0.5px; line-height:1.1; text-shadow:0 2px 8px rgba(0,0,0,0.2);">Ocean Desk</div>
+          <div style="font-size:clamp(11px, 2.5vw, 13px); font-weight:500; color:rgba(255,255,255,0.75); margin-top:4px;" id="appSubtitle"></div>
+        </div>
+        <button onclick="openMenu()" style="width:44px;height:44px;border-radius:12px;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.25);color:white;font-size:20px;display:flex;align-items:center;justify-content:center;cursor:pointer;backdrop-filter:blur(10px);transition:var(--transition);flex-shrink:0;">&#9776;</button>
       </div>
-      <button class="nav-btn menu-btn" onclick="openMenu()" style="width:44px;height:44px;border-radius:12px;background:var(--card);border:1px solid var(--border);color:var(--text);font-size:20px;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:var(--shadow);transition:var(--transition);flex-shrink:0;">&#9776;</button>
     </div>
   </div>
 
@@ -474,6 +483,52 @@
             </div>
           </div>
         </div>
+      </div>
+
+      <div class="card" style="padding:clamp(16px, 4vw, 24px); margin-bottom:16px;">
+        <div style="font-size:clamp(13px, 3vw, 15px); font-weight:700; color:var(--text-secondary); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:16px;" data-i18n="riepilogo">Riepilogo scadenze</div>
+        <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:clamp(8px, 2vw, 14px);">
+          <div class="status-pill" onclick="toggleStatusAccordion('valid')" style="cursor:pointer; text-align:center; padding:clamp(14px, 3vw, 20px) clamp(6px, 2vw, 10px); background:rgba(34,197,94,0.08); border:2px solid rgba(34,197,94,0.25); border-radius:16px; transition:var(--transition);" onmouseover="this.style.background='rgba(34,197,94,0.15)'" onmouseout="this.style.background='rgba(34,197,94,0.08)'">
+            <div style="font-size:clamp(24px, 6vw, 36px); font-weight:800; color:var(--positive); line-height:1;" id="pillValid">0</div>
+            <div style="font-size:clamp(10px, 2.2vw, 12px); color:var(--positive); font-weight:700; margin-top:6px; text-transform:uppercase; letter-spacing:0.3px;" data-i18n="validi">Validi</div>
+          </div>
+          <div class="status-pill" onclick="toggleStatusAccordion('warning')" style="cursor:pointer; text-align:center; padding:clamp(14px, 3vw, 20px) clamp(6px, 2vw, 10px); background:rgba(245,158,11,0.08); border:2px solid rgba(245,158,11,0.25); border-radius:16px; transition:var(--transition);" onmouseover="this.style.background='rgba(245,158,11,0.15)'" onmouseout="this.style.background='rgba(245,158,11,0.08)'">
+            <div style="font-size:clamp(24px, 6vw, 36px); font-weight:800; color:var(--warning); line-height:1;" id="pillWarning">0</div>
+            <div style="font-size:clamp(10px, 2.2vw, 12px); color:var(--warning); font-weight:700; margin-top:6px; text-transform:uppercase; letter-spacing:0.3px;" data-i18n="inScadenza">In scadenza</div>
+          </div>
+          <div class="status-pill" onclick="toggleStatusAccordion('expired')" style="cursor:pointer; text-align:center; padding:clamp(14px, 3vw, 20px) clamp(6px, 2vw, 10px); background:rgba(239,68,68,0.08); border:2px solid rgba(239,68,68,0.25); border-radius:16px; transition:var(--transition);" onmouseover="this.style.background='rgba(239,68,68,0.15)'" onmouseout="this.style.background='rgba(239,68,68,0.08)'">
+            <div style="font-size:clamp(24px, 6vw, 36px); font-weight:800; color:var(--danger); line-height:1;" id="pillExpired">0</div>
+            <div style="font-size:clamp(10px, 2.2vw, 12px); color:var(--danger); font-weight:700; margin-top:6px; text-transform:uppercase; letter-spacing:0.3px;" data-i18n="scaduti">Scaduti</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="padding:0; overflow:hidden; margin-bottom:16px;">
+        <div id="statusAccordionValid" class="status-accordion" style="display:none;">
+          <div style="padding:16px clamp(16px, 4vw, 24px); border-bottom:1.5px solid var(--border); display:flex; align-items:center; gap:10px;">
+            <span style="width:10px; height:10px; border-radius:50%; background:var(--positive); display:inline-block; flex-shrink:0;"></span>
+            <span style="font-size:15px; font-weight:700; color:var(--positive);" data-i18n="validi">Validi</span>
+            <span style="margin-left:auto; font-size:13px; color:var(--text-secondary); font-weight:600; cursor:pointer;" onclick="toggleStatusAccordion('valid')">&#10005;</span>
+          </div>
+          <div id="statusListValid" style="padding:8px clamp(16px, 4vw, 24px) clamp(16px, 4vw, 24px);"></div>
+        </div>
+        <div id="statusAccordionWarning" class="status-accordion" style="display:none;">
+          <div style="padding:16px clamp(16px, 4vw, 24px); border-bottom:1.5px solid var(--border); display:flex; align-items:center; gap:10px;">
+            <span style="width:10px; height:10px; border-radius:50%; background:var(--warning); display:inline-block; flex-shrink:0;"></span>
+            <span style="font-size:15px; font-weight:700; color:var(--warning);" data-i18n="inScadenza">In scadenza</span>
+            <span style="margin-left:auto; font-size:13px; color:var(--text-secondary); font-weight:600; cursor:pointer;" onclick="toggleStatusAccordion('warning')">&#10005;</span>
+          </div>
+          <div id="statusListWarning" style="padding:8px clamp(16px, 4vw, 24px) clamp(16px, 4vw, 24px);"></div>
+        </div>
+        <div id="statusAccordionExpired" class="status-accordion" style="display:none;">
+          <div style="padding:16px clamp(16px, 4vw, 24px); border-bottom:1.5px solid var(--border); display:flex; align-items:center; gap:10px;">
+            <span style="width:10px; height:10px; border-radius:50%; background:var(--danger); display:inline-block; flex-shrink:0;"></span>
+            <span style="font-size:15px; font-weight:700; color:var(--danger);" data-i18n="scaduti">Scaduti</span>
+            <span style="margin-left:auto; font-size:13px; color:var(--text-secondary); font-weight:600; cursor:pointer;" onclick="toggleStatusAccordion('expired')">&#10005;</span>
+          </div>
+          <div id="statusListExpired" style="padding:8px clamp(16px, 4vw, 24px) clamp(16px, 4vw, 24px);"></div>
+        </div>
+        <div id="statusEmpty" style="padding:32px 20px; text-align:center; color:var(--text-secondary); font-size:14px; font-weight:500; display:none;" data-i18n="nessunDato">Nessun dato</div>
       </div>
     </div>
 
@@ -695,22 +750,18 @@
         <button class="modal-close" onclick="closeMenu()">&times;</button>
       </div>
 
-      <div class="accordion-section">
+      <div class="accordion-section open">
         <div class="accordion-header" onclick="toggleAccordion(this)">
-          <span data-i18n="tabsVisibili">Tabs visibili</span>
+          <span data-i18n="notificaScadenze">Notifica scadenze</span>
           <span class="accordion-icon">&#9662;</span>
         </div>
         <div class="accordion-body">
-          <div class="tab-toggle-row">
-            <span data-i18n="giorni">Giorni</span>
-            <label class="switch"><input type="checkbox" id="toggle-giorni" onchange="toggleTab('giorni')"><span class="slider"></span></label>
-          </div>
           <div class="tab-toggle-row">
             <span data-i18n="certificati">Certificati</span>
             <div style="display:flex;align-items:center;gap:10px;">
               <input type="number" id="warnCertDays" value="90" min="1" max="999" style="width:60px; padding:6px 8px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; font-weight:700; text-align:center; background:var(--bg); color:var(--text);" onchange="saveWarningDays('cert', this.value)">
               <span style="font-size:13px; font-weight:600; color:var(--text-secondary); min-width:22px;">gg</span>
-              <label class="switch"><input type="checkbox" id="toggle-certificati" onchange="toggleTab('certificati')"><span class="slider"></span></label>
+              <label class="switch"><input type="checkbox" id="toggle-notif-cert" onchange="toggleNotification('cert')"><span class="slider"></span></label>
             </div>
           </div>
           <div class="tab-toggle-row">
@@ -718,7 +769,7 @@
             <div style="display:flex;align-items:center;gap:10px;">
               <input type="number" id="warnVehDays" value="90" min="1" max="999" style="width:60px; padding:6px 8px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; font-weight:700; text-align:center; background:var(--bg); color:var(--text);" onchange="saveWarningDays('veh', this.value)">
               <span style="font-size:13px; font-weight:600; color:var(--text-secondary); min-width:22px;">gg</span>
-              <label class="switch"><input type="checkbox" id="toggle-veicoli" onchange="toggleTab('veicoli')"><span class="slider"></span></label>
+              <label class="switch"><input type="checkbox" id="toggle-notif-veh" onchange="toggleNotification('veh')"><span class="slider"></span></label>
             </div>
           </div>
           <div class="tab-toggle-row">
@@ -726,8 +777,12 @@
             <div style="display:flex;align-items:center;gap:10px;">
               <input type="number" id="warnDocDays" value="90" min="1" max="999" style="width:60px; padding:6px 8px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; font-weight:700; text-align:center; background:var(--bg); color:var(--text);" onchange="saveWarningDays('doc', this.value)">
               <span style="font-size:13px; font-weight:600; color:var(--text-secondary); min-width:22px;">gg</span>
-              <label class="switch"><input type="checkbox" id="toggle-documenti" onchange="toggleTab('documenti')"><span class="slider"></span></label>
+              <label class="switch"><input type="checkbox" id="toggle-notif-doc" onchange="toggleNotification('doc')"><span class="slider"></span></label>
             </div>
+          </div>
+          <div style="margin-top:16px; padding-top:14px; border-top:1.5px solid var(--border);">
+            <label style="font-size:13px; font-weight:700; color:var(--text-secondary); text-transform:uppercase; letter-spacing:0.5px; display:block; margin-bottom:10px;" data-i18n="emailNotifiche">Email per notifiche</label>
+            <input type="email" id="notifEmail" placeholder="esempio@email.com" style="width:100%; padding:12px 14px; border:1.5px solid var(--border); border-radius:12px; font-size:15px; background:var(--bg); color:var(--text); font-family:inherit;" onchange="saveNotifEmail(this.value)">
           </div>
         </div>
       </div>
@@ -750,22 +805,13 @@
 
       <div class="accordion-section">
         <div class="accordion-header" onclick="toggleAccordion(this)">
-          <span>Info / iOS</span>
+          <span data-i18n="backupDati">Backup & Dati</span>
           <span class="accordion-icon">&#9662;</span>
         </div>
         <div class="accordion-body">
           <div id="iosTooltip" class="ios-notice" style="margin-bottom:12px;">
-            <strong data-i18n="notaIOS">Nota iOS:</strong> <span data-i18n="notaIOSText">salvando la PWA sulla schermata Home, i dati del browser non si trasferiscono automaticamente. Usa "Esporta" dal browser, poi "Importa" dall'app installata.</span>
+            <strong data-i18n="notaIOS">Nota iOS:</strong> <span data-i18n="notaIOSText">salvando la PWA sulla schermata Home, i dati del browser non si trasferiscono automaticamente. Usa &quot;Esporta&quot; dal browser, poi &quot;Importa&quot; dall&apos;app installata.</span>
           </div>
-        </div>
-      </div>
-
-      <div class="accordion-section">
-        <div class="accordion-header" onclick="toggleAccordion(this)">
-          <span data-i18n="esporta">Backup & Dati</span>
-          <span class="accordion-icon">&#9662;</span>
-        </div>
-        <div class="accordion-body">
           <div class="backup-row">
             <button class="btn btn-secondary" onclick="exportData()" data-i18n="esporta">Esporta dati</button>
             <button class="btn btn-warning" onclick="document.getElementById('importFile').click()" data-i18n="importa">Importa dati</button>
@@ -786,6 +832,7 @@
         </div>
       </div>
     </div>
+  </div>
   </div>
 
   <div class="modal-overlay" id="vehicleModal" onclick="closeVehModal(event)">
@@ -1212,6 +1259,10 @@ const VEHICLE_KEY = 'daycounter_vehicles';
       localStorage.removeItem(LANG_KEY);
       localStorage.removeItem(DASH_YEAR_KEY);
       localStorage.removeItem(TAB_VISIBILITY_KEY);
+      localStorage.removeItem(NOTIF_CERT_KEY);
+      localStorage.removeItem(NOTIF_VEH_KEY);
+      localStorage.removeItem(NOTIF_DOC_KEY);
+      localStorage.removeItem(NOTIF_EMAIL_KEY);
       localStorage.removeItem(WARN_CERT_KEY);
       localStorage.removeItem(WARN_VEH_KEY);
       localStorage.removeItem(WARN_DOC_KEY);
@@ -1298,7 +1349,6 @@ const VEHICLE_KEY = 'daycounter_vehicles';
       const certs = getCertificates();
       const vehs = getVehicles();
       const docs = getDocuments();
-      const vis = getTabVisibility();
       const locale = getLang() === 'en' ? 'en-US' : 'it-IT';
 
       // === Anno e giorni totali (centro donut) ===
@@ -1333,7 +1383,7 @@ const VEHICLE_KEY = 'daycounter_vehicles';
       anim(donutTotalEl, total, 700);
       document.getElementById('donutDaysLabel').textContent = label;
       const donutYearWrap = document.getElementById('donutYearWrap');
-      donutYearWrap.style.display = (vis.giorni !== false && periods.length > 0) ? 'block' : 'none';
+      donutYearWrap.style.display = periods.length > 0 ? 'block' : 'none';
 
       // === Contatori per stati ===
       let cValid = 0, cWarn = 0, cExp = 0;
@@ -1382,6 +1432,14 @@ const VEHICLE_KEY = 'daycounter_vehicles';
       setSegment('donutValid', totValid);
       setSegment('donutWarning', totWarn);
       setSegment('donutExpired', totExp);
+
+      // Pill counters
+      const pillValid = document.getElementById('pillValid');
+      const pillWarning = document.getElementById('pillWarning');
+      const pillExpired = document.getElementById('pillExpired');
+      if (pillValid) anim(pillValid, totValid, 500);
+      if (pillWarning) anim(pillWarning, totWarn, 500);
+      if (pillExpired) anim(pillExpired, totExp, 500);
     }
 
     function addCertificate() {
@@ -2568,26 +2626,29 @@ const VEHICLE_KEY = 'daycounter_vehicles';
     document.getElementById('startDate').value = '2023-01-01';
     document.getElementById('targetDays').value = getTarget() || '';
     
-    // ===== TAB VISIBILITY =====
-    function getTabVisibility() {
-      try { return JSON.parse(localStorage.getItem(TAB_VISIBILITY_KEY)) || { giorni: true, certificati: true, veicoli: true, documenti: true }; }
-      catch(e) { return { giorni: true, certificati: true, veicoli: true, documenti: true }; }
+    // ===== NOTIFICATION PREFS =====
+    const NOTIF_CERT_KEY = 'daycounter_notif_cert';
+    const NOTIF_VEH_KEY = 'daycounter_notif_veh';
+    const NOTIF_DOC_KEY = 'daycounter_notif_doc';
+    const NOTIF_EMAIL_KEY = 'daycounter_notif_email';
+
+    function getNotificationPrefs() {
+      try {
+        return JSON.parse(localStorage.getItem(TAB_VISIBILITY_KEY)) || { cert: true, veh: true, doc: true };
+      } catch(e) { return { cert: true, veh: true, doc: true }; }
     }
-    function saveTabVisibility(v) { localStorage.setItem(TAB_VISIBILITY_KEY, JSON.stringify(v)); }
-    function toggleTab(tab) {
-      const v = getTabVisibility();
-      v[tab] = document.getElementById('toggle-' + tab).checked;
-      saveTabVisibility(v);
-      updateNavVisibility();
-      renderDashboard();
-      const activeNav = document.querySelector('.nav-btn.active');
-      if (activeNav) {
-        const map = { 'nav-calc': 'giorni', 'nav-cert': 'certificati', 'nav-veh': 'veicoli', 'nav-doc': 'documenti' };
-        if (map[activeNav.id] && !v[map[activeNav.id]]) showPage('dashboard');
-      }
+    function saveNotificationPrefs(v) { localStorage.setItem(TAB_VISIBILITY_KEY, JSON.stringify(v)); }
+    function toggleNotification(type) {
+      const v = getNotificationPrefs();
+      const id = 'toggle-notif-' + type;
+      v[type] = document.getElementById(id).checked;
+      saveNotificationPrefs(v);
     }
-    function updateNavVisibility() {
-      // Nav bar rimossa, nessun aggiornamento necessario
+    function getNotifEmail() {
+      try { return localStorage.getItem(NOTIF_EMAIL_KEY) || ''; } catch(e) { return ''; }
+    }
+    function saveNotifEmail(val) {
+      localStorage.setItem(NOTIF_EMAIL_KEY, val.trim());
     }
     function toggleAccordion(header) {
       const section = header.parentElement;
@@ -2624,22 +2685,89 @@ const VEHICLE_KEY = 'daycounter_vehicles';
       if (elDoc) elDoc.value = w.doc;
     }
 
-    function initTabToggles() {
-      const v = getTabVisibility();
-      const tGiorni = document.getElementById('toggle-giorni');
-      const tCert = document.getElementById('toggle-certificati');
-      const tVeh = document.getElementById('toggle-veicoli');
-      const tDoc = document.getElementById('toggle-documenti');
-      if (tGiorni) tGiorni.checked = v.giorni !== false;
-      if (tCert) tCert.checked = v.certificati !== false;
-      if (tVeh) tVeh.checked = v.veicoli !== false;
-      if (tDoc) tDoc.checked = v.documenti !== false;
-      updateNavVisibility();
+    function toggleStatusAccordion(status) {
+      const ids = { valid: 'statusAccordionValid', warning: 'statusAccordionWarning', expired: 'statusAccordionExpired' };
+      const target = document.getElementById(ids[status]);
+      const isOpen = target.style.display !== 'none';
+      // Chiudi tutti
+      Object.values(ids).forEach(id => { document.getElementById(id).style.display = 'none'; });
+      if (!isOpen) {
+        target.style.display = 'block';
+        target.style.animation = 'slideDown 0.3s ease';
+        renderStatusList(status);
+      }
+    }
+    function renderStatusList(status) {
+      const certs = getCertificates();
+      const vehs = getVehicles();
+      const docs = getDocuments();
+      const items = [];
+      certs.forEach(c => {
+        const s = getCertStatus(c.expiry);
+        if (s.class === status) items.push({ ...c, type: 'cert', statusObj: s });
+      });
+      vehs.forEach(c => {
+        const s = getVehStatus(c.expiry);
+        if (s.class === status) items.push({ ...c, type: 'veh', statusObj: s });
+      });
+      docs.forEach(c => {
+        const s = getDocStatus(c.expiry);
+        if (s.class === status) items.push({ ...c, type: 'doc', statusObj: s });
+      });
+      items.sort((a, b) => {
+        const da = a.expiry ? new Date(a.expiry) : new Date('2099-12-31');
+        const db = b.expiry ? new Date(b.expiry) : new Date('2099-12-31');
+        return da - db;
+      });
+      const container = document.getElementById('statusList' + status.charAt(0).toUpperCase() + status.slice(1));
+      if (items.length === 0) {
+        container.innerHTML = `<div class="empty-state" style="padding:20px 0;"><p style="font-size:13px">${t('nessunDato')}</p></div>`;
+        return;
+      }
+      let htmlList = '';
+      items.forEach(item => {
+        const daysText = item.statusObj.days >= 0
+          ? `${t('tra')} ${item.statusObj.days} ${t('gg')}`
+          : `${Math.abs(item.statusObj.days)} ${t('ggFa')}`;
+        const typeIcon = item.type === 'cert' ? '&#128220;' : item.type === 'veh' ? '&#128663;' : '&#128193;';
+        const typeLabel = item.type === 'cert' ? t('certificati') : item.type === 'veh' ? t('veicoli') : t('documenti');
+        const codeLine = item.code ? escapeHtml(item.code) + ' &mdash; ' : '';
+        const expiryLine = item.expiry ? `${t('scad')}: ${formatDateIT(item.expiry)}` : '';
+        htmlList += `<div class="status-list-item" onclick="openItemFromDashboard('${item.type}', ${item.id})" style="display:flex; justify-content:space-between; align-items:center; padding:14px 0; border-bottom:1px solid var(--border); cursor:pointer; transition:var(--transition);" onmouseover="this.style.paddingLeft='8px'" onmouseout="this.style.paddingLeft='0'">
+          <div style="flex:1; min-width:0;">
+            <div style="font-size:14px; font-weight:600; display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+              <span style="font-size:16px;">${typeIcon}</span>
+              <span style="white-space:normal; overflow-wrap:anywhere;">${escapeHtml(item.name || '')}</span>
+              <span style="font-size:10px; font-weight:700; padding:2px 6px; border-radius:4px; background:var(--bg); color:var(--text-secondary); text-transform:uppercase;">${typeLabel}</span>
+            </div>
+            <div style="font-size:12px; color:var(--text-secondary); margin-top:3px;">${codeLine}${expiryLine}</div>
+          </div>
+          <div style="font-size:14px; font-weight:700; color:var(--${status === 'valid' ? 'positive' : status === 'warning' ? 'warning' : 'danger'}); flex-shrink:0; margin-left:10px;">${daysText}</div>
+        </div>`;
+      });
+      container.innerHTML = htmlList;
+    }
+    function openItemFromDashboard(type, id) {
+      if (type === 'cert') { certScrollTarget = null; showPage('certificates'); setTimeout(() => openCertModal(id), 400); }
+      else if (type === 'veh') { vehScrollTarget = null; showPage('vehicles'); setTimeout(() => openVehicleModal(id), 400); }
+      else { docScrollTarget = null; showPage('documents'); setTimeout(() => openDocumentModal(id), 400); }
+    }
+
+    function initNotifToggles() {
+      const v = getNotificationPrefs();
+      const tCert = document.getElementById('toggle-notif-cert');
+      const tVeh = document.getElementById('toggle-notif-veh');
+      const tDoc = document.getElementById('toggle-notif-doc');
+      if (tCert) tCert.checked = v.cert !== false;
+      if (tVeh) tVeh.checked = v.veh !== false;
+      if (tDoc) tDoc.checked = v.doc !== false;
+      const emailEl = document.getElementById('notifEmail');
+      if (emailEl) emailEl.value = getNotifEmail();
     }
 
     applyLang();
     renderDashboard();
-    initTabToggles();
+    initNotifToggles();
     initWarningDays();
 
     if ('serviceWorker' in navigator) {
