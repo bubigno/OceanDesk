@@ -85,9 +85,7 @@
       .nav-btn { font-size: 15px; padding: 12px 16px; }
       body { padding: 32px; padding-top: max(32px, env(safe-area-inset-top)); }
     }
-    @media (min-width: 1280px) {
-      .dashboard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: start; }
-    }
+    @media (min-width: 1280px) { .dashboard-grid { gap: 16px; } }
     .container { width: 100%; max-width: 100%; margin: 0 auto; padding: 0 16px; }
     @media (min-width: 640px) { .container { max-width: 600px; padding: 0 24px; } }
     @media (min-width: 768px) { .container { max-width: 720px; } }
@@ -354,10 +352,32 @@
     }
     @keyframes spin-loader { to { transform: rotate(360deg); } }
 
+    /* Drawer */
+    .drawer-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 1000; opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0.3s ease; }
+    .drawer-overlay.show { opacity: 1; visibility: visible; }
+    .drawer-panel { position: fixed; top: 0; right: 0; width: min(380px, 85vw); height: 100%; background: var(--card); box-shadow: -8px 0 40px rgba(0,0,0,0.2); border-left: 1px solid var(--border); transform: translateX(100%); transition: transform 0.35s cubic-bezier(0.22,1,0.36,1); padding: max(20px, env(safe-area-inset-top)) 24px max(20px, env(safe-area-inset-bottom)); overflow-y: auto; display: flex; flex-direction: column; }
+    .drawer-overlay.show .drawer-panel { transform: translateX(0); }
+    /* Accordion */
+    .accordion-section { margin-bottom: 8px; border: 1.5px solid var(--border); border-radius: 14px; overflow: hidden; }
+    .accordion-header { display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; cursor: pointer; background: var(--bg); font-size: 15px; font-weight: 700; transition: background 0.2s; user-select: none; }
+    .accordion-header:hover { background: var(--card); }
+    .accordion-icon { font-size: 12px; transition: transform 0.25s ease; color: var(--text-secondary); }
+    .accordion-section.open .accordion-icon { transform: rotate(180deg); }
+    .accordion-body { max-height: 0; overflow: hidden; transition: max-height 0.35s cubic-bezier(0.22,1,0.36,1); padding: 0 16px; }
+    .accordion-section.open .accordion-body { max-height: 800px; padding: 12px 16px 16px; }
+    /* Donut animation */
+    #donutValid, #donutWarning, #donutExpired { transition: stroke-dasharray 0.8s cubic-bezier(0.22,1,0.36,1), stroke-dashoffset 0.8s cubic-bezier(0.22,1,0.36,1); }
+    /* Responsive clamp helpers */
+    .app-title { font-size: clamp(20px, 5vw, 28px); }
+    h1 { font-size: clamp(22px, 5vw, 32px); }
+    .section-title { font-size: clamp(16px, 4vw, 22px); }
+    .total-number { font-size: clamp(36px, 10vw, 72px); }
+    .period-name, .cert-name { white-space: normal; overflow-wrap: anywhere; word-break: break-word; }
+    .detail-name { white-space: normal; overflow-wrap: anywhere; word-break: break-word; }
     @media (max-width: 640px) {
       body { padding-bottom: max(20px, env(safe-area-inset-bottom)); }
       .toast { bottom: 20px; }
-      h1 { font-size: 24px; }
+      .drawer-panel { width: 85vw; }
     }
     @media (min-width: 1024px) {
       .nav-bar-wrapper { position: sticky; top: 20px; margin-bottom: 32px; }
@@ -400,76 +420,59 @@
 
   <div class="container main-content">
     <div id="page-dashboard" class="fade-in">
-      <div class="dashboard-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:20px;">
-        <div class="card action-card" onclick="showPage('calculator')" style="cursor:pointer; text-align:center; padding:28px 16px; position:relative; overflow:hidden;">
-          <div style="font-size:40px; margin-bottom:10px; line-height:1;">&#128197;</div>
-          <div style="font-size:16px; font-weight:700; margin-bottom:6px;" data-i18n="giorni">Giorni</div>
-          <div style="font-size:36px; font-weight:800; color:var(--accent); line-height:1;" id="actionDaysTotal">0</div>
-          <div style="font-size:12px; color:var(--text-secondary); margin-top:6px;" data-i18n="giorniTotali">giorni totali</div>
-          <div style="position:absolute; top:0; right:0; width:60px; height:60px; background:var(--accent-light); border-radius:0 0 0 60px; opacity:0.5;"></div>
+      <div class="dashboard-grid" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(130px, 1fr)); gap:12px; margin-bottom:20px;">
+        <div class="card action-card" onclick="showPage('calculator')" style="cursor:pointer; text-align:center; padding:clamp(16px, 4vw, 24px) clamp(10px, 3vw, 16px); position:relative; overflow:hidden; display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:clamp(100px, 20vw, 140px);">
+          <div style="font-size:clamp(28px, 6vw, 40px); margin-bottom:8px; line-height:1;">&#128197;</div>
+          <div style="font-size:clamp(12px, 3vw, 15px); font-weight:700;" data-i18n="giorni">Giorni</div>
+          <div style="position:absolute; top:0; right:0; width:50px; height:50px; background:var(--accent-light); border-radius:0 0 0 50px; opacity:0.5;"></div>
         </div>
-        <div class="card action-card" onclick="showPage('certificates')" style="cursor:pointer; text-align:center; padding:28px 16px; position:relative; overflow:hidden;">
-          <div style="font-size:40px; margin-bottom:10px; line-height:1;">&#128220;</div>
-          <div style="font-size:16px; font-weight:700; margin-bottom:6px;" data-i18n="certificati">Certificati</div>
-          <div style="display:flex; justify-content:center; gap:10px; margin-top:10px;">
-            <div style="text-align:center;"><div style="font-size:22px; font-weight:800; color:var(--positive); line-height:1;" id="actionCertValid">0</div><div style="font-size:10px; color:var(--text-secondary); margin-top:4px; text-transform:uppercase; font-weight:600; letter-spacing:0.3px;" data-i18n="validi">Validi</div></div>
-            <div style="text-align:center;"><div style="font-size:22px; font-weight:800; color:var(--warning); line-height:1;" id="actionCertWarn">0</div><div style="font-size:10px; color:var(--text-secondary); margin-top:4px; text-transform:uppercase; font-weight:600; letter-spacing:0.3px;" data-i18n="inScadenza">In scadenza</div></div>
-            <div style="text-align:center;"><div style="font-size:22px; font-weight:800; color:var(--danger); line-height:1;" id="actionCertExp">0</div><div style="font-size:10px; color:var(--text-secondary); margin-top:4px; text-transform:uppercase; font-weight:600; letter-spacing:0.3px;" data-i18n="scaduti">Scaduti</div></div>
+        <div class="card action-card" onclick="showPage('certificates')" style="cursor:pointer; text-align:center; padding:clamp(16px, 4vw, 24px) clamp(10px, 3vw, 16px); position:relative; overflow:hidden; display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:clamp(100px, 20vw, 140px);">
+          <div style="font-size:clamp(28px, 6vw, 40px); margin-bottom:8px; line-height:1;">&#128220;</div>
+          <div style="font-size:clamp(12px, 3vw, 15px); font-weight:700;" data-i18n="certificati">Certificati</div>
+          <div style="position:absolute; top:0; right:0; width:50px; height:50px; background:rgba(34,197,94,0.08); border-radius:0 0 0 50px; opacity:0.5;"></div>
+        </div>
+        <div class="card action-card" onclick="showPage('vehicles')" style="cursor:pointer; text-align:center; padding:clamp(16px, 4vw, 24px) clamp(10px, 3vw, 16px); position:relative; overflow:hidden; display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:clamp(100px, 20vw, 140px);">
+          <div style="font-size:clamp(28px, 6vw, 40px); margin-bottom:8px; line-height:1;">&#128663;</div>
+          <div style="font-size:clamp(12px, 3vw, 15px); font-weight:700;" data-i18n="veicoli">Veicoli</div>
+          <div style="position:absolute; top:0; right:0; width:50px; height:50px; background:rgba(59,130,246,0.08); border-radius:0 0 0 50px; opacity:0.5;"></div>
+        </div>
+        <div class="card action-card" onclick="showPage('documents')" style="cursor:pointer; text-align:center; padding:clamp(16px, 4vw, 24px) clamp(10px, 3vw, 16px); position:relative; overflow:hidden; display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:clamp(100px, 20vw, 140px);">
+          <div style="font-size:clamp(28px, 6vw, 40px); margin-bottom:8px; line-height:1;">&#128193;</div>
+          <div style="font-size:clamp(12px, 3vw, 15px); font-weight:700;" data-i18n="documenti">Documenti</div>
+          <div style="position:absolute; top:0; right:0; width:50px; height:50px; background:rgba(168,85,247,0.08); border-radius:0 0 0 50px; opacity:0.5;"></div>
+        </div>
+      </div>
+
+      <div class="card" style="padding:clamp(16px, 4vw, 28px); margin-bottom:16px;">
+        <div style="display:flex; flex-direction:column; align-items:center; gap:clamp(12px, 3vw, 20px);">
+          <div style="position:relative; width:min(260px, 65vw); height:min(260px, 65vw); max-width:320px; max-height:320px;">
+            <svg viewBox="0 0 200 200" style="width:100%; height:100%; transform:rotate(-90deg);">
+              <circle cx="100" cy="100" r="80" fill="none" stroke="var(--border)" stroke-width="18" />
+              <circle id="donutValid" cx="100" cy="100" r="80" fill="none" stroke="#22c55e" stroke-width="18" stroke-dasharray="0 502.65" stroke-linecap="round" />
+              <circle id="donutWarning" cx="100" cy="100" r="80" fill="none" stroke="#f59e0b" stroke-width="18" stroke-dasharray="0 502.65" stroke-linecap="round" />
+              <circle id="donutExpired" cx="100" cy="100" r="80" fill="none" stroke="#ef4444" stroke-width="18" stroke-dasharray="0 502.65" stroke-linecap="round" />
+            </svg>
+            <div style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:52%; height:52%; background:var(--card); border-radius:50%; display:flex; flex-direction:column; align-items:center; justify-content:center; box-shadow:var(--shadow); border:1px solid var(--border); padding:8px;">
+              <div id="donutDaysTotal" style="font-size:clamp(20px, 5vw, 32px); font-weight:800; color:var(--accent); line-height:1; text-align:center;">0</div>
+              <div style="font-size:clamp(9px, 2.2vw, 12px); color:var(--text-secondary); font-weight:600; text-transform:uppercase; letter-spacing:0.4px; text-align:center; margin-top:4px;" id="donutDaysLabel" data-i18n="giorniTotali">giorni totali</div>
+              <div id="donutYearWrap" style="margin-top:6px; display:none; width:100%; text-align:center;">
+                <select id="donutYearSelect" onchange="localStorage.setItem(DASH_YEAR_KEY, this.value); renderDashboard();" style="background:var(--bg); border:1.5px solid var(--border); color:var(--text); font-size:clamp(9px, 2.2vw, 12px); font-weight:700; text-align:center; border-radius:10px; padding:4px 22px 4px 8px; width:auto; min-width:0; max-width:100%; background-image:url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%236e6e78' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E&quot;); background-repeat:no-repeat; background-position:right 6px center; -webkit-appearance:none; appearance:none; cursor:pointer;">
+                  <option value="all" data-i18n="tuttiAnni">Tutti</option>
+                </select>
+              </div>
+            </div>
           </div>
-          <div style="position:absolute; top:0; right:0; width:60px; height:60px; background:rgba(34,197,94,0.08); border-radius:0 0 0 60px; opacity:0.5;"></div>
-        </div>
-        <div class="card action-card" onclick="showPage('vehicles')" style="cursor:pointer; text-align:center; padding:28px 16px; position:relative; overflow:hidden;">
-          <div style="font-size:40px; margin-bottom:10px; line-height:1;">&#128663;</div>
-          <div style="font-size:16px; font-weight:700; margin-bottom:6px;" data-i18n="veicoli">Veicoli</div>
-          <div style="display:flex; justify-content:center; gap:10px; margin-top:10px;">
-            <div style="text-align:center;"><div style="font-size:22px; font-weight:800; color:var(--positive); line-height:1;" id="actionVehValid">0</div><div style="font-size:10px; color:var(--text-secondary); margin-top:4px; text-transform:uppercase; font-weight:600; letter-spacing:0.3px;" data-i18n="validi">Validi</div></div>
-            <div style="text-align:center;"><div style="font-size:22px; font-weight:800; color:var(--warning); line-height:1;" id="actionVehWarn">0</div><div style="font-size:10px; color:var(--text-secondary); margin-top:4px; text-transform:uppercase; font-weight:600; letter-spacing:0.3px;" data-i18n="inScadenza">In scadenza</div></div>
-            <div style="text-align:center;"><div style="font-size:22px; font-weight:800; color:var(--danger); line-height:1;" id="actionVehExp">0</div><div style="font-size:10px; color:var(--text-secondary); margin-top:4px; text-transform:uppercase; font-weight:600; letter-spacing:0.3px;" data-i18n="scaduti">Scaduti</div></div>
+          <div style="display:flex; flex-wrap:wrap; justify-content:center; gap:clamp(8px, 2vw, 14px) clamp(12px, 3vw, 24px); width:100%;">
+            <div style="display:flex; align-items:center; gap:6px; font-size:clamp(11px, 2.5vw, 13px); font-weight:600; cursor:pointer;" onclick="goToCerts('valid'); goToVehicles('valid'); goToDocuments('valid');">
+              <span style="width:10px; height:10px; border-radius:50%; background:var(--positive); display:inline-block; flex-shrink:0;"></span> <span data-i18n="validi">Validi</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:6px; font-size:clamp(11px, 2.5vw, 13px); font-weight:600; cursor:pointer;" onclick="goToCerts('warning'); goToVehicles('warning'); goToDocuments('warning');">
+              <span style="width:10px; height:10px; border-radius:50%; background:var(--warning); display:inline-block; flex-shrink:0;"></span> <span data-i18n="inScadenza">In scadenza</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:6px; font-size:clamp(11px, 2.5vw, 13px); font-weight:600; cursor:pointer;" onclick="goToCerts('expired'); goToVehicles('expired'); goToDocuments('expired');">
+              <span style="width:10px; height:10px; border-radius:50%; background:var(--danger); display:inline-block; flex-shrink:0;"></span> <span data-i18n="scaduti">Scaduti</span>
+            </div>
           </div>
-          <div style="position:absolute; top:0; right:0; width:60px; height:60px; background:rgba(59,130,246,0.08); border-radius:0 0 0 60px; opacity:0.5;"></div>
-        </div>
-        <div class="card action-card" onclick="showPage('documents')" style="cursor:pointer; text-align:center; padding:28px 16px; position:relative; overflow:hidden;">
-          <div style="font-size:40px; margin-bottom:10px; line-height:1;">&#128193;</div>
-          <div style="font-size:16px; font-weight:700; margin-bottom:6px;" data-i18n="documenti">Documenti</div>
-          <div style="display:flex; justify-content:center; gap:10px; margin-top:10px;">
-            <div style="text-align:center;"><div style="font-size:22px; font-weight:800; color:var(--positive); line-height:1;" id="actionDocValid">0</div><div style="font-size:10px; color:var(--text-secondary); margin-top:4px; text-transform:uppercase; font-weight:600; letter-spacing:0.3px;" data-i18n="validi">Validi</div></div>
-            <div style="text-align:center;"><div style="font-size:22px; font-weight:800; color:var(--warning); line-height:1;" id="actionDocWarn">0</div><div style="font-size:10px; color:var(--text-secondary); margin-top:4px; text-transform:uppercase; font-weight:600; letter-spacing:0.3px;" data-i18n="inScadenza">In scadenza</div></div>
-            <div style="text-align:center;"><div style="font-size:22px; font-weight:800; color:var(--danger); line-height:1;" id="actionDocExp">0</div><div style="font-size:10px; color:var(--text-secondary); margin-top:4px; text-transform:uppercase; font-weight:600; letter-spacing:0.3px;" data-i18n="scaduti">Scaduti</div></div>
-          </div>
-          <div style="position:absolute; top:0; right:0; width:60px; height:60px; background:rgba(168,85,247,0.08); border-radius:0 0 0 60px; opacity:0.5;"></div>
-        </div>
-      </div>
-      <div class="card grand-total" id="dashDaysCard" style="margin-top:8px;">
-        <div class="year-select-wrap">
-          <select id="dashYearSelect" onchange="localStorage.setItem(DASH_YEAR_KEY, this.value); renderDashboard();">
-            <option value="all" data-i18n="tuttiAnni">Tutti gli anni</option>
-          </select>
-        </div>
-        <div class="total-number" id="dashTotalDays">0</div>
-        <div class="total-label" id="dashTotalLabel" data-i18n="giorniTotali">giorni totali salvati</div>
-      </div>
-      <div class="card" id="dashCertCard">
-        <div class="card-title" data-i18n="riepilogoCert">Riepilogo certificati</div>
-        <div class="summary-grid" id="certSummary">
-          <div class="summary-cell valid" onclick="goToCerts('valid')" style="cursor:pointer;"><div class="num" id="dashCertValid">0</div><div class="lbl" data-i18n="validi">Validi</div></div>
-          <div class="summary-cell warning" onclick="goToCerts('warning')" style="cursor:pointer;"><div class="num" id="dashCertWarn">0</div><div class="lbl" data-i18n="inScadenza">In scadenza</div></div>
-          <div class="summary-cell expired" onclick="goToCerts('expired')" style="cursor:pointer;"><div class="num" id="dashCertExp">0</div><div class="lbl" data-i18n="scaduti">Scaduti</div></div>
-        </div>
-      </div>
-      <div class="card" id="dashVehCard" style="display:none;">
-        <div class="card-title" data-i18n="riepilogoVeh">Riepilogo veicoli</div>
-        <div class="summary-grid" id="vehSummary">
-          <div class="summary-cell valid" onclick="goToVehicles('valid')" style="cursor:pointer;"><div class="num" id="dashVehValid">0</div><div class="lbl" data-i18n="validi">Validi</div></div>
-          <div class="summary-cell warning" onclick="goToVehicles('warning')" style="cursor:pointer;"><div class="num" id="dashVehWarn">0</div><div class="lbl" data-i18n="inScadenza">In scadenza</div></div>
-          <div class="summary-cell expired" onclick="goToVehicles('expired')" style="cursor:pointer;"><div class="num" id="dashVehExp">0</div><div class="lbl" data-i18n="scaduti">Scaduti</div></div>
-        </div>
-      </div>
-      <div class="card" id="dashDocCard" style="display:none;">
-        <div class="card-title" data-i18n="riepilogoDoc">Riepilogo documenti</div>
-        <div class="summary-grid" id="docSummary">
-          <div class="summary-cell valid" onclick="goToDocuments('valid')" style="cursor:pointer;"><div class="num" id="dashDocValid">0</div><div class="lbl" data-i18n="validi">Validi</div></div>
-          <div class="summary-cell warning" onclick="goToDocuments('warning')" style="cursor:pointer;"><div class="num" id="dashDocWarn">0</div><div class="lbl" data-i18n="inScadenza">In scadenza</div></div>
-          <div class="summary-cell expired" onclick="goToDocuments('expired')" style="cursor:pointer;"><div class="num" id="dashDocExp">0</div><div class="lbl" data-i18n="scaduti">Scaduti</div></div>
         </div>
       </div>
     </div>
@@ -685,72 +688,102 @@
       </div>
     </div>
 
-  <div class="modal-overlay" id="menuOverlay" onclick="closeMenu(event)">
-    <div class="modal-content" onclick="event.stopPropagation()">
-      <div class="modal-header">
-        <div class="modal-title" data-i18n="menu">Menu</div>
+  <div class="drawer-overlay" id="menuOverlay" onclick="closeMenu(event)">
+    <div class="drawer-panel" onclick="event.stopPropagation()">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px; padding-bottom:16px; border-bottom:1.5px solid var(--border);">
+        <div style="font-size:clamp(18px, 4vw, 22px); font-weight:800; letter-spacing:-0.3px;" data-i18n="menu">Menu</div>
         <button class="modal-close" onclick="closeMenu()">&times;</button>
       </div>
-      <div style="margin-bottom:20px;">
-        <div style="font-size:13px; font-weight:700; color:var(--text-secondary); margin-bottom:12px; text-transform:uppercase; letter-spacing:0.5px;" data-i18n="tabsVisibili">Tabs</div>
-        <div class="tab-toggle-row">
-          <span data-i18n="giorni">Giorni</span>
-          <label class="switch"><input type="checkbox" id="toggle-giorni" onchange="toggleTab('giorni')"><span class="slider"></span></label>
+
+      <div class="accordion-section">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+          <span data-i18n="tabsVisibili">Tabs visibili</span>
+          <span class="accordion-icon">&#9662;</span>
         </div>
-        <div class="tab-toggle-row">
-          <span data-i18n="certificati">Certificati</span>
-          <div style="display:flex;align-items:center;gap:10px;">
-            <input type="number" id="warnCertDays" value="90" min="1" max="999" style="width:60px; padding:6px 8px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; font-weight:700; text-align:center; background:var(--bg); color:var(--text);" onchange="saveWarningDays('cert', this.value)">
-            <span style="font-size:13px; font-weight:600; color:var(--text-secondary); min-width:22px;">gg</span>
-            <label class="switch"><input type="checkbox" id="toggle-certificati" onchange="toggleTab('certificati')"><span class="slider"></span></label>
+        <div class="accordion-body">
+          <div class="tab-toggle-row">
+            <span data-i18n="giorni">Giorni</span>
+            <label class="switch"><input type="checkbox" id="toggle-giorni" onchange="toggleTab('giorni')"><span class="slider"></span></label>
+          </div>
+          <div class="tab-toggle-row">
+            <span data-i18n="certificati">Certificati</span>
+            <div style="display:flex;align-items:center;gap:10px;">
+              <input type="number" id="warnCertDays" value="90" min="1" max="999" style="width:60px; padding:6px 8px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; font-weight:700; text-align:center; background:var(--bg); color:var(--text);" onchange="saveWarningDays('cert', this.value)">
+              <span style="font-size:13px; font-weight:600; color:var(--text-secondary); min-width:22px;">gg</span>
+              <label class="switch"><input type="checkbox" id="toggle-certificati" onchange="toggleTab('certificati')"><span class="slider"></span></label>
+            </div>
+          </div>
+          <div class="tab-toggle-row">
+            <span data-i18n="veicoli">Veicoli</span>
+            <div style="display:flex;align-items:center;gap:10px;">
+              <input type="number" id="warnVehDays" value="90" min="1" max="999" style="width:60px; padding:6px 8px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; font-weight:700; text-align:center; background:var(--bg); color:var(--text);" onchange="saveWarningDays('veh', this.value)">
+              <span style="font-size:13px; font-weight:600; color:var(--text-secondary); min-width:22px;">gg</span>
+              <label class="switch"><input type="checkbox" id="toggle-veicoli" onchange="toggleTab('veicoli')"><span class="slider"></span></label>
+            </div>
+          </div>
+          <div class="tab-toggle-row">
+            <span data-i18n="documenti">Documenti</span>
+            <div style="display:flex;align-items:center;gap:10px;">
+              <input type="number" id="warnDocDays" value="90" min="1" max="999" style="width:60px; padding:6px 8px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; font-weight:700; text-align:center; background:var(--bg); color:var(--text);" onchange="saveWarningDays('doc', this.value)">
+              <span style="font-size:13px; font-weight:600; color:var(--text-secondary); min-width:22px;">gg</span>
+              <label class="switch"><input type="checkbox" id="toggle-documenti" onchange="toggleTab('documenti')"><span class="slider"></span></label>
+            </div>
           </div>
         </div>
-        <div class="tab-toggle-row">
-          <span data-i18n="veicoli">Veicoli</span>
-          <div style="display:flex;align-items:center;gap:10px;">
-            <input type="number" id="warnVehDays" value="90" min="1" max="999" style="width:60px; padding:6px 8px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; font-weight:700; text-align:center; background:var(--bg); color:var(--text);" onchange="saveWarningDays('veh', this.value)">
-            <span style="font-size:13px; font-weight:600; color:var(--text-secondary); min-width:22px;">gg</span>
-            <label class="switch"><input type="checkbox" id="toggle-veicoli" onchange="toggleTab('veicoli')"><span class="slider"></span></label>
+      </div>
+
+      <div class="accordion-section">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+          <span data-i18n="lingua">Lingua</span>
+          <span class="accordion-icon">&#9662;</span>
+        </div>
+        <div class="accordion-body">
+          <div class="lang-row">
+            <label data-i18n="lingua">Lingua</label>
+            <select id="langSelect" onchange="changeLang(this.value)" style="width:auto; min-width:140px; padding:10px 36px 10px 14px; background-image:url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236e6e78' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E&quot;); background-repeat:no-repeat; background-position:right 12px center;">
+              <option value="it">Italiano</option>
+              <option value="en">English</option>
+            </select>
           </div>
         </div>
-        <div class="tab-toggle-row">
-          <span data-i18n="documenti">Documenti</span>
-          <div style="display:flex;align-items:center;gap:10px;">
-            <input type="number" id="warnDocDays" value="90" min="1" max="999" style="width:60px; padding:6px 8px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; font-weight:700; text-align:center; background:var(--bg); color:var(--text);" onchange="saveWarningDays('doc', this.value)">
-            <span style="font-size:13px; font-weight:600; color:var(--text-secondary); min-width:22px;">gg</span>
-            <label class="switch"><input type="checkbox" id="toggle-documenti" onchange="toggleTab('documenti')"><span class="slider"></span></label>
+      </div>
+
+      <div class="accordion-section">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+          <span>Info / iOS</span>
+          <span class="accordion-icon">&#9662;</span>
+        </div>
+        <div class="accordion-body">
+          <div id="iosTooltip" class="ios-notice" style="margin-bottom:12px;">
+            <strong data-i18n="notaIOS">Nota iOS:</strong> <span data-i18n="notaIOSText">salvando la PWA sulla schermata Home, i dati del browser non si trasferiscono automaticamente. Usa "Esporta" dal browser, poi "Importa" dall'app installata.</span>
           </div>
         </div>
       </div>
-      <div class="lang-row">
-        <label data-i18n="lingua">Lingua</label>
-        <select id="langSelect" onchange="changeLang(this.value)">
-          <option value="it">Italiano</option>
-          <option value="en">English</option>
-        </select>
-      </div>
-      <div style="display:flex; justify-content:flex-end; margin-bottom:12px;">
-        <button class="btn" style="width:auto; padding:0; margin:0; width:32px; height:32px; border-radius:50%; background:transparent; border:2px solid var(--accent); color:var(--accent); font-size:16px; font-weight:800; display:flex; align-items:center; justify-content:center;" onclick="toggleIosNotice()" title="iOS">!</button>
-      </div>
-      <div id="iosTooltip" class="ios-notice hidden">
-        <strong data-i18n="notaIOS">Nota iOS:</strong> <span data-i18n="notaIOSText">salvando la PWA sulla schermata Home, i dati del browser non si trasferiscono automaticamente. Usa "Esporta" dal browser, poi "Importa" dall'app installata.</span>
-      </div>
-      <div class="backup-row">
-        <button class="btn btn-secondary" onclick="exportData()" data-i18n="esporta">Esporta dati</button>
-        <button class="btn btn-warning" onclick="document.getElementById('importFile').click()" data-i18n="importa">Importa dati</button>
-      </div>
-      <div class="backup-row" style="margin-top:12px;">
-        <select id="pdfSelect" onchange="if(this.value){downloadPDF(this.value);this.value='';}" style="flex:1; padding:14px 16px; border:1.5px solid var(--border); border-radius:14px; font-size:15px; font-weight:600; background:var(--bg); color:var(--text); cursor:pointer;">
-          <option value="">&#128196; Scarica PDF...</option>
-          <option value="all" data-i18n="pdfTutto">PDF completo</option>
-          <option value="days" data-i18n="pdfGiorni">PDF giorni</option>
-          <option value="certs" data-i18n="pdfCert">PDF certificati</option>
-          <option value="vehicles" data-i18n="pdfVeicoli">PDF veicoli</option>
-          <option value="documents" data-i18n="pdfDocumenti">PDF documenti</option>
-        </select>
-      </div>
-      <div class="backup-row" style="margin-top:12px;">
-        <button class="btn btn-danger" onclick="resetAllData()">&#128465; Reset dati</button>
+
+      <div class="accordion-section">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+          <span data-i18n="esporta">Backup & Dati</span>
+          <span class="accordion-icon">&#9662;</span>
+        </div>
+        <div class="accordion-body">
+          <div class="backup-row">
+            <button class="btn btn-secondary" onclick="exportData()" data-i18n="esporta">Esporta dati</button>
+            <button class="btn btn-warning" onclick="document.getElementById('importFile').click()" data-i18n="importa">Importa dati</button>
+          </div>
+          <div class="backup-row" style="margin-top:12px;">
+            <select id="pdfSelect" onchange="if(this.value){downloadPDF(this.value);this.value='';}" style="flex:1; padding:14px 16px; border:1.5px solid var(--border); border-radius:14px; font-size:15px; font-weight:600; background:var(--bg); color:var(--text); cursor:pointer;">
+              <option value="">&#128196; Scarica PDF...</option>
+              <option value="all" data-i18n="pdfTutto">PDF completo</option>
+              <option value="days" data-i18n="pdfGiorni">PDF giorni</option>
+              <option value="certs" data-i18n="pdfCert">PDF certificati</option>
+              <option value="vehicles" data-i18n="pdfVeicoli">PDF veicoli</option>
+              <option value="documents" data-i18n="pdfDocumenti">PDF documenti</option>
+            </select>
+          </div>
+          <div class="backup-row" style="margin-top:12px;">
+            <button class="btn btn-danger" onclick="resetAllData()">&#128465; Reset dati</button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -1265,25 +1298,24 @@ const VEHICLE_KEY = 'daycounter_vehicles';
       const certs = getCertificates();
       const vehs = getVehicles();
       const docs = getDocuments();
+      const vis = getTabVisibility();
+      const locale = getLang() === 'en' ? 'en-US' : 'it-IT';
 
-      const select = document.getElementById('dashYearSelect');
-      const savedYear = localStorage.getItem(DASH_YEAR_KEY);
-
+      // === Anno e giorni totali (centro donut) ===
       const yearSet = new Set();
       periods.forEach(p => p.years.forEach(y => yearSet.add(y.year)));
       const years = Array.from(yearSet).sort((a, b) => a - b);
+      const savedYear = localStorage.getItem(DASH_YEAR_KEY);
 
+      const donutSelect = document.getElementById('donutYearSelect');
       let opts = `<option value="all">${t('tuttiAnni')}</option>`;
       years.forEach(y => { opts += `<option value="${y}">${t('anno')} ${y}</option>`; });
-      select.innerHTML = opts;
-
+      donutSelect.innerHTML = opts;
       if (savedYear && (savedYear === 'all' || yearSet.has(parseInt(savedYear)))) {
-        select.value = savedYear;
-      } else if (select.value && (select.value === 'all' || yearSet.has(parseInt(select.value)))) {
-        // keep current
-      } else { select.value = 'all'; }
+        donutSelect.value = savedYear;
+      } else { donutSelect.value = 'all'; }
 
-      const selected = select.value;
+      const selected = donutSelect.value;
       let total = 0;
       let label = '';
       if (selected === 'all') {
@@ -1297,10 +1329,13 @@ const VEHICLE_KEY = 'daycounter_vehicles';
         }, 0);
         label = t('giorniAnno', y);
       }
-      anim(document.getElementById('dashTotalDays'), total, 700);
-      document.getElementById('dashTotalLabel').textContent = label;
+      const donutTotalEl = document.getElementById('donutDaysTotal');
+      anim(donutTotalEl, total, 700);
+      document.getElementById('donutDaysLabel').textContent = label;
+      const donutYearWrap = document.getElementById('donutYearWrap');
+      donutYearWrap.style.display = (vis.giorni !== false && periods.length > 0) ? 'block' : 'none';
 
-      // Certificati
+      // === Contatori per stati ===
       let cValid = 0, cWarn = 0, cExp = 0;
       certs.forEach(c => {
         const s = getCertStatus(c.expiry);
@@ -1308,11 +1343,6 @@ const VEHICLE_KEY = 'daycounter_vehicles';
         else if (s.class === 'warning') cWarn++;
         else cExp++;
       });
-      document.getElementById('dashCertValid').textContent = cValid;
-      document.getElementById('dashCertWarn').textContent = cWarn;
-      document.getElementById('dashCertExp').textContent = cExp;
-
-      // Veicoli
       let vValid = 0, vWarn = 0, vExp = 0;
       vehs.forEach(c => {
         const s = getVehStatus(c.expiry);
@@ -1320,11 +1350,6 @@ const VEHICLE_KEY = 'daycounter_vehicles';
         else if (s.class === 'warning') vWarn++;
         else vExp++;
       });
-      document.getElementById('dashVehValid').textContent = vValid;
-      document.getElementById('dashVehWarn').textContent = vWarn;
-      document.getElementById('dashVehExp').textContent = vExp;
-
-      // Documenti
       let dValid = 0, dWarn = 0, dExp = 0;
       docs.forEach(c => {
         const s = getDocStatus(c.expiry);
@@ -1332,33 +1357,31 @@ const VEHICLE_KEY = 'daycounter_vehicles';
         else if (s.class === 'warning') dWarn++;
         else dExp++;
       });
-      document.getElementById('dashDocValid').textContent = dValid;
-      document.getElementById('dashDocWarn').textContent = dWarn;
-      document.getElementById('dashDocExp').textContent = dExp;
 
-      // Visibilità card in base alle tab attive e presenza dati
-      const vis = getTabVisibility();
-      const daysCard = document.getElementById('dashDaysCard');
-      const certCard = document.getElementById('dashCertCard');
-      const vehCard = document.getElementById('dashVehCard');
-      const docCard = document.getElementById('dashDocCard');
-      if (daysCard) daysCard.style.display = (vis.giorni !== false) ? '' : 'none';
-      if (certCard) certCard.style.display = (vis.certificati !== false && certs.length > 0) ? '' : 'none';
-      if (vehCard) vehCard.style.display = (vis.veicoli !== false && vehs.length > 0) ? '' : 'none';
-      if (docCard) docCard.style.display = (vis.documenti !== false && docs.length > 0) ? '' : 'none';
+      const totValid = cValid + vValid + dValid;
+      const totWarn  = cWarn + vWarn + dWarn;
+      const totExp   = cExp + vExp + dExp;
+      const grandTot = totValid + totWarn + totExp;
+      const CIRC = 502.65; // 2 * PI * 80
 
-      // Action cards
-      const locale = getLang() === 'en' ? 'en-US' : 'it-IT';
-      document.getElementById('actionDaysTotal').textContent = total.toLocaleString(locale);
-      document.getElementById('actionCertValid').textContent = cValid;
-      document.getElementById('actionCertWarn').textContent = cWarn;
-      document.getElementById('actionCertExp').textContent = cExp;
-      document.getElementById('actionVehValid').textContent = vValid;
-      document.getElementById('actionVehWarn').textContent = vWarn;
-      document.getElementById('actionVehExp').textContent = vExp;
-      document.getElementById('actionDocValid').textContent = dValid;
-      document.getElementById('actionDocWarn').textContent = dWarn;
-      document.getElementById('actionDocExp').textContent = dExp;
+      function setSegment(id, count) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        if (grandTot === 0) {
+          el.style.strokeDasharray = '0 ' + CIRC;
+          el.style.strokeDashoffset = 0;
+          return;
+        }
+        const len = (count / grandTot) * CIRC;
+        let offset = 0;
+        if (id === 'donutWarning') offset = -(totValid / grandTot) * CIRC;
+        if (id === 'donutExpired') offset = -((totValid + totWarn) / grandTot) * CIRC;
+        el.style.strokeDasharray = len + ' ' + CIRC;
+        el.style.strokeDashoffset = offset;
+      }
+      setSegment('donutValid', totValid);
+      setSegment('donutWarning', totWarn);
+      setSegment('donutExpired', totExp);
     }
 
     function addCertificate() {
@@ -2564,15 +2587,13 @@ const VEHICLE_KEY = 'daycounter_vehicles';
       }
     }
     function updateNavVisibility() {
-      const v = getTabVisibility();
-      const navCalc = document.getElementById('nav-calc');
-      const navCert = document.getElementById('nav-cert');
-      const navVeh = document.getElementById('nav-veh');
-      const navDoc = document.getElementById('nav-doc');
-      if (navCalc) navCalc.style.display = v.giorni ? '' : 'none';
-      if (navCert) navCert.style.display = v.certificati ? '' : 'none';
-      if (navVeh) navVeh.style.display = v.veicoli ? '' : 'none';
-      if (navDoc) navDoc.style.display = v.documenti ? '' : 'none';
+      // Nav bar rimossa, nessun aggiornamento necessario
+    }
+    function toggleAccordion(header) {
+      const section = header.parentElement;
+      const wasOpen = section.classList.contains('open');
+      document.querySelectorAll('.accordion-section.open').forEach(s => s.classList.remove('open'));
+      if (!wasOpen) section.classList.add('open');
     }
     
     // ===== WARNING DAYS =====
