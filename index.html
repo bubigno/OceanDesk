@@ -281,19 +281,18 @@
     .summary-cell.expired .num { color: var(--danger); }
 
     .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.4); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-      z-index: 1000; display: flex; align-items: flex-end; justify-content: center;
-      opacity: 0; visibility: hidden; transition: var(--transition); }
+      background: rgba(0,0,0,0.45); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+      z-index: 1000; display: flex; align-items: center; justify-content: center;
+      opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0.3s ease; padding: 20px; }
     .modal-overlay.show { opacity: 1; visibility: visible; }
-    .modal-content { background: var(--card); width: 100%; max-width: 520px;
-      border-radius: 28px 28px 0 0; padding: 32px 24px max(32px, env(safe-area-inset-bottom));
-      transform: translateY(100%); transition: transform 0.4s cubic-bezier(0.22,1,0.36,1);
-      position: relative; box-shadow: 0 -8px 40px rgba(0,0,0,0.2); border: 1px solid var(--border); border-bottom: none; }
-    .modal-overlay.show .modal-content { transform: translateY(0); }
-    .modal-content::before {
-      content: ''; position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
-      width: 40px; height: 5px; background: var(--border); border-radius: 3px; opacity: 0.6;
-    }
+    .modal-content { background: var(--card); width: 100%; max-width: 520px; max-height: 90vh; overflow-y: auto;
+      border-radius: var(--radius-lg); padding: 28px 24px;
+      transform: scale(0.88) translateY(20px); opacity: 0;
+      transition: transform 0.35s cubic-bezier(0.22,1,0.36,1), opacity 0.3s ease;
+      position: relative; box-shadow: var(--shadow-lg); border: 1px solid var(--border); }
+    .modal-overlay.show .modal-content { transform: scale(1) translateY(0); opacity: 1; }
+    .modal-content::-webkit-scrollbar { width: 6px; }
+    .modal-content::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
     .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; margin-top: 4px; }
     .modal-title { font-size: 20px; font-weight: 800; letter-spacing: -0.3px; }
     .modal-close { width: 36px; height: 36px; border-radius: 50%; border: none;
@@ -377,6 +376,10 @@
     .status-accordion { animation: slideDown 0.35s ease; }
     .status-list-item:last-child { border-bottom: none !important; }
     .status-pill { transition: var(--transition-bounce); }
+    .veh-price-note-row { display: grid !important; grid-template-columns: 1fr 1fr; }
+    @media (max-width: 480px) {
+      .veh-price-note-row { grid-template-columns: 1fr !important; }
+    }
     .status-pill:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
     .status-pill:active { transform: scale(0.96); }
     @media (max-width: 640px) {
@@ -589,6 +592,10 @@
             <div class="input-row"><label style="min-width:50px" data-i18n="nome">Nome</label><input type="text" id="certName" placeholder="Es. Brevetto nautico..."></div>
             <div class="input-row"><label style="min-width:50px" data-i18n="codice">Codice</label><input type="text" id="certCode" placeholder="Es. ABC-12345"></div>
             <div class="input-row"><label style="min-width:50px" data-i18n="scad">Scad.</label><input type="date" id="certExpiry"></div>
+            <div class="input-row" style="justify-content:flex-start; gap:12px; padding:4px 0;">
+              <label class="switch"><input type="checkbox" id="certNoExpiry" onchange="toggleNoExpiryAdd('cert')"><span class="slider"></span></label>
+              <span style="font-size:14px; font-weight:600; color:var(--text-secondary);" data-i18n="senzaScadenza">Senza scadenza</span>
+            </div>
             <div class="input-row">
               <label style="min-width:50px" data-i18n="allegato">Allegato</label>
               <div style="flex:1; position:relative; overflow:hidden; border:1.5px solid var(--border); border-radius:14px; background:var(--bg);">
@@ -642,17 +649,24 @@
         <div id="vehFormBody" class="hidden" style="padding:0 22px 22px;">
           <div class="input-group">
             <div class="input-row"><label style="min-width:50px" data-i18n="nome">Nome</label><input type="text" id="vehName" placeholder="Es. Auto, Moto..."></div>
-            <div class="input-row" style="gap:8px;">
-              <div style="flex:1; display:flex; align-items:center; gap:8px;">
-                <label style="min-width:50px; font-size:15px; font-weight:600; color:var(--text-secondary); flex-shrink:0;" data-i18n="prezzo">Prezzo</label>
-                <input type="text" id="vehPrice" placeholder="Es. 15000" style="flex:1; padding:14px 16px; border:1.5px solid var(--border); border-radius:14px; font-size:16px; background:var(--bg); color:var(--text); font-family:inherit;">
+            <div class="input-row veh-price-note-row" style="gap:8px; display:grid; grid-template-columns:1fr 1fr;">
+              <div style="display:flex; align-items:center; gap:8px; min-width:0;">
+                <label style="min-width:50px; font-size:clamp(13px, 3vw, 15px); font-weight:600; color:var(--text-secondary); flex-shrink:0;" data-i18n="prezzo">Prezzo</label>
+                <div style="flex:1; position:relative; min-width:0;">
+                  <span style="position:absolute; left:14px; top:50%; transform:translateY(-50%); font-size:16px; font-weight:600; color:var(--text-secondary); pointer-events:none;">€</span>
+                  <input type="text" id="vehPrice" placeholder="15000" style="width:100%; padding:14px 16px 14px 32px; border:1.5px solid var(--border); border-radius:14px; font-size:16px; background:var(--bg); color:var(--text); font-family:inherit;">
+                </div>
               </div>
-              <div style="flex:1; display:flex; align-items:center; gap:8px;">
-                <label style="min-width:50px; font-size:15px; font-weight:600; color:var(--text-secondary); flex-shrink:0;" data-i18n="nota">Nota</label>
-                <input type="text" id="vehNote" placeholder="Es. Tagliando..." style="flex:1; padding:14px 16px; border:1.5px solid var(--border); border-radius:14px; font-size:16px; background:var(--bg); color:var(--text); font-family:inherit;">
+              <div style="display:flex; align-items:center; gap:8px; min-width:0;">
+                <label style="min-width:50px; font-size:clamp(13px, 3vw, 15px); font-weight:600; color:var(--text-secondary); flex-shrink:0;" data-i18n="nota">Nota</label>
+                <input type="text" id="vehNote" placeholder="Es. Tagliando..." style="flex:1; padding:14px 16px; border:1.5px solid var(--border); border-radius:14px; font-size:16px; background:var(--bg); color:var(--text); font-family:inherit; min-width:0;">
               </div>
             </div>
             <div class="input-row"><label style="min-width:50px" data-i18n="scad">Scad.</label><input type="date" id="vehExpiry"></div>
+            <div class="input-row" style="justify-content:flex-start; gap:12px; padding:4px 0;">
+              <label class="switch"><input type="checkbox" id="vehNoExpiry" onchange="toggleNoExpiryAdd('veh')"><span class="slider"></span></label>
+              <span style="font-size:14px; font-weight:600; color:var(--text-secondary);" data-i18n="senzaScadenza">Senza scadenza</span>
+            </div>
             <div class="input-row">
               <label style="min-width:50px" data-i18n="allegato">Allegato</label>
               <div style="flex:1; position:relative; overflow:hidden; border:1.5px solid var(--border); border-radius:14px; background:var(--bg);">
@@ -706,6 +720,10 @@
             <div class="input-row"><label style="min-width:50px" data-i18n="nome">Nome</label><input type="text" id="docName" placeholder="Es. Passaporto, Patente..."></div>
             <div class="input-row"><label style="min-width:50px" data-i18n="codice">Codice</label><input type="text" id="docCode" placeholder="Es. XX123456"></div>
             <div class="input-row"><label style="min-width:50px" data-i18n="scad">Scad.</label><input type="date" id="docExpiry"></div>
+            <div class="input-row" style="justify-content:flex-start; gap:12px; padding:4px 0;">
+              <label class="switch"><input type="checkbox" id="docNoExpiry" onchange="toggleNoExpiryAdd('doc')"><span class="slider"></span></label>
+              <span style="font-size:14px; font-weight:600; color:var(--text-secondary);" data-i18n="senzaScadenza">Senza scadenza</span>
+            </div>
             <div class="input-row">
               <label style="min-width:50px" data-i18n="allegato">Allegato</label>
               <div style="flex:1; position:relative; overflow:hidden; border:1.5px solid var(--border); border-radius:14px; background:var(--bg);">
@@ -843,17 +861,24 @@
       </div>
       <div class="input-group">
         <div class="input-row"><label style="min-width:50px" data-i18n="nome">Nome</label><input type="text" id="editVehName"></div>
-        <div class="input-row" style="gap:8px;">
-          <div style="flex:1; display:flex; align-items:center; gap:8px;">
-            <label style="min-width:50px; font-size:15px; font-weight:600; color:var(--text-secondary); flex-shrink:0;" data-i18n="prezzo">Prezzo</label>
-            <input type="text" id="editVehPrice" style="flex:1; padding:14px 16px; border:1.5px solid var(--border); border-radius:14px; font-size:16px; background:var(--bg); color:var(--text); font-family:inherit;">
+        <div class="input-row veh-price-note-row" style="gap:8px; display:grid; grid-template-columns:1fr 1fr;">
+          <div style="display:flex; align-items:center; gap:8px; min-width:0;">
+            <label style="min-width:50px; font-size:clamp(13px, 3vw, 15px); font-weight:600; color:var(--text-secondary); flex-shrink:0;" data-i18n="prezzo">Prezzo</label>
+            <div style="flex:1; position:relative; min-width:0;">
+              <span style="position:absolute; left:14px; top:50%; transform:translateY(-50%); font-size:16px; font-weight:600; color:var(--text-secondary); pointer-events:none;">€</span>
+              <input type="text" id="editVehPrice" style="width:100%; padding:14px 16px 14px 32px; border:1.5px solid var(--border); border-radius:14px; font-size:16px; background:var(--bg); color:var(--text); font-family:inherit;">
+            </div>
           </div>
-          <div style="flex:1; display:flex; align-items:center; gap:8px;">
-            <label style="min-width:50px; font-size:15px; font-weight:600; color:var(--text-secondary); flex-shrink:0;" data-i18n="nota">Nota</label>
-            <input type="text" id="editVehNote" style="flex:1; padding:14px 16px; border:1.5px solid var(--border); border-radius:14px; font-size:16px; background:var(--bg); color:var(--text); font-family:inherit;">
+          <div style="display:flex; align-items:center; gap:8px; min-width:0;">
+            <label style="min-width:50px; font-size:clamp(13px, 3vw, 15px); font-weight:600; color:var(--text-secondary); flex-shrink:0;" data-i18n="nota">Nota</label>
+            <input type="text" id="editVehNote" style="flex:1; padding:14px 16px; border:1.5px solid var(--border); border-radius:14px; font-size:16px; background:var(--bg); color:var(--text); font-family:inherit; min-width:0;">
           </div>
         </div>
         <div class="input-row"><label style="min-width:50px" data-i18n="scad">Scad.</label><input type="date" id="editVehExpiry"></div>
+        <div class="input-row" style="justify-content:flex-start; gap:12px; padding:4px 0;">
+          <label class="switch"><input type="checkbox" id="editVehNoExpiry" onchange="toggleNoExpiry('veh')"><span class="slider"></span></label>
+          <span style="font-size:14px; font-weight:600; color:var(--text-secondary);" data-i18n="senzaScadenza">Senza scadenza</span>
+        </div>
         <div id="editVehAttachmentsArea"></div>
         <div class="input-row" id="editVehFileNewRow"><label style="min-width:50px" data-i18n="nuovoAllegato">Nuovo</label><input type="file" id="editVehFile" accept="image/*,application/pdf" style="padding:8px 0; border:none; background:transparent; font-size:14px;"></div>
       </div>
@@ -875,6 +900,10 @@
         <div class="input-row"><label style="min-width:50px" data-i18n="nome">Nome</label><input type="text" id="editDocName"></div>
         <div class="input-row"><label style="min-width:50px" data-i18n="codice">Codice</label><input type="text" id="editDocCode"></div>
         <div class="input-row"><label style="min-width:50px" data-i18n="scad">Scad.</label><input type="date" id="editDocExpiry"></div>
+        <div class="input-row" style="justify-content:flex-start; gap:12px; padding:4px 0;">
+          <label class="switch"><input type="checkbox" id="editDocNoExpiry" onchange="toggleNoExpiry('doc')"><span class="slider"></span></label>
+          <span style="font-size:14px; font-weight:600; color:var(--text-secondary);" data-i18n="senzaScadenza">Senza scadenza</span>
+        </div>
         <div id="editDocAttachmentsArea"></div>
         <div class="input-row" id="editDocFileNewRow"><label style="min-width:50px" data-i18n="nuovoAllegato">Nuovo</label><input type="file" id="editDocFile" accept="image/*,application/pdf" style="padding:8px 0; border:none; background:transparent; font-size:14px;"></div>
       </div>
@@ -913,6 +942,10 @@
         <div class="input-row"><label style="min-width:50px" data-i18n="nome">Nome</label><input type="text" id="editCertName"></div>
         <div class="input-row"><label style="min-width:50px" data-i18n="codice">Codice</label><input type="text" id="editCertCode"></div>
         <div class="input-row"><label style="min-width:50px" data-i18n="scad">Scad.</label><input type="date" id="editCertExpiry"></div>
+        <div class="input-row" style="justify-content:flex-start; gap:12px; padding:4px 0;">
+          <label class="switch"><input type="checkbox" id="editCertNoExpiry" onchange="toggleNoExpiry('cert')"><span class="slider"></span></label>
+          <span style="font-size:14px; font-weight:600; color:var(--text-secondary);" data-i18n="senzaScadenza">Senza scadenza</span>
+        </div>
         <div id="editAttachmentsArea"></div>
         <div class="input-row" id="editCertFileNewRow"><label style="min-width:50px" data-i18n="nuovoAllegato">Nuovo</label><input type="file" id="editCertFile" accept="image/*,application/pdf" style="padding:8px 0; border:none; background:transparent; font-size:14px;"></div>
       </div>
@@ -977,6 +1010,7 @@
         eliminaVeicolo: 'Eliminare questo veicolo?', eliminaDocumento: 'Eliminare questo documento?',
         nessunVeicolo: 'Nessun veicolo salvato', nessunDocumento: 'Nessun documento salvato',
         pdfVeicoli: 'PDF veicoli', pdfDocumenti: 'PDF documenti',
+        senzaScadenza: 'Senza scadenza',
       },
       en: {
         dashboard: 'Dashboard', calcola: 'Calculate', giorni: 'Days', certificati: 'Certificates', menu: 'Menu',
@@ -1215,7 +1249,8 @@ const VEHICLE_KEY = 'daycounter_vehicles';
       try { return JSON.parse(localStorage.getItem(CERT_KEY)) || []; } catch(e) { return []; }
     }
     function saveCertificates(certs) { localStorage.setItem(CERT_KEY, JSON.stringify(certs)); }
-    function getCertStatus(expiryStr) {
+    function getCertStatus(expiryStr, noExpiry) {
+      if (noExpiry) return { class: 'valid', label: t('valido'), days: 9999 };
       if (!expiryStr) return { class: 'valid', label: t('valido'), days: 9999 };
       const today = new Date(); today.setHours(0,0,0,0);
       const exp = new Date(expiryStr + 'T00:00:00');
@@ -1314,6 +1349,8 @@ const VEHICLE_KEY = 'daycounter_vehicles';
       document.getElementById('certName').value = '';
       document.getElementById('certCode').value = '';
       document.getElementById('certExpiry').value = '';
+      document.getElementById('certNoExpiry').checked = false;
+      toggleNoExpiryAdd('cert');
       document.getElementById('certFile1').value = '';
       const certFileLabel = document.getElementById('certFileLabel');
       certFileLabel.textContent = 'Scegli file...';
@@ -1388,21 +1425,21 @@ const VEHICLE_KEY = 'daycounter_vehicles';
       // === Contatori per stati ===
       let cValid = 0, cWarn = 0, cExp = 0;
       certs.forEach(c => {
-        const s = getCertStatus(c.expiry);
+        const s = getCertStatus(c.expiry, c.noExpiry);
         if (s.class === 'valid') cValid++;
         else if (s.class === 'warning') cWarn++;
         else cExp++;
       });
       let vValid = 0, vWarn = 0, vExp = 0;
       vehs.forEach(c => {
-        const s = getVehStatus(c.expiry);
+        const s = getVehStatus(c.expiry, c.noExpiry);
         if (s.class === 'valid') vValid++;
         else if (s.class === 'warning') vWarn++;
         else vExp++;
       });
       let dValid = 0, dWarn = 0, dExp = 0;
       docs.forEach(c => {
-        const s = getDocStatus(c.expiry);
+        const s = getDocStatus(c.expiry, c.noExpiry);
         if (s.class === 'valid') dValid++;
         else if (s.class === 'warning') dWarn++;
         else dExp++;
@@ -1445,14 +1482,15 @@ const VEHICLE_KEY = 'daycounter_vehicles';
     function addCertificate() {
       const name = document.getElementById('certName').value.trim();
       const code = document.getElementById('certCode').value.trim();
-      const expiry = document.getElementById('certExpiry').value;
-      if (!name && !expiry) { toast(t('compilaTutti')); return; }
+      const noExpiry = document.getElementById('certNoExpiry').checked;
+      const expiry = noExpiry ? '' : document.getElementById('certExpiry').value;
+      if (!name && !noExpiry && !expiry) { toast(t('compilaTutti')); return; }
 
       async function doSave(attachments) {
         const certs = getCertificates();
         const newId = Date.now();
         const attMeta = attachments.map(a => ({ name: a.name, type: a.type }));
-        certs.push({ id: newId, name, code, expiry, attachments: attMeta });
+        certs.push({ id: newId, name, code, expiry, noExpiry, attachments: attMeta });
         saveCertificates(certs);
         if (attachments.length > 0) {
           try { await saveAttachment(newId, attachments); }
@@ -1520,7 +1558,7 @@ const VEHICLE_KEY = 'daycounter_vehicles';
       let hasExp = false, hasWarn = false, hasVal = false;
 
       sorted.forEach(c => {
-        const s = getCertStatus(c.expiry);
+        const s = getCertStatus(c.expiry, c.noExpiry);
         const div = document.createElement('div');
         div.className = 'cert-item ' + s.class;
         div.onclick = () => openCertModal(c.id);
@@ -1578,7 +1616,9 @@ const VEHICLE_KEY = 'daycounter_vehicles';
       }
       document.getElementById('editCertName').value = c.name;
       document.getElementById('editCertCode').value = c.code;
-      document.getElementById('editCertExpiry').value = c.expiry;
+      document.getElementById('editCertExpiry').value = c.expiry || '';
+      document.getElementById('editCertNoExpiry').checked = !!c.noExpiry;
+      toggleNoExpiry('cert');
       document.getElementById('editCertFile').value = '';
       renderEditAttachments();
       document.getElementById('certModal').classList.add('show');
@@ -1597,8 +1637,9 @@ const VEHICLE_KEY = 'daycounter_vehicles';
       if (idx === -1) return;
       const name = document.getElementById('editCertName').value.trim();
       const code = document.getElementById('editCertCode').value.trim();
-      const expiry = document.getElementById('editCertExpiry').value;
-      if (!name && !expiry) { toast(t('compilaTutti')); return; }
+      const noExpiry = document.getElementById('editCertNoExpiry').checked;
+      const expiry = noExpiry ? '' : document.getElementById('editCertExpiry').value;
+      if (!name && !noExpiry && !expiry) { toast(t('compilaTutti')); return; }
 
       let attachments = editingCertAttachments.filter((_, i) => !editingCertAttachmentsRemoved.includes(i));
       const fileInput = document.getElementById('editCertFile');
@@ -1610,7 +1651,7 @@ const VEHICLE_KEY = 'daycounter_vehicles';
           if (attachments.length > 2) attachments = attachments.slice(-2);
           try { await saveAttachment(editingCertId, attachments); } catch(err) { toast(t('erroreSalvataggio')); }
           const attMeta = attachments.map(a => ({ name: a.name, type: a.type }));
-          certs[idx] = { ...certs[idx], name, code, expiry, attachments: attMeta, hasAttachment: attMeta.length > 0, attachmentName: attMeta[0]?.name || '' };
+          certs[idx] = { ...certs[idx], name, code, expiry, noExpiry, attachments: attMeta, hasAttachment: attMeta.length > 0, attachmentName: attMeta[0]?.name || '' };
           saveCertificates(certs);
           closeCertModal(); renderCertificates(); renderDashboard(); toast(t('certAggiornato'));
         };
@@ -1622,7 +1663,7 @@ const VEHICLE_KEY = 'daycounter_vehicles';
         try { await saveAttachment(editingCertId, attachments); } catch(e) {}
       }
       const attMeta = attachments.map(a => ({ name: a.name, type: a.type }));
-      certs[idx] = { ...certs[idx], name, code, expiry, attachments: attMeta, hasAttachment: attMeta.length > 0, attachmentName: attMeta[0]?.name || '' };
+      certs[idx] = { ...certs[idx], name, code, expiry, noExpiry, attachments: attMeta, hasAttachment: attMeta.length > 0, attachmentName: attMeta[0]?.name || '' };
       saveCertificates(certs);
       closeCertModal(); renderCertificates(); renderDashboard(); toast(t('certAggiornato'));
     }
@@ -1955,7 +1996,8 @@ const VEHICLE_KEY = 'daycounter_vehicles';
       try { return JSON.parse(localStorage.getItem(VEHICLE_KEY)) || []; } catch(e) { return []; }
     }
     function saveVehicles(items) { localStorage.setItem(VEHICLE_KEY, JSON.stringify(items)); }
-    function getVehStatus(expiryStr) {
+    function getVehStatus(expiryStr, noExpiry) {
+      if (noExpiry) return { class: 'valid', label: t('valido'), days: 9999 };
       if (!expiryStr) return { class: 'valid', label: t('valido'), days: 9999 };
       const today = new Date(); today.setHours(0,0,0,0);
       const exp = new Date(expiryStr + 'T00:00:00');
@@ -1970,19 +2012,22 @@ const VEHICLE_KEY = 'daycounter_vehicles';
       const name = document.getElementById('vehName').value.trim();
       const price = document.getElementById('vehPrice').value.trim();
       const note = document.getElementById('vehNote').value.trim();
-      const expiry = document.getElementById('vehExpiry').value;
-      if (!name && !expiry) { toast(t('compilaTutti')); return; }
+      const noExpiry = document.getElementById('vehNoExpiry').checked;
+      const expiry = noExpiry ? '' : document.getElementById('vehExpiry').value;
+      if (!name && !noExpiry && !expiry) { toast(t('compilaTutti')); return; }
       async function doSave(attachments) {
         const items = getVehicles();
         const newId = Date.now();
         const attMeta = attachments.map(a => ({ name: a.name, type: a.type }));
-        items.push({ id: newId, name, price, note, expiry, attachments: attMeta });
+        items.push({ id: newId, name, price, note, expiry, noExpiry, attachments: attMeta });
         saveVehicles(items);
         if (attachments.length > 0) {
           try { await saveAttachment(newId, attachments); }
           catch(err) { toast(t('erroreSalvataggio')); }
         }
         document.getElementById('vehName').value = '';
+        document.getElementById('vehPrice').value = '';
+        document.getElementById('vehNote').value = '';
         document.getElementById('vehExpiry').value = '';
         document.getElementById('vehFile1').value = '';
         const label = document.getElementById('vehFileLabel');
@@ -2032,7 +2077,7 @@ const VEHICLE_KEY = 'daycounter_vehicles';
       listExp.innerHTML = ''; listWarn.innerHTML = ''; listVal.innerHTML = '';
       let hasExp = false, hasWarn = false, hasVal = false;
       sorted.forEach(c => {
-        const s = getVehStatus(c.expiry);
+        const s = getVehStatus(c.expiry, c.noExpiry);
         const div = document.createElement('div');
         div.className = 'cert-item ' + s.class;
         div.onclick = () => openVehicleModal(c.id);
@@ -2082,7 +2127,9 @@ const VEHICLE_KEY = 'daycounter_vehicles';
       document.getElementById('editVehName').value = c.name;
       document.getElementById('editVehPrice').value = c.price || '';
       document.getElementById('editVehNote').value = c.note || '';
-      document.getElementById('editVehExpiry').value = c.expiry;
+      document.getElementById('editVehExpiry').value = c.expiry || '';
+      document.getElementById('editVehNoExpiry').checked = !!c.noExpiry;
+      toggleNoExpiry('veh');
       document.getElementById('editVehFile').value = '';
       renderEditVehAttachments();
       document.getElementById('vehicleModal').classList.add('show');
@@ -2102,8 +2149,9 @@ const VEHICLE_KEY = 'daycounter_vehicles';
       const name = document.getElementById('editVehName').value.trim();
       const price = document.getElementById('editVehPrice').value.trim();
       const note = document.getElementById('editVehNote').value.trim();
-      const expiry = document.getElementById('editVehExpiry').value;
-      if (!name && !expiry) { toast(t('compilaTutti')); return; }
+      const noExpiry = document.getElementById('editVehNoExpiry').checked;
+      const expiry = noExpiry ? '' : document.getElementById('editVehExpiry').value;
+      if (!name && !noExpiry && !expiry) { toast(t('compilaTutti')); return; }
       let attachments = editingVehAttachments.filter((_, i) => !editingVehAttachmentsRemoved.includes(i));
       const fileInput = document.getElementById('editVehFile');
       if (fileInput.files && fileInput.files[0]) {
@@ -2114,7 +2162,7 @@ const VEHICLE_KEY = 'daycounter_vehicles';
           if (attachments.length > 2) attachments = attachments.slice(-2);
           try { await saveAttachment(editingVehId, attachments); } catch(err) { toast(t('erroreSalvataggio')); }
           const attMeta = attachments.map(a => ({ name: a.name, type: a.type }));
-          items[idx] = { ...items[idx], name, price, note, expiry, attachments: attMeta, hasAttachment: attMeta.length > 0, attachmentName: attMeta[0]?.name || '' };
+          items[idx] = { ...items[idx], name, price, note, expiry, noExpiry, attachments: attMeta, hasAttachment: attMeta.length > 0, attachmentName: attMeta[0]?.name || '' };
           saveVehicles(items);
           closeVehModal(); renderVehicles(); renderDashboard(); toast(t('veicoloAggiornato'));
         };
@@ -2125,7 +2173,7 @@ const VEHICLE_KEY = 'daycounter_vehicles';
         try { await saveAttachment(editingVehId, attachments); } catch(e) {}
       }
       const attMeta = attachments.map(a => ({ name: a.name, type: a.type }));
-      items[idx] = { ...items[idx], name, price, note, expiry, attachments: attMeta, hasAttachment: attMeta.length > 0, attachmentName: attMeta[0]?.name || '' };
+      items[idx] = { ...items[idx], name, price, note, expiry, noExpiry, attachments: attMeta, hasAttachment: attMeta.length > 0, attachmentName: attMeta[0]?.name || '' };
       saveVehicles(items);
       closeVehModal(); renderVehicles(); renderDashboard(); toast(t('veicoloAggiornato'));
     }
@@ -2188,6 +2236,8 @@ const VEHICLE_KEY = 'daycounter_vehicles';
       document.getElementById('vehPrice').value = '';
       document.getElementById('vehNote').value = '';
       document.getElementById('vehExpiry').value = '';
+      document.getElementById('vehNoExpiry').checked = false;
+      toggleNoExpiryAdd('veh');
       document.getElementById('vehFile1').value = '';
       const label = document.getElementById('vehFileLabel');
       label.textContent = 'Scegli file...';
@@ -2210,7 +2260,8 @@ const VEHICLE_KEY = 'daycounter_vehicles';
       try { return JSON.parse(localStorage.getItem(DOCUMENT_KEY)) || []; } catch(e) { return []; }
     }
     function saveDocuments(items) { localStorage.setItem(DOCUMENT_KEY, JSON.stringify(items)); }
-    function getDocStatus(expiryStr) {
+    function getDocStatus(expiryStr, noExpiry) {
+      if (noExpiry) return { class: 'valid', label: t('valido'), days: 9999 };
       if (!expiryStr) return { class: 'valid', label: t('valido'), days: 9999 };
       const today = new Date(); today.setHours(0,0,0,0);
       const exp = new Date(expiryStr + 'T00:00:00');
@@ -2224,13 +2275,14 @@ const VEHICLE_KEY = 'daycounter_vehicles';
     function addDocument() {
       const name = document.getElementById('docName').value.trim();
       const code = document.getElementById('docCode').value.trim();
-      const expiry = document.getElementById('docExpiry').value;
-      if (!name && !expiry) { toast(t('compilaTutti')); return; }
+      const noExpiry = document.getElementById('docNoExpiry').checked;
+      const expiry = noExpiry ? '' : document.getElementById('docExpiry').value;
+      if (!name && !noExpiry && !expiry) { toast(t('compilaTutti')); return; }
       async function doSave(attachments) {
         const items = getDocuments();
         const newId = Date.now();
         const attMeta = attachments.map(a => ({ name: a.name, type: a.type }));
-        items.push({ id: newId, name, code, expiry, attachments: attMeta });
+        items.push({ id: newId, name, code, expiry, noExpiry, attachments: attMeta });
         saveDocuments(items);
         if (attachments.length > 0) {
           try { await saveAttachment(newId, attachments); }
@@ -2287,7 +2339,7 @@ const VEHICLE_KEY = 'daycounter_vehicles';
       listExp.innerHTML = ''; listWarn.innerHTML = ''; listVal.innerHTML = '';
       let hasExp = false, hasWarn = false, hasVal = false;
       sorted.forEach(c => {
-        const s = getDocStatus(c.expiry);
+        const s = getDocStatus(c.expiry, c.noExpiry);
         const div = document.createElement('div');
         div.className = 'cert-item ' + s.class;
         div.onclick = () => openDocumentModal(c.id);
@@ -2336,7 +2388,9 @@ const VEHICLE_KEY = 'daycounter_vehicles';
       }
       document.getElementById('editDocName').value = c.name;
       document.getElementById('editDocCode').value = c.code;
-      document.getElementById('editDocExpiry').value = c.expiry;
+      document.getElementById('editDocExpiry').value = c.expiry || '';
+      document.getElementById('editDocNoExpiry').checked = !!c.noExpiry;
+      toggleNoExpiry('doc');
       document.getElementById('editDocFile').value = '';
       renderEditDocAttachments();
       document.getElementById('documentModal').classList.add('show');
@@ -2355,8 +2409,9 @@ const VEHICLE_KEY = 'daycounter_vehicles';
       if (idx === -1) return;
       const name = document.getElementById('editDocName').value.trim();
       const code = document.getElementById('editDocCode').value.trim();
-      const expiry = document.getElementById('editDocExpiry').value;
-      if (!name && !expiry) { toast(t('compilaTutti')); return; }
+      const noExpiry = document.getElementById('editDocNoExpiry').checked;
+      const expiry = noExpiry ? '' : document.getElementById('editDocExpiry').value;
+      if (!name && !noExpiry && !expiry) { toast(t('compilaTutti')); return; }
       let attachments = editingDocAttachments.filter((_, i) => !editingDocAttachmentsRemoved.includes(i));
       const fileInput = document.getElementById('editDocFile');
       if (fileInput.files && fileInput.files[0]) {
@@ -2367,7 +2422,7 @@ const VEHICLE_KEY = 'daycounter_vehicles';
           if (attachments.length > 2) attachments = attachments.slice(-2);
           try { await saveAttachment(editingDocId, attachments); } catch(err) { toast(t('erroreSalvataggio')); }
           const attMeta = attachments.map(a => ({ name: a.name, type: a.type }));
-          items[idx] = { ...items[idx], name, code, expiry, attachments: attMeta, hasAttachment: attMeta.length > 0, attachmentName: attMeta[0]?.name || '' };
+          items[idx] = { ...items[idx], name, code, expiry, noExpiry, attachments: attMeta, hasAttachment: attMeta.length > 0, attachmentName: attMeta[0]?.name || '' };
           saveDocuments(items);
           closeDocModal(); renderDocuments(); renderDashboard(); toast(t('documentoAggiornato'));
         };
@@ -2378,7 +2433,7 @@ const VEHICLE_KEY = 'daycounter_vehicles';
         try { await saveAttachment(editingDocId, attachments); } catch(e) {}
       }
       const attMeta = attachments.map(a => ({ name: a.name, type: a.type }));
-      items[idx] = { ...items[idx], name, code, expiry, attachments: attMeta, hasAttachment: attMeta.length > 0, attachmentName: attMeta[0]?.name || '' };
+      items[idx] = { ...items[idx], name, code, expiry, noExpiry, attachments: attMeta, hasAttachment: attMeta.length > 0, attachmentName: attMeta[0]?.name || '' };
       saveDocuments(items);
       closeDocModal(); renderDocuments(); renderDashboard(); toast(t('documentoAggiornato'));
     }
@@ -2440,6 +2495,8 @@ const VEHICLE_KEY = 'daycounter_vehicles';
       document.getElementById('docName').value = '';
       document.getElementById('docCode').value = '';
       document.getElementById('docExpiry').value = '';
+      document.getElementById('docNoExpiry').checked = false;
+      toggleNoExpiryAdd('doc');
       document.getElementById('docFile1').value = '';
       const label = document.getElementById('docFileLabel');
       label.textContent = 'Scegli file...';
@@ -2650,6 +2707,26 @@ const VEHICLE_KEY = 'daycounter_vehicles';
     function saveNotifEmail(val) {
       localStorage.setItem(NOTIF_EMAIL_KEY, val.trim());
     }
+    function toggleNoExpiry(type) {
+      const map = { cert: 'editCert', veh: 'editVeh', doc: 'editDoc' };
+      const prefix = map[type];
+      const noExpiry = document.getElementById(prefix + 'NoExpiry').checked;
+      const dateInput = document.getElementById(prefix + 'Expiry');
+      if (dateInput) {
+        dateInput.disabled = noExpiry;
+        dateInput.style.opacity = noExpiry ? '0.4' : '1';
+      }
+    }
+    function toggleNoExpiryAdd(type) {
+      const map = { cert: 'cert', veh: 'veh', doc: 'doc' };
+      const prefix = map[type];
+      const noExpiry = document.getElementById(prefix + 'NoExpiry').checked;
+      const dateInput = document.getElementById(prefix + 'Expiry');
+      if (dateInput) {
+        dateInput.disabled = noExpiry;
+        dateInput.style.opacity = noExpiry ? '0.4' : '1';
+      }
+    }
     function toggleAccordion(header) {
       const section = header.parentElement;
       const wasOpen = section.classList.contains('open');
@@ -2703,15 +2780,15 @@ const VEHICLE_KEY = 'daycounter_vehicles';
       const docs = getDocuments();
       const items = [];
       certs.forEach(c => {
-        const s = getCertStatus(c.expiry);
+        const s = getCertStatus(c.expiry, c.noExpiry);
         if (s.class === status) items.push({ ...c, type: 'cert', statusObj: s });
       });
       vehs.forEach(c => {
-        const s = getVehStatus(c.expiry);
+        const s = getVehStatus(c.expiry, c.noExpiry);
         if (s.class === status) items.push({ ...c, type: 'veh', statusObj: s });
       });
       docs.forEach(c => {
-        const s = getDocStatus(c.expiry);
+        const s = getDocStatus(c.expiry, c.noExpiry);
         if (s.class === status) items.push({ ...c, type: 'doc', statusObj: s });
       });
       items.sort((a, b) => {
