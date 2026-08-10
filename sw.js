@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ocean-desk-v13';
+const CACHE_NAME = 'ocean-desk-v17';
 const urlsToCache = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png', './timone.png',
   'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js',
   'https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js'

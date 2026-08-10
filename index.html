@@ -322,7 +322,8 @@
     .backup-row { display: flex; gap: 10px; margin-top: 12px; }
     .backup-row .btn { flex: 1; font-size: 15px; padding: 14px; margin-top: 0; }
     .ios-notice { background: var(--accent-light); color: var(--accent); padding: 14px 16px; border-radius: 14px; font-size: 13px; line-height: 1.6; margin-bottom: 16px; border: 1.5px solid var(--accent); font-weight: 500; }
-    .lang-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; padding: 4px 0; }
+    .lang-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; padding: 4px 0; gap: 12px; }
+    .lang-row label { font-size: clamp(13px, 3vw, 15px); font-weight: 700; white-space: nowrap; }
     .lang-row label { font-size: 15px; font-weight: 700; }
     .lang-row select { width: auto; min-width: 140px; padding: 10px 36px 10px 14px;
       background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236e6e78' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
@@ -354,7 +355,7 @@
     /* Drawer */
     .drawer-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 1000; opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0.3s ease; }
     .drawer-overlay.show { opacity: 1; visibility: visible; }
-    .drawer-panel { position: fixed; top: 0; right: 0; width: min(380px, 85vw); height: 100%; background: var(--card); box-shadow: -8px 0 40px rgba(0,0,0,0.2); border-left: 1px solid var(--border); transform: translateX(100%); transition: transform 0.35s cubic-bezier(0.22,1,0.36,1); padding: max(20px, env(safe-area-inset-top)) 24px max(20px, env(safe-area-inset-bottom)); overflow-y: auto; display: flex; flex-direction: column; }
+    .drawer-panel { position: fixed; top: 0; right: 0; width: min(400px, 90vw); height: 100%; background: var(--card); box-shadow: -8px 0 40px rgba(0,0,0,0.2); border-left: 1px solid var(--border); transform: translateX(100%); transition: transform 0.35s cubic-bezier(0.22,1,0.36,1); padding: max(20px, env(safe-area-inset-top)) 24px max(20px, env(safe-area-inset-bottom)); overflow-y: auto; display: flex; flex-direction: column; max-height: 100vh; -webkit-overflow-scrolling: touch; }
     .drawer-overlay.show .drawer-panel { transform: translateX(0); }
     /* Accordion */
     .accordion-section { margin-bottom: 8px; border: 1.5px solid var(--border); border-radius: 14px; overflow: hidden; }
@@ -363,7 +364,7 @@
     .accordion-icon { font-size: 12px; transition: transform 0.25s ease; color: var(--text-secondary); }
     .accordion-section.open .accordion-icon { transform: rotate(180deg); }
     .accordion-body { max-height: 0; overflow: hidden; transition: max-height 0.35s cubic-bezier(0.22,1,0.36,1); padding: 0 16px; }
-    .accordion-section.open .accordion-body { max-height: 800px; padding: 12px 16px 16px; }
+    .accordion-section.open .accordion-body { max-height: 2000px; padding: 12px 16px 16px; }
     /* Donut animation */
     #donutValid, #donutWarning, #donutExpired { transition: stroke-dasharray 0.8s cubic-bezier(0.22,1,0.36,1), stroke-dashoffset 0.8s cubic-bezier(0.22,1,0.36,1); }
     /* Responsive clamp helpers */
@@ -376,7 +377,36 @@
     .status-accordion { animation: slideDown 0.35s ease; }
     .status-list-item:last-child { border-bottom: none !important; }
     .status-pill { transition: var(--transition-bounce); }
+    #resetOptions button { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .veh-price-note-row { display: grid !important; grid-template-columns: 1fr 1fr; }
+    html.dark-mode {
+      --bg: #0a0a0f; --bg-rgb: 10, 10, 15;
+      --card: #15151a; --card-rgb: 21, 21, 26;
+      --text: #f5f5f7; --text-rgb: 245, 245, 247;
+      --text-secondary: #8e8e93;
+      --accent: #3b82f6; --accent-light: rgba(59, 130, 246, 0.12);
+      --accent-gradient: linear-gradient(135deg, #3b82f6, #a855f7);
+      --border: rgba(255, 255, 255, 0.08);
+      --shadow: 0 4px 24px rgba(0,0,0,0.3);
+      --shadow-lg: 0 12px 40px rgba(0,0,0,0.4);
+      --sky: #0f172a; --sky-light: #1e3a5f;
+    }
+    html.light-mode {
+      --bg: #f0f2f5; --bg-rgb: 240, 242, 245;
+      --card: #ffffff; --card-rgb: 255, 255, 255;
+      --text: #1a1a1f; --text-rgb: 26, 26, 31;
+      --text-secondary: #6e6e78;
+      --accent: #2563eb; --accent-light: rgba(37, 99, 235, 0.08);
+      --accent-gradient: linear-gradient(135deg, #2563eb, #7c3aed);
+      --border: rgba(0, 0, 0, 0.06);
+      --shadow: 0 4px 24px rgba(0,0,0,0.06);
+      --shadow-lg: 0 12px 40px rgba(0,0,0,0.12);
+      --sky: #1e3a5f; --sky-light: #3b82f6;
+    }
+    .theme-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; }
+    .theme-toggle { display: flex; align-items: center; gap: 10px; }
+    .theme-icon { font-size: 20px; line-height: 1; opacity: 0.5; transition: opacity 0.2s; }
+    .theme-icon.active { opacity: 1; }
     @media (max-width: 480px) {
       .veh-price-note-row { grid-template-columns: 1fr !important; }
     }
@@ -394,7 +424,9 @@
       body { padding: 32px; padding-top: max(32px, env(safe-area-inset-top)); }
     }
 
-    .tab-toggle-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); }
+    .tab-toggle-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border); gap: 12px; }
+    .tab-toggle-row span { font-size: clamp(13px, 3vw, 15px); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex-shrink: 1; min-width: 0; }
+    .tab-toggle-row > div { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
     .tab-toggle-row:last-child { border-bottom: none; }
     .tab-toggle-row span { font-size: 15px; font-weight: 600; }
     .switch { position: relative; display: inline-block; width: 48px; height: 28px; }
@@ -770,7 +802,7 @@
 
       <div class="accordion-section open">
         <div class="accordion-header" onclick="toggleAccordion(this)">
-          <span data-i18n="notificaScadenze">Notifica scadenze</span>
+          <span data-i18n="notificaScadenze">Notifica per scadenze</span>
           <span class="accordion-icon">&#9662;</span>
         </div>
         <div class="accordion-body">
@@ -800,7 +832,7 @@
           </div>
           <div style="margin-top:16px; padding-top:14px; border-top:1.5px solid var(--border);">
             <label style="font-size:13px; font-weight:700; color:var(--text-secondary); text-transform:uppercase; letter-spacing:0.5px; display:block; margin-bottom:10px;" data-i18n="emailNotifiche">Email per notifiche</label>
-            <input type="email" id="notifEmail" placeholder="esempio@email.com" style="width:100%; padding:12px 14px; border:1.5px solid var(--border); border-radius:12px; font-size:15px; background:var(--bg); color:var(--text); font-family:inherit;" onchange="saveNotifEmail(this.value)">
+            <input type="email" id="notifEmail" placeholder="esempio@email.com" data-i18n-placeholder="emailPlaceholder" style="width:100%; padding:12px 14px; border:1.5px solid var(--border); border-radius:12px; font-size:15px; background:var(--bg); color:var(--text); font-family:inherit;" onchange="saveNotifEmail(this.value)">
           </div>
         </div>
       </div>
@@ -823,7 +855,46 @@
 
       <div class="accordion-section">
         <div class="accordion-header" onclick="toggleAccordion(this)">
-          <span data-i18n="backupDati">Backup & Dati</span>
+          <span data-i18n="tema">Tema</span>
+          <span class="accordion-icon">&#9662;</span>
+        </div>
+        <div class="accordion-body">
+          <div class="theme-row">
+            <span style="font-size:15px; font-weight:600;" data-i18n="temaLabel">Giorno / Notte</span>
+            <div class="theme-toggle">
+              <span class="theme-icon" id="themeIconSun">&#9728;&#65039;</span>
+              <label class="switch">
+                <input type="checkbox" id="themeToggle" onchange="toggleTheme()">
+                <span class="slider"></span>
+              </label>
+              <span class="theme-icon" id="themeIconMoon">&#127769;</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="accordion-section">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+          <span data-i18n="scaricaPDF">Scarica PDF</span>
+          <span class="accordion-icon">&#9662;</span>
+        </div>
+        <div class="accordion-body">
+          <div class="backup-row">
+            <select id="pdfSelect" onchange="if(this.value){downloadPDF(this.value);this.value='';}" style="flex:1; padding:14px 16px; border:1.5px solid var(--border); border-radius:14px; font-size:15px; font-weight:600; background:var(--bg); color:var(--text); cursor:pointer;">
+              <option value="">&#128196; PDF...</option>
+              <option value="all" data-i18n="pdfTutto">PDF completo</option>
+              <option value="days" data-i18n="pdfGiorni">PDF giorni</option>
+              <option value="certs" data-i18n="pdfCert">PDF certificati</option>
+              <option value="vehicles" data-i18n="pdfVeicoli">PDF veicoli</option>
+              <option value="documents" data-i18n="pdfDocumenti">PDF documenti</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="accordion-section">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+          <span data-i18n="backupDati">Backup e Dati</span>
           <span class="accordion-icon">&#9662;</span>
         </div>
         <div class="accordion-body">
@@ -834,22 +905,23 @@
             <button class="btn btn-secondary" onclick="exportData()" data-i18n="esporta">Esporta dati</button>
             <button class="btn btn-warning" onclick="document.getElementById('importFile').click()" data-i18n="importa">Importa dati</button>
           </div>
-          <div class="backup-row" style="margin-top:12px;">
-            <select id="pdfSelect" onchange="if(this.value){downloadPDF(this.value);this.value='';}" style="flex:1; padding:14px 16px; border:1.5px solid var(--border); border-radius:14px; font-size:15px; font-weight:600; background:var(--bg); color:var(--text); cursor:pointer;">
-              <option value="">&#128196; Scarica PDF...</option>
-              <option value="all" data-i18n="pdfTutto">PDF completo</option>
-              <option value="days" data-i18n="pdfGiorni">PDF giorni</option>
-              <option value="certs" data-i18n="pdfCert">PDF certificati</option>
-              <option value="vehicles" data-i18n="pdfVeicoli">PDF veicoli</option>
-              <option value="documents" data-i18n="pdfDocumenti">PDF documenti</option>
-            </select>
-          </div>
-          <div class="backup-row" style="margin-top:12px;">
-            <button class="btn btn-danger" onclick="resetAllData()">&#128465; Reset dati</button>
+          <div style="margin-top:16px; padding-top:14px; border-top:1.5px solid var(--border);">
+            <button class="btn btn-danger" onclick="toggleResetOptions()" data-i18n="resetTutto">&#128465; Resetta tutto</button>
+            <div id="resetOptions" style="display:none; margin-top:12px; animation:slideDown 0.3s ease;">
+              <div style="font-size:13px; font-weight:700; color:var(--text-secondary); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:10px;" data-i18n="resetSelettivo">Reset selettivo</div>
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:12px;">
+                <button class="btn" style="background:var(--bg); color:var(--text); border:1.5px solid var(--border); font-size:13px; padding:10px; white-space:nowrap;" onclick="resetDataType('periods')" data-i18n="resetPeriodi">Periodi</button>
+                <button class="btn" style="background:var(--bg); color:var(--text); border:1.5px solid var(--border); font-size:13px; padding:10px; white-space:nowrap;" onclick="resetDataType('certificates')" data-i18n="resetCertificati">Certificati</button>
+                <button class="btn" style="background:var(--bg); color:var(--text); border:1.5px solid var(--border); font-size:13px; padding:10px; white-space:nowrap;" onclick="resetDataType('vehicles')" data-i18n="resetVeicoli">Veicoli</button>
+                <button class="btn" style="background:var(--bg); color:var(--text); border:1.5px solid var(--border); font-size:13px; padding:10px; white-space:nowrap;" onclick="resetDataType('documents')" data-i18n="resetDocumenti">Documenti</button>
+              </div>
+              <button class="btn btn-danger" style="background:linear-gradient(135deg, #dc2626, #991b1b);" onclick="resetAllData()" data-i18n="resetTuttoConferma">&#128465; Conferma reset totale</button>
+            </div>
           </div>
         </div>
       </div>
     </div>
+  </div>
   </div>
   </div>
 
@@ -1010,7 +1082,13 @@
         eliminaVeicolo: 'Eliminare questo veicolo?', eliminaDocumento: 'Eliminare questo documento?',
         nessunVeicolo: 'Nessun veicolo salvato', nessunDocumento: 'Nessun documento salvato',
         pdfVeicoli: 'PDF veicoli', pdfDocumenti: 'PDF documenti',
-        senzaScadenza: 'Senza scadenza',
+        senzaScadenza: 'Senza scadenza', tema: 'Tema', temaLabel: 'Giorno / Notte', scaricaPDF: 'Scarica PDF',
+        notificaScadenze: 'Notifica per scadenze', emailNotifiche: 'Email per notifiche', backupDati: 'Backup e Dati',
+        resetTutto: 'Resetta tutto', resetSelettivo: 'Reset selettivo', resetPeriodi: 'Reset periodi',
+        resetCertificati: 'Reset certificati', resetVeicoli: 'Reset veicoli', resetDocumenti: 'Reset documenti',
+        confermaReset: 'Sei sicuro di voler cancellare', confermaResetTutto: 'Tutti i dati verranno eliminati. Questa azione non può essere annullata.',
+        emailPlaceholder: 'esempio@email.com', menu: 'Menu', pdf: 'PDF',
+        resetTuttoConferma: 'Conferma reset totale',
       },
       en: {
         dashboard: 'Dashboard', calcola: 'Calculate', giorni: 'Days', certificati: 'Certificates', menu: 'Menu',
@@ -1284,8 +1362,26 @@ const VEHICLE_KEY = 'daycounter_vehicles';
       if (page === 'documents') renderDocuments();
     }
 
+    async function resetDataType(type) {
+      const labels = { periods: t('resetPeriodi'), certificates: t('resetCertificati'), vehicles: t('resetVeicoli'), documents: t('resetDocumenti') };
+      const keys = { periods: STORAGE_KEY, certificates: CERT_KEY, vehicles: VEHICLE_KEY, documents: DOCUMENT_KEY };
+      if (!confirm(t('confermaReset') + ' ' + labels[type] + '?')) return;
+      localStorage.removeItem(keys[type]);
+      // Rimuovi allegati associati
+      try {
+        const db = await openAttachmentDB();
+        const tx = db.transaction(ATTACHMENT_STORE, 'readwrite');
+        const store = tx.objectStore(ATTACHMENT_STORE);
+        // Non possiamo filtrare per tipo in IndexedDB senza indice, quindi lasciamo gli orfani
+        // opzionalmente potremmo fare una pulizia più avanzata
+      } catch(e) {}
+      if (type === 'periods') { document.getElementById('targetDays').value = ''; localStorage.removeItem(TARGET_KEY); }
+      renderDashboard(); renderCalcData(); renderCertificates(); renderVehicles(); renderDocuments();
+      toast(labels[type] + ' ' + (getLang() === 'en' ? 'deleted' : 'cancellati'));
+      closeMenu();
+    }
     async function resetAllData() {
-      if (!confirm('Sei sicuro di voler cancellare TUTTI i dati? Questa azione non può essere annullata.')) return;
+      if (!confirm(t('confermaResetTutto'))) return;
       localStorage.removeItem(STORAGE_KEY);
       localStorage.removeItem(TARGET_KEY);
       localStorage.removeItem(CERT_KEY);
@@ -1293,6 +1389,7 @@ const VEHICLE_KEY = 'daycounter_vehicles';
       localStorage.removeItem(DOCUMENT_KEY);
       localStorage.removeItem(LANG_KEY);
       localStorage.removeItem(DASH_YEAR_KEY);
+      localStorage.removeItem(THEME_KEY);
       localStorage.removeItem(TAB_VISIBILITY_KEY);
       localStorage.removeItem(NOTIF_CERT_KEY);
       localStorage.removeItem(NOTIF_VEH_KEY);
@@ -2683,6 +2780,36 @@ const VEHICLE_KEY = 'daycounter_vehicles';
     document.getElementById('startDate').value = '2023-01-01';
     document.getElementById('targetDays').value = getTarget() || '';
     
+    // ===== THEME =====
+    const THEME_KEY = 'daycounter_theme';
+    function getTheme() { try { return localStorage.getItem(THEME_KEY) || 'auto'; } catch(e) { return 'auto'; } }
+    function setTheme(mode) {
+      localStorage.setItem(THEME_KEY, mode);
+      const htmlEl = document.documentElement;
+      htmlEl.classList.remove('dark-mode', 'light-mode');
+      if (mode === 'dark') htmlEl.classList.add('dark-mode');
+      else if (mode === 'light') htmlEl.classList.add('light-mode');
+      updateThemeIcons(mode);
+    }
+    function toggleTheme() {
+      const current = getTheme();
+      const next = current === 'dark' ? 'light' : 'dark';
+      setTheme(next);
+      document.getElementById('themeToggle').checked = next === 'dark';
+    }
+    function updateThemeIcons(mode) {
+      const sun = document.getElementById('themeIconSun');
+      const moon = document.getElementById('themeIconMoon');
+      if (sun) sun.classList.toggle('active', mode === 'light');
+      if (moon) moon.classList.toggle('active', mode === 'dark');
+    }
+    function initTheme() {
+      const mode = getTheme();
+      setTheme(mode);
+      const toggle = document.getElementById('themeToggle');
+      if (toggle) toggle.checked = mode === 'dark';
+    }
+
     // ===== NOTIFICATION PREFS =====
     const NOTIF_CERT_KEY = 'daycounter_notif_cert';
     const NOTIF_VEH_KEY = 'daycounter_notif_veh';
@@ -2726,6 +2853,10 @@ const VEHICLE_KEY = 'daycounter_vehicles';
         dateInput.disabled = noExpiry;
         dateInput.style.opacity = noExpiry ? '0.4' : '1';
       }
+    }
+    function toggleResetOptions() {
+      const el = document.getElementById('resetOptions');
+      el.style.display = el.style.display === 'none' ? 'block' : 'none';
     }
     function toggleAccordion(header) {
       const section = header.parentElement;
@@ -2846,6 +2977,7 @@ const VEHICLE_KEY = 'daycounter_vehicles';
     renderDashboard();
     initNotifToggles();
     initWarningDays();
+    initTheme();
 
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('sw.js').then(reg => {
