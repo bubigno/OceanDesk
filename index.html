@@ -355,7 +355,9 @@
     /* Drawer */
     .drawer-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 1000; opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0.3s ease; }
     .drawer-overlay.show { opacity: 1; visibility: visible; }
-    .drawer-panel { position: fixed; top: 0; right: 0; width: min(400px, 90vw); height: 100%; background: var(--card); box-shadow: -8px 0 40px rgba(0,0,0,0.2); border-left: 1px solid var(--border); transform: translateX(100%); transition: transform 0.35s cubic-bezier(0.22,1,0.36,1); padding: max(20px, env(safe-area-inset-top)) 24px max(20px, env(safe-area-inset-bottom)); overflow-y: auto; display: flex; flex-direction: column; max-height: 100vh; -webkit-overflow-scrolling: touch; }
+    .drawer-panel { position: fixed; top: 0; right: 0; width: min(400px, 90vw); height: 100dvh; background: var(--card); box-shadow: -8px 0 40px rgba(0,0,0,0.2); border-left: 1px solid var(--border); transform: translateX(100%); transition: transform 0.35s cubic-bezier(0.22,1,0.36,1); padding: max(20px, env(safe-area-inset-top)) 24px max(20px, env(safe-area-inset-bottom)); overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior-y: contain; scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
+    .drawer-panel::-webkit-scrollbar { width: 6px; }
+    .drawer-panel::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
     .drawer-overlay.show .drawer-panel { transform: translateX(0); }
     /* Accordion */
     .accordion-section { margin-bottom: 8px; border: 1.5px solid var(--border); border-radius: 14px; overflow: hidden; }
@@ -703,7 +705,7 @@
               <label style="min-width:50px" data-i18n="allegato">Allegato</label>
               <div style="flex:1; position:relative; overflow:hidden; border:1.5px solid var(--border); border-radius:14px; background:var(--bg);">
                 <input type="file" id="vehFile1" accept="image/*,application/pdf" onchange="updateVehFileLabel(this)" style="position:absolute; top:0; left:0; width:100%; height:100%; opacity:0; cursor:pointer; z-index:2;">
-                <div id="vehFileLabel" style="padding:14px 16px; font-size:14px; color:var(--text-secondary); text-align:center; pointer-events:none; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Scegli file...</div>
+                <div id="vehFileLabel" style="padding:14px 16px; font-size:14px; color:var(--text-secondary); text-align:center; pointer-events:none; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" data-i18n="scegliFile">Scegli file...</div>
               </div>
             </div>
             <button class="btn" onclick="addVehicle()" data-i18n="aggiungi">Aggiungi</button>
@@ -760,7 +762,7 @@
               <label style="min-width:50px" data-i18n="allegato">Allegato</label>
               <div style="flex:1; position:relative; overflow:hidden; border:1.5px solid var(--border); border-radius:14px; background:var(--bg);">
                 <input type="file" id="docFile1" accept="image/*,application/pdf" onchange="updateDocFileLabel(this)" style="position:absolute; top:0; left:0; width:100%; height:100%; opacity:0; cursor:pointer; z-index:2;">
-                <div id="docFileLabel" style="padding:14px 16px; font-size:14px; color:var(--text-secondary); text-align:center; pointer-events:none; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Scegli file...</div>
+                <div id="docFileLabel" style="padding:14px 16px; font-size:14px; color:var(--text-secondary); text-align:center; pointer-events:none; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" data-i18n="scegliFile">Scegli file...</div>
               </div>
             </div>
             <button class="btn" onclick="addDocument()" data-i18n="aggiungi">Aggiungi</button>
@@ -810,7 +812,7 @@
             <span data-i18n="certificati">Certificati</span>
             <div style="display:flex;align-items:center;gap:10px;">
               <input type="number" id="warnCertDays" value="90" min="1" max="999" style="width:60px; padding:6px 8px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; font-weight:700; text-align:center; background:var(--bg); color:var(--text);" onchange="saveWarningDays('cert', this.value)">
-              <span style="font-size:13px; font-weight:600; color:var(--text-secondary); min-width:22px;">gg</span>
+              <span style="font-size:13px; font-weight:600; color:var(--text-secondary); min-width:22px;" data-i18n="gg">gg</span>
               <label class="switch"><input type="checkbox" id="toggle-notif-cert" onchange="toggleNotification('cert')"><span class="slider"></span></label>
             </div>
           </div>
@@ -818,7 +820,7 @@
             <span data-i18n="veicoli">Veicoli</span>
             <div style="display:flex;align-items:center;gap:10px;">
               <input type="number" id="warnVehDays" value="90" min="1" max="999" style="width:60px; padding:6px 8px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; font-weight:700; text-align:center; background:var(--bg); color:var(--text);" onchange="saveWarningDays('veh', this.value)">
-              <span style="font-size:13px; font-weight:600; color:var(--text-secondary); min-width:22px;">gg</span>
+              <span style="font-size:13px; font-weight:600; color:var(--text-secondary); min-width:22px;" data-i18n="gg">gg</span>
               <label class="switch"><input type="checkbox" id="toggle-notif-veh" onchange="toggleNotification('veh')"><span class="slider"></span></label>
             </div>
           </div>
@@ -826,7 +828,7 @@
             <span data-i18n="documenti">Documenti</span>
             <div style="display:flex;align-items:center;gap:10px;">
               <input type="number" id="warnDocDays" value="90" min="1" max="999" style="width:60px; padding:6px 8px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; font-weight:700; text-align:center; background:var(--bg); color:var(--text);" onchange="saveWarningDays('doc', this.value)">
-              <span style="font-size:13px; font-weight:600; color:var(--text-secondary); min-width:22px;">gg</span>
+              <span style="font-size:13px; font-weight:600; color:var(--text-secondary); min-width:22px;" data-i18n="gg">gg</span>
               <label class="switch"><input type="checkbox" id="toggle-notif-doc" onchange="toggleNotification('doc')"><span class="slider"></span></label>
             </div>
           </div>
@@ -906,7 +908,7 @@
             <button class="btn btn-warning" onclick="document.getElementById('importFile').click()" data-i18n="importa">Importa dati</button>
           </div>
           <div style="margin-top:16px; padding-top:14px; border-top:1.5px solid var(--border);">
-            <button class="btn btn-danger" onclick="toggleResetOptions()" data-i18n="resetTutto">&#128465; Resetta tutto</button>
+            <button class="btn btn-danger" onclick="toggleResetOptions()" data-i18n="reset">&#128465; Reset</button>
             <div id="resetOptions" style="display:none; margin-top:12px; animation:slideDown 0.3s ease;">
               <div style="font-size:13px; font-weight:700; color:var(--text-secondary); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:10px;" data-i18n="resetSelettivo">Reset selettivo</div>
               <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:12px;">
@@ -1062,6 +1064,7 @@
         importaPeriodi: (n) => `Importare ${n} periodi?`, datiSostituiti: 'I dati attuali verranno sostituiti.',
         eliminaCert: 'Eliminare questo certificato?', eliminaPeriodo: 'Eliminare questo periodo?',
         allegato: 'Allegato', nuovoAllegato: 'Nuovo allegato', scarica: 'Scarica', rimuovi: 'Rimuovi',
+        pdf: 'PDF',
         pdfTutto: 'PDF completo', pdfGiorni: 'PDF giorni', pdfCert: 'PDF certificati',
         bisestile: 'bisestile', giorniAnno: (y) => `giorni nell'anno ${y}`,
         target: 'Target', giorniMancanti: 'giorni mancanti al target',
@@ -1087,7 +1090,7 @@
         resetTutto: 'Resetta tutto', resetSelettivo: 'Reset selettivo', resetPeriodi: 'Reset periodi',
         resetCertificati: 'Reset certificati', resetVeicoli: 'Reset veicoli', resetDocumenti: 'Reset documenti',
         confermaReset: 'Sei sicuro di voler cancellare', confermaResetTutto: 'Tutti i dati verranno eliminati. Questa azione non può essere annullata.',
-        emailPlaceholder: 'esempio@email.com', menu: 'Menu', pdf: 'PDF',
+        scegliFile: 'Scegli file...', emailPlaceholder: 'esempio@email.com', menu: 'Menu', pdf: 'PDF',
         resetTuttoConferma: 'Conferma reset totale',
       },
       en: {
@@ -1116,6 +1119,7 @@
         importaPeriodi: (n) => `Import ${n} periods?`, datiSostituiti: 'Current data will be replaced.',
         eliminaCert: 'Delete this certificate?', eliminaPeriodo: 'Delete this period?',
         allegato: 'Attachment', nuovoAllegato: 'New attachment', scarica: 'Download', rimuovi: 'Remove',
+        pdf: 'PDF',
         pdfTutto: 'Full PDF', pdfGiorni: 'PDF days', pdfCert: 'PDF certificates',
         bisestile: 'leap year', giorniAnno: (y) => `days in year ${y}`,
         target: 'Target', giorniMancanti: 'days missing to target',
@@ -1136,6 +1140,13 @@
         eliminaVeicolo: 'Delete this vehicle?', eliminaDocumento: 'Delete this document?',
         nessunVeicolo: 'No vehicles saved', nessunDocumento: 'No documents saved',
         pdfVeicoli: 'PDF vehicles', pdfDocumenti: 'PDF documents',
+        senzaScadenza: 'No expiry', tema: 'Theme', temaLabel: 'Day / Night', scaricaPDF: 'Download PDF',
+        notificaScadenze: 'Expiry notifications', emailNotifiche: 'Email for notifications', backupDati: 'Backup & Data',
+        resetTutto: 'Reset everything', resetSelettivo: 'Selective reset', resetPeriodi: 'Periods',
+        resetCertificati: 'Certificates', resetVeicoli: 'Vehicles', resetDocumenti: 'Documents',
+        confermaReset: 'Are you sure you want to delete', confermaResetTutto: 'All data will be deleted. This action cannot be undone.',
+        emailPlaceholder: 'example@email.com', menu: 'Menu', pdf: 'PDF',
+        resetTuttoConferma: 'Confirm total reset', scegliFile: 'Choose file...',
       }
     };
 
@@ -1171,6 +1182,10 @@
         } else {
           el.textContent = val;
         }
+      });
+      document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+        const key = el.getAttribute('data-i18n-placeholder');
+        el.placeholder = t(key);
       });
       document.getElementById('periodName').placeholder = lang === 'en' ? 'e.g. Project Alpha, Vacation...' : 'Es. Progetto Alpha, Vacanza...';
       document.getElementById('certName').placeholder = lang === 'en' ? 'e.g. Sailing license...' : 'Es. Brevetto nautico...';
@@ -1328,7 +1343,7 @@ const VEHICLE_KEY = 'daycounter_vehicles';
     }
     function saveCertificates(certs) { localStorage.setItem(CERT_KEY, JSON.stringify(certs)); }
     function getCertStatus(expiryStr, noExpiry) {
-      if (noExpiry) return { class: 'valid', label: t('valido'), days: 9999 };
+      if (noExpiry) return { class: 'valid', label: t('valido'), days: Infinity };
       if (!expiryStr) return { class: 'valid', label: t('valido'), days: 9999 };
       const today = new Date(); today.setHours(0,0,0,0);
       const exp = new Date(expiryStr + 'T00:00:00');
@@ -1437,7 +1452,7 @@ const VEHICLE_KEY = 'daycounter_vehicles';
         label.textContent = input.files[0].name;
         label.style.color = 'var(--text)';
       } else {
-        label.textContent = 'Scegli file...';
+        label.textContent = t('scegliFile');
         label.style.color = 'var(--text-secondary)';
       }
     }
@@ -1450,7 +1465,7 @@ const VEHICLE_KEY = 'daycounter_vehicles';
       toggleNoExpiryAdd('cert');
       document.getElementById('certFile1').value = '';
       const certFileLabel = document.getElementById('certFileLabel');
-      certFileLabel.textContent = 'Scegli file...';
+      certFileLabel.textContent = t('scegliFile');
       certFileLabel.style.color = 'var(--text-secondary)';
       toast(t('campiResettati'));
     }
@@ -1472,11 +1487,14 @@ const VEHICLE_KEY = 'daycounter_vehicles';
     }
     function openMenu() {
       document.getElementById('menuOverlay').classList.add('show');
+      document.body.style.overflow = 'hidden';
     }
     function closeMenu(e) {
       if (e && e.target !== e.currentTarget) return;
       document.getElementById('menuOverlay').classList.remove('show');
+      document.body.style.overflow = '';
     }
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeMenu(); });
 
     function renderDashboard() {
       const periods = getSavedPeriods();
@@ -1598,7 +1616,7 @@ const VEHICLE_KEY = 'daycounter_vehicles';
         document.getElementById('certExpiry').value = '';
         document.getElementById('certFile1').value = '';
         const certFileLabel = document.getElementById('certFileLabel');
-        certFileLabel.textContent = 'Scegli file...';
+        certFileLabel.textContent = t('scegliFile');
         certFileLabel.style.color = 'var(--text-secondary)';
         renderCertificates();
         renderDashboard();
@@ -1659,7 +1677,7 @@ const VEHICLE_KEY = 'daycounter_vehicles';
         const div = document.createElement('div');
         div.className = 'cert-item ' + s.class;
         div.onclick = () => openCertModal(c.id);
-        const daysText = s.days >= 0 ? `${t('tra')} ${s.days} ${t('gg')}` : `${Math.abs(s.days)} ${t('ggFa')}`;
+        const daysText = s.days === Infinity ? '∞' : (s.days >= 0 ? `${t('tra')} ${s.days} ${t('gg')}` : `${Math.abs(s.days)} ${t('ggFa')}`);
         const attCount = (c.attachments && c.attachments.length) || (c.hasAttachment ? 1 : 0);
         const attachIcon = attCount > 0 ? `<span style="margin-left:6px;opacity:0.6;font-size:12px;">&#128206;${attCount > 1 ? '×' + attCount : ''}</span>` : '';
         const codeLine = c.code ? escapeHtml(c.code) + ' &mdash; ' : '';
@@ -2094,7 +2112,7 @@ const VEHICLE_KEY = 'daycounter_vehicles';
     }
     function saveVehicles(items) { localStorage.setItem(VEHICLE_KEY, JSON.stringify(items)); }
     function getVehStatus(expiryStr, noExpiry) {
-      if (noExpiry) return { class: 'valid', label: t('valido'), days: 9999 };
+      if (noExpiry) return { class: 'valid', label: t('valido'), days: Infinity };
       if (!expiryStr) return { class: 'valid', label: t('valido'), days: 9999 };
       const today = new Date(); today.setHours(0,0,0,0);
       const exp = new Date(expiryStr + 'T00:00:00');
@@ -2128,7 +2146,7 @@ const VEHICLE_KEY = 'daycounter_vehicles';
         document.getElementById('vehExpiry').value = '';
         document.getElementById('vehFile1').value = '';
         const label = document.getElementById('vehFileLabel');
-        label.textContent = 'Scegli file...';
+        label.textContent = t('scegliFile');
         label.style.color = 'var(--text-secondary)';
         renderVehicles();
         renderDashboard();
@@ -2178,7 +2196,7 @@ const VEHICLE_KEY = 'daycounter_vehicles';
         const div = document.createElement('div');
         div.className = 'cert-item ' + s.class;
         div.onclick = () => openVehicleModal(c.id);
-        const daysText = s.days >= 0 ? `${t('tra')} ${s.days} ${t('gg')}` : `${Math.abs(s.days)} ${t('ggFa')}`;
+        const daysText = s.days === Infinity ? '∞' : (s.days >= 0 ? `${t('tra')} ${s.days} ${t('gg')}` : `${Math.abs(s.days)} ${t('ggFa')}`);
         const attCount = (c.attachments && c.attachments.length) || (c.hasAttachment ? 1 : 0);
         const attachIcon = attCount > 0 ? `<span style="margin-left:6px;opacity:0.6;font-size:12px;">&#128206;${attCount > 1 ? '×' + attCount : ''}</span>` : '';
         const codeLine = c.code ? escapeHtml(c.code) + ' &mdash; ' : '';
@@ -2326,7 +2344,7 @@ const VEHICLE_KEY = 'daycounter_vehicles';
     function updateVehFileLabel(input) {
       const label = document.getElementById('vehFileLabel');
       if (input.files && input.files[0]) { label.textContent = input.files[0].name; label.style.color = 'var(--text)'; }
-      else { label.textContent = 'Scegli file...'; label.style.color = 'var(--text-secondary)'; }
+      else { label.textContent = t('scegliFile'); label.style.color = 'var(--text-secondary)'; }
     }
     function clearVehForm() {
       document.getElementById('vehName').value = '';
@@ -2337,7 +2355,7 @@ const VEHICLE_KEY = 'daycounter_vehicles';
       toggleNoExpiryAdd('veh');
       document.getElementById('vehFile1').value = '';
       const label = document.getElementById('vehFileLabel');
-      label.textContent = 'Scegli file...';
+      label.textContent = t('scegliFile');
       label.style.color = 'var(--text-secondary)';
       toast(t('campiResettati'));
     }
@@ -2358,7 +2376,7 @@ const VEHICLE_KEY = 'daycounter_vehicles';
     }
     function saveDocuments(items) { localStorage.setItem(DOCUMENT_KEY, JSON.stringify(items)); }
     function getDocStatus(expiryStr, noExpiry) {
-      if (noExpiry) return { class: 'valid', label: t('valido'), days: 9999 };
+      if (noExpiry) return { class: 'valid', label: t('valido'), days: Infinity };
       if (!expiryStr) return { class: 'valid', label: t('valido'), days: 9999 };
       const today = new Date(); today.setHours(0,0,0,0);
       const exp = new Date(expiryStr + 'T00:00:00');
@@ -2390,7 +2408,7 @@ const VEHICLE_KEY = 'daycounter_vehicles';
         document.getElementById('docExpiry').value = '';
         document.getElementById('docFile1').value = '';
         const label = document.getElementById('docFileLabel');
-        label.textContent = 'Scegli file...';
+        label.textContent = t('scegliFile');
         label.style.color = 'var(--text-secondary)';
         renderDocuments();
         renderDashboard();
@@ -2440,7 +2458,7 @@ const VEHICLE_KEY = 'daycounter_vehicles';
         const div = document.createElement('div');
         div.className = 'cert-item ' + s.class;
         div.onclick = () => openDocumentModal(c.id);
-        const daysText = s.days >= 0 ? `${t('tra')} ${s.days} ${t('gg')}` : `${Math.abs(s.days)} ${t('ggFa')}`;
+        const daysText = s.days === Infinity ? '∞' : (s.days >= 0 ? `${t('tra')} ${s.days} ${t('gg')}` : `${Math.abs(s.days)} ${t('ggFa')}`);
         const attCount = (c.attachments && c.attachments.length) || (c.hasAttachment ? 1 : 0);
         const attachIcon = attCount > 0 ? `<span style="margin-left:6px;opacity:0.6;font-size:12px;">&#128206;${attCount > 1 ? '×' + attCount : ''}</span>` : '';
         const codeLine = c.code ? escapeHtml(c.code) + ' &mdash; ' : '';
@@ -2586,7 +2604,7 @@ const VEHICLE_KEY = 'daycounter_vehicles';
     function updateDocFileLabel(input) {
       const label = document.getElementById('docFileLabel');
       if (input.files && input.files[0]) { label.textContent = input.files[0].name; label.style.color = 'var(--text)'; }
-      else { label.textContent = 'Scegli file...'; label.style.color = 'var(--text-secondary)'; }
+      else { label.textContent = t('scegliFile'); label.style.color = 'var(--text-secondary)'; }
     }
     function clearDocForm() {
       document.getElementById('docName').value = '';
@@ -2596,7 +2614,7 @@ const VEHICLE_KEY = 'daycounter_vehicles';
       toggleNoExpiryAdd('doc');
       document.getElementById('docFile1').value = '';
       const label = document.getElementById('docFileLabel');
-      label.textContent = 'Scegli file...';
+      label.textContent = t('scegliFile');
       label.style.color = 'var(--text-secondary)';
       toast(t('campiResettati'));
     }
@@ -2659,29 +2677,123 @@ const VEHICLE_KEY = 'daycounter_vehicles';
     }
     async function downloadPDF(type) {
       const { jsPDF } = window.jspdf;
-      const doc = new jsPDF();
+      const doc = new jsPDF({ unit: 'mm', format: 'a4' });
       const lang = getLang();
       const isEn = lang === 'en';
+      const pw = doc.internal.pageSize.getWidth();
+      const ph = doc.internal.pageSize.getHeight();
+      const m = 14;
 
-      doc.setFontSize(18);
-      doc.text('Ocean Desk Dashboard', 14, 20);
-      doc.setFontSize(10);
-      doc.text(new Date().toLocaleDateString(isEn ? 'en-US' : 'it-IT'), 14, 26);
+      const primary = [29, 89, 143];
+      const accent = [37, 99, 235];
+      const green = [34, 197, 94];
+      const orange = [245, 158, 11];
+      const red = [239, 68, 68];
+      const gray = [110, 110, 120];
+      const lightGray = [245, 245, 247];
+      const white = [255, 255, 255];
 
-      let y = 35;
+      function drawPageFrame() {
+        doc.setFillColor(...primary);
+        doc.rect(0, 0, pw, 20, 'F');
+        doc.setTextColor(...white);
+        doc.setFontSize(16);
+        doc.setFont('helvetica', 'bold');
+        doc.text('Ocean Desk', m, 13);
+        doc.setFontSize(8);
+        doc.setFont('helvetica', 'normal');
+        const dateStr = new Date().toLocaleDateString(isEn ? 'en-US' : 'it-IT');
+        doc.text(isEn ? 'Dashboard Report' : 'Report Dashboard', pw - m, 9, { align: 'right' });
+        doc.text(dateStr, pw - m, 14, { align: 'right' });
+        doc.setDrawColor(220, 220, 220);
+        doc.setLineWidth(0.3);
+        doc.line(m, ph - 14, pw - m, ph - 14);
+        doc.setFontSize(7);
+        doc.setTextColor(150, 150, 150);
+        doc.text('Ocean Desk', m, ph - 8);
+        doc.text(isEn ? 'Page ' : 'Pag. ' + doc.internal.getNumberOfPages(), pw - m, ph - 8, { align: 'right' });
+      }
 
+      drawPageFrame();
+      let cursorY = 26;
+
+      function sectionTitle(y, title) {
+        doc.setFontSize(13);
+        doc.setTextColor(...primary);
+        doc.setFont('helvetica', 'bold');
+        doc.text(title, m, y);
+        doc.setDrawColor(...accent);
+        doc.setLineWidth(0.4);
+        doc.line(m, y + 1.5, pw - m, y + 1.5);
+        return y + 7;
+      }
+
+      function summaryBoxes(y) {
+        const certs = getCertificates();
+        const vehs = getVehicles();
+        const docs = getDocuments();
+        let cV = 0, cW = 0, cE = 0, vV = 0, vW = 0, vE = 0, dV = 0, dW = 0, dE = 0;
+        certs.forEach(c => {
+          const s = getCertStatus(c.expiry, c.noExpiry);
+          if (s.class === 'valid') cV++; else if (s.class === 'warning') cW++; else cE++;
+        });
+        vehs.forEach(c => {
+          const s = getVehStatus(c.expiry, c.noExpiry);
+          if (s.class === 'valid') vV++; else if (s.class === 'warning') vW++; else vE++;
+        });
+        docs.forEach(c => {
+          const s = getDocStatus(c.expiry, c.noExpiry);
+          if (s.class === 'valid') dV++; else if (s.class === 'warning') dW++; else dE++;
+        });
+        const tV = cV + vV + dV, tW = cW + vW + dW, tE = cE + vE + dE;
+
+        const boxW = (pw - m * 2 - 8) / 3;
+        const boxH = 20;
+        const boxes = [
+          { label: isEn ? 'Valid' : 'Validi', val: tV, color: green, bg: [240, 253, 244] },
+          { label: isEn ? 'Expiring' : 'In scadenza', val: tW, color: orange, bg: [255, 251, 235] },
+          { label: isEn ? 'Expired' : 'Scaduti', val: tE, color: red, bg: [254, 242, 242] }
+        ];
+
+        doc.setFontSize(10);
+        doc.setTextColor(...gray);
+        doc.setFont('helvetica', 'bold');
+        doc.text(isEn ? 'Summary' : 'Riepilogo', m, y);
+        y += 5;
+
+        boxes.forEach((b, i) => {
+          const x = m + i * (boxW + 4);
+          doc.setFillColor(...b.bg);
+          doc.setDrawColor(...b.color);
+          doc.setLineWidth(0.4);
+          doc.rect(x, y, boxW, boxH, 'FD');
+          doc.setTextColor(...b.color);
+          doc.setFontSize(16);
+          doc.setFont('helvetica', 'bold');
+          doc.text(String(b.val), x + boxW / 2, y + 11, { align: 'center' });
+          doc.setFontSize(8);
+          doc.setFont('helvetica', 'normal');
+          doc.text(b.label, x + boxW / 2, y + 17, { align: 'center' });
+        });
+        return y + boxH + 6;
+      }
+
+      // === RIEPILOGO (solo PDF completo) ===
+      if (type === 'all') {
+        cursorY = summaryBoxes(cursorY);
+      }
+
+      // === PERIODI ===
       if (type === 'all' || type === 'days') {
         const periods = getSavedPeriods();
         const grandTotal = periods.reduce((sum, p) => sum + p.total, 0);
-
-        doc.setFontSize(14);
-        doc.text(isEn ? 'Saved Periods' : 'Periodi salvati', 14, y);
-        y += 8;
+        cursorY = sectionTitle(cursorY, isEn ? 'Saved Periods' : 'Periodi salvati');
 
         if (periods.length === 0) {
-          doc.setFontSize(11);
-          doc.text(isEn ? 'No periods saved' : 'Nessun periodo salvato', 14, y);
-          y += 10;
+          doc.setFontSize(10);
+          doc.setTextColor(...gray);
+          doc.text(isEn ? 'No periods saved' : 'Nessun periodo salvato', m, cursorY);
+          cursorY += 10;
         } else {
           const body = periods.map(p => [
             p.name,
@@ -2690,90 +2802,160 @@ const VEHICLE_KEY = 'daycounter_vehicles';
             p.total.toString()
           ]);
           doc.autoTable({
-            startY: y,
+            startY: cursorY,
             head: [[isEn ? 'Name' : 'Nome', isEn ? 'From' : 'Da', isEn ? 'To' : 'A', isEn ? 'Days' : 'Giorni']],
             body: body,
-            theme: 'grid',
-            styles: { fontSize: 10 },
-            headStyles: { fillColor: [29, 89, 143] }
+            theme: 'plain',
+            styles: { fontSize: 9, cellPadding: 3, font: 'helvetica', textColor: 30 },
+            headStyles: { fillColor: primary, textColor: 255, fontStyle: 'bold', fontSize: 9, cellPadding: 4 },
+            alternateRowStyles: { fillColor: lightGray },
+            columnStyles: { 0: { cellWidth: 60 }, 3: { halign: 'right', fontStyle: 'bold' } },
+            margin: { left: m, right: m, top: 24, bottom: 18 },
+            didDrawPage: drawPageFrame
           });
-          y = doc.lastAutoTable.finalY + 8;
-          doc.setFontSize(12);
-          doc.text((isEn ? 'Total: ' : 'Totale: ') + grandTotal + ' ' + (isEn ? 'days' : 'giorni'), 14, y);
-          y += 10;
+          cursorY = doc.lastAutoTable.finalY + 5;
+          doc.setFontSize(10);
+          doc.setTextColor(...accent);
+          doc.setFont('helvetica', 'bold');
+          doc.text((isEn ? 'Total: ' : 'Totale: ') + grandTotal + ' ' + (isEn ? 'days' : 'giorni'), pw - m, cursorY, { align: 'right' });
+          cursorY += 10;
         }
+        cursorY += 4;
       }
 
-      if (type === 'all') {
-        y += 5;
-      }
-
+      // === CERTIFICATI ===
       if (type === 'all' || type === 'certs') {
         const certs = getCertificates();
-        doc.setFontSize(14);
-        doc.text(isEn ? 'Certificates' : 'Certificati', 14, y);
-        y += 8;
+        cursorY = sectionTitle(cursorY, isEn ? 'Certificates' : 'Certificati');
+
         if (certs.length === 0) {
-          doc.setFontSize(11);
-          doc.text(isEn ? 'No certificates saved' : 'Nessun certificato salvato', 14, y);
-          y += 10;
+          doc.setFontSize(10);
+          doc.setTextColor(...gray);
+          doc.text(isEn ? 'No certificates saved' : 'Nessun certificato salvato', m, cursorY);
+          cursorY += 10;
         } else {
-          const body = certs.map(c => {
-            const s = getCertStatus(c.expiry);
-            const statusText = s.label;
-            const attCount = (c.attachments && c.attachments.length) || (c.hasAttachment ? 1 : 0);
-            return [c.name, c.code, formatDateIT(c.expiry), statusText, attCount > 0 ? (isEn ? 'Yes (' + attCount + ')' : 'Si (' + attCount + ')') : (isEn ? 'No' : 'No')];
+          const sorted = certs.slice().sort((a, b) => {
+            const da = a.expiry ? new Date(a.expiry) : new Date('2099-12-31');
+            const db = b.expiry ? new Date(b.expiry) : new Date('2099-12-31');
+            return da - db;
           });
-          doc.autoTable({ startY: y, head: [[isEn ? 'Name' : 'Nome', isEn ? 'Code' : 'Codice', isEn ? 'Expiry' : 'Scadenza', isEn ? 'Status' : 'Stato', isEn ? 'Attachment' : 'Allegato']], body: body, theme: 'grid', styles: { fontSize: 10 }, headStyles: { fillColor: [29, 89, 143] } });
-          y = doc.lastAutoTable.finalY + 10;
+          const body = sorted.map(c => {
+            const s = getCertStatus(c.expiry, c.noExpiry);
+            const attCount = (c.attachments && c.attachments.length) || (c.hasAttachment ? 1 : 0);
+            return [
+              c.name,
+              c.code || '-',
+              c.expiry ? formatDateIT(c.expiry) : (isEn ? 'No expiry' : 'Senza scadenza'),
+              s.label,
+              attCount > 0 ? (isEn ? 'Yes' : 'Si') : (isEn ? 'No' : 'No')
+            ];
+          });
+          doc.autoTable({
+            startY: cursorY,
+            head: [[isEn ? 'Name' : 'Nome', isEn ? 'Code' : 'Codice', isEn ? 'Expiry' : 'Scadenza', isEn ? 'Status' : 'Stato', isEn ? 'Attach.' : 'Alleg.']],
+            body: body,
+            theme: 'plain',
+            styles: { fontSize: 9, cellPadding: 3, font: 'helvetica', textColor: 30 },
+            headStyles: { fillColor: primary, textColor: 255, fontStyle: 'bold', fontSize: 9, cellPadding: 4 },
+            alternateRowStyles: { fillColor: lightGray },
+            columnStyles: { 0: { cellWidth: 55 }, 3: { cellWidth: 32 } },
+            margin: { left: m, right: m, top: 24, bottom: 18 },
+            didDrawPage: drawPageFrame
+          });
+          cursorY = doc.lastAutoTable.finalY + 10;
         }
+        cursorY += 4;
       }
 
-      if (type === 'all') { y += 5; }
-
+      // === VEICOLI ===
       if (type === 'all' || type === 'vehicles') {
         const vehs = getVehicles();
-        doc.setFontSize(14);
-        doc.text(isEn ? 'Vehicles' : 'Veicoli', 14, y);
-        y += 8;
+        cursorY = sectionTitle(cursorY, isEn ? 'Vehicles' : 'Veicoli');
+
         if (vehs.length === 0) {
-          doc.setFontSize(11);
-          doc.text(isEn ? 'No vehicles saved' : 'Nessun veicolo salvato', 14, y);
-          y += 10;
+          doc.setFontSize(10);
+          doc.setTextColor(...gray);
+          doc.text(isEn ? 'No vehicles saved' : 'Nessun veicolo salvato', m, cursorY);
+          cursorY += 10;
         } else {
-          const body = vehs.map(c => {
-            const s = getVehStatus(c.expiry);
-            const statusText = s.label;
-            const attCount = (c.attachments && c.attachments.length) || (c.hasAttachment ? 1 : 0);
-            return [c.name, c.code, formatDateIT(c.expiry), statusText, attCount > 0 ? (isEn ? 'Yes (' + attCount + ')' : 'Si (' + attCount + ')') : (isEn ? 'No' : 'No')];
+          const sorted = vehs.slice().sort((a, b) => {
+            const da = a.expiry ? new Date(a.expiry) : new Date('2099-12-31');
+            const db = b.expiry ? new Date(b.expiry) : new Date('2099-12-31');
+            return da - db;
           });
-          doc.autoTable({ startY: y, head: [[isEn ? 'Name' : 'Nome', isEn ? 'Code' : 'Codice', isEn ? 'Expiry' : 'Scadenza', isEn ? 'Status' : 'Stato', isEn ? 'Attachment' : 'Allegato']], body: body, theme: 'grid', styles: { fontSize: 10 }, headStyles: { fillColor: [29, 89, 143] } });
-          y = doc.lastAutoTable.finalY + 10;
+          const body = sorted.map(c => {
+            const s = getVehStatus(c.expiry, c.noExpiry);
+            const attCount = (c.attachments && c.attachments.length) || (c.hasAttachment ? 1 : 0);
+            return [
+              c.name,
+              c.price || '-',
+              c.note || '-',
+              c.expiry ? formatDateIT(c.expiry) : (isEn ? 'No expiry' : 'Senza scadenza'),
+              s.label,
+              attCount > 0 ? (isEn ? 'Yes' : 'Si') : (isEn ? 'No' : 'No')
+            ];
+          });
+          doc.autoTable({
+            startY: cursorY,
+            head: [[isEn ? 'Name' : 'Nome', isEn ? 'Price' : 'Prezzo', isEn ? 'Note' : 'Nota', isEn ? 'Expiry' : 'Scadenza', isEn ? 'Status' : 'Stato', isEn ? 'Attach.' : 'Alleg.']],
+            body: body,
+            theme: 'plain',
+            styles: { fontSize: 9, cellPadding: 3, font: 'helvetica', textColor: 30 },
+            headStyles: { fillColor: primary, textColor: 255, fontStyle: 'bold', fontSize: 9, cellPadding: 4 },
+            alternateRowStyles: { fillColor: lightGray },
+            columnStyles: { 0: { cellWidth: 40 }, 4: { cellWidth: 32 } },
+            margin: { left: m, right: m, top: 24, bottom: 18 },
+            didDrawPage: drawPageFrame
+          });
+          cursorY = doc.lastAutoTable.finalY + 10;
         }
+        cursorY += 4;
       }
 
-      if (type === 'all') { y += 5; }
-
+      // === DOCUMENTI ===
       if (type === 'all' || type === 'documents') {
         const docs = getDocuments();
-        doc.setFontSize(14);
-        doc.text(isEn ? 'Documents' : 'Documenti', 14, y);
-        y += 8;
+        cursorY = sectionTitle(cursorY, isEn ? 'Documents' : 'Documenti');
+
         if (docs.length === 0) {
-          doc.setFontSize(11);
-          doc.text(isEn ? 'No documents saved' : 'Nessun documento salvato', 14, y);
+          doc.setFontSize(10);
+          doc.setTextColor(...gray);
+          doc.text(isEn ? 'No documents saved' : 'Nessun documento salvato', m, cursorY);
+          cursorY += 10;
         } else {
-          const body = docs.map(c => {
-            const s = getDocStatus(c.expiry);
-            const statusText = s.label;
-            const attCount = (c.attachments && c.attachments.length) || (c.hasAttachment ? 1 : 0);
-            return [c.name, c.code, formatDateIT(c.expiry), statusText, attCount > 0 ? (isEn ? 'Yes (' + attCount + ')' : 'Si (' + attCount + ')') : (isEn ? 'No' : 'No')];
+          const sorted = docs.slice().sort((a, b) => {
+            const da = a.expiry ? new Date(a.expiry) : new Date('2099-12-31');
+            const db = b.expiry ? new Date(b.expiry) : new Date('2099-12-31');
+            return da - db;
           });
-          doc.autoTable({ startY: y, head: [[isEn ? 'Name' : 'Nome', isEn ? 'Code' : 'Codice', isEn ? 'Expiry' : 'Scadenza', isEn ? 'Status' : 'Stato', isEn ? 'Attachment' : 'Allegato']], body: body, theme: 'grid', styles: { fontSize: 10 }, headStyles: { fillColor: [29, 89, 143] } });
+          const body = sorted.map(c => {
+            const s = getDocStatus(c.expiry, c.noExpiry);
+            const attCount = (c.attachments && c.attachments.length) || (c.hasAttachment ? 1 : 0);
+            return [
+              c.name,
+              c.code || '-',
+              c.expiry ? formatDateIT(c.expiry) : (isEn ? 'No expiry' : 'Senza scadenza'),
+              s.label,
+              attCount > 0 ? (isEn ? 'Yes' : 'Si') : (isEn ? 'No' : 'No')
+            ];
+          });
+          doc.autoTable({
+            startY: cursorY,
+            head: [[isEn ? 'Name' : 'Nome', isEn ? 'Code' : 'Codice', isEn ? 'Expiry' : 'Scadenza', isEn ? 'Status' : 'Stato', isEn ? 'Attach.' : 'Alleg.']],
+            body: body,
+            theme: 'plain',
+            styles: { fontSize: 9, cellPadding: 3, font: 'helvetica', textColor: 30 },
+            headStyles: { fillColor: primary, textColor: 255, fontStyle: 'bold', fontSize: 9, cellPadding: 4 },
+            alternateRowStyles: { fillColor: lightGray },
+            columnStyles: { 0: { cellWidth: 55 }, 3: { cellWidth: 32 } },
+            margin: { left: m, right: m, top: 24, bottom: 18 },
+            didDrawPage: drawPageFrame
+          });
+          cursorY = doc.lastAutoTable.finalY + 10;
         }
       }
 
-      doc.save('daycounter-report-' + new Date().toISOString().split('T')[0] + '.pdf');
+      doc.save('oceandesk-report-' + new Date().toISOString().split('T')[0] + '.pdf');
     }
 
     document.getElementById('endDate').value = new Date().toISOString().split('T')[0];
@@ -2934,9 +3116,11 @@ const VEHICLE_KEY = 'daycounter_vehicles';
       }
       let htmlList = '';
       items.forEach(item => {
-        const daysText = item.statusObj.days >= 0
-          ? `${t('tra')} ${item.statusObj.days} ${t('gg')}`
-          : `${Math.abs(item.statusObj.days)} ${t('ggFa')}`;
+        const daysText = item.statusObj.days === Infinity
+          ? '∞'
+          : (item.statusObj.days >= 0
+            ? `${t('tra')} ${item.statusObj.days} ${t('gg')}`
+            : `${Math.abs(item.statusObj.days)} ${t('ggFa')}`);
         const typeIcon = item.type === 'cert' ? '&#128220;' : item.type === 'veh' ? '&#128663;' : '&#128193;';
         const typeLabel = item.type === 'cert' ? t('certificati') : item.type === 'veh' ? t('veicoli') : t('documenti');
         const codeLine = item.code ? escapeHtml(item.code) + ' &mdash; ' : '';
