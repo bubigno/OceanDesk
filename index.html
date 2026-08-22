@@ -509,13 +509,13 @@
             </div>
           </div>
           <div style="display:flex; flex-wrap:wrap; justify-content:center; gap:clamp(8px, 2vw, 14px) clamp(12px, 3vw, 24px); width:100%;">
-            <div style="display:flex; align-items:center; gap:6px; font-size:clamp(11px, 2.5vw, 13px); font-weight:600; cursor:pointer;" onclick="goToCerts('valid'); goToVehicles('valid'); goToDocuments('valid');">
+            <div style="display:flex; align-items:center; gap:6px; font-size:clamp(11px, 2.5vw, 13px); font-weight:600; cursor:pointer;" onclick="goToCerts('valid'); goToDocuments('valid');">
               <span style="width:10px; height:10px; border-radius:50%; background:var(--positive); display:inline-block; flex-shrink:0;"></span> <span data-i18n="validi">Validi</span>
             </div>
-            <div style="display:flex; align-items:center; gap:6px; font-size:clamp(11px, 2.5vw, 13px); font-weight:600; cursor:pointer;" onclick="goToCerts('warning'); goToVehicles('warning'); goToDocuments('warning');">
+            <div style="display:flex; align-items:center; gap:6px; font-size:clamp(11px, 2.5vw, 13px); font-weight:600; cursor:pointer;" onclick="goToCerts('warning'); goToDocuments('warning');">
               <span style="width:10px; height:10px; border-radius:50%; background:var(--warning); display:inline-block; flex-shrink:0;"></span> <span data-i18n="inScadenza">In scadenza</span>
             </div>
-            <div style="display:flex; align-items:center; gap:6px; font-size:clamp(11px, 2.5vw, 13px); font-weight:600; cursor:pointer;" onclick="goToCerts('expired'); goToVehicles('expired'); goToDocuments('expired');">
+            <div style="display:flex; align-items:center; gap:6px; font-size:clamp(11px, 2.5vw, 13px); font-weight:600; cursor:pointer;" onclick="goToCerts('expired'); goToDocuments('expired');">
               <span style="width:10px; height:10px; border-radius:50%; background:var(--danger); display:inline-block; flex-shrink:0;"></span> <span data-i18n="scaduti">Scaduti</span>
             </div>
           </div>
@@ -698,38 +698,8 @@
                 <option value="Altro">Altro</option>
               </select>
             </div>
-            <div class="input-row veh-price-note-row" style="gap:8px; display:grid; grid-template-columns:1fr 1fr;">
-              <div style="display:flex; align-items:center; gap:8px; min-width:0;">
-                <label style="min-width:50px; font-size:clamp(13px, 3vw, 15px); font-weight:600; color:var(--text-secondary); flex-shrink:0;" data-i18n="prezzo">Prezzo</label>
-                <div style="flex:1; position:relative; min-width:0;">
-                  <span style="position:absolute; left:14px; top:50%; transform:translateY(-50%); font-size:16px; font-weight:600; color:var(--text-secondary); pointer-events:none;">€</span>
-                  <input type="text" id="vehPrice" placeholder="15000" style="width:100%; padding:14px 16px 14px 32px; border:1.5px solid var(--border); border-radius:14px; font-size:16px; background:var(--bg); color:var(--text); font-family:inherit;">
-                </div>
-              </div>
-              <div style="display:flex; align-items:center; gap:8px; min-width:0;">
-                <label style="min-width:50px; font-size:clamp(13px, 3vw, 15px); font-weight:600; color:var(--text-secondary); flex-shrink:0;" data-i18n="nota">Nota</label>
-                <input type="text" id="vehNote" placeholder="Es. Tagliando..." style="flex:1; padding:14px 16px; border:1.5px solid var(--border); border-radius:14px; font-size:16px; background:var(--bg); color:var(--text); font-family:inherit; min-width:0;">
-              </div>
-            </div>
-            <div class="input-row"><label style="min-width:50px" data-i18n="scad">Scad.</label><input type="date" id="vehExpiry"></div>
-            <div class="input-row" style="justify-content:flex-start; gap:12px; padding:4px 0;">
-              <label class="switch"><input type="checkbox" id="vehNoExpiry" onchange="toggleNoExpiryAdd('veh')"><span class="slider"></span></label>
-              <span style="font-size:14px; font-weight:600; color:var(--text-secondary);" data-i18n="senzaScadenza">Senza scadenza</span>
-            </div>
-            <div class="input-row">
-              <label style="min-width:50px" data-i18n="allegato">Allegato</label>
-              <div style="flex:1; position:relative; overflow:hidden; border:1.5px solid var(--border); border-radius:14px; background:var(--bg);">
-                <input type="file" id="vehFile1" accept="image/*,application/pdf" onchange="updateVehFileLabel(this)" style="position:absolute; top:0; left:0; width:100%; height:100%; opacity:0; cursor:pointer; z-index:2;">
-                <div id="vehFileLabel" style="padding:14px 16px; font-size:14px; color:var(--text-secondary); text-align:center; pointer-events:none; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" data-i18n="scegliFile">Allega file</div>
-              </div>
-            </div>
-            <div class="input-row">
-              <label style="min-width:50px" data-i18n="allegato">Allegato 2</label>
-              <div style="flex:1; position:relative; overflow:hidden; border:1.5px solid var(--border); border-radius:14px; background:var(--bg);">
-                <input type="file" id="vehFile2" accept="image/*,application/pdf" onchange="updateVehFileLabel2(this)" style="position:absolute; top:0; left:0; width:100%; height:100%; opacity:0; cursor:pointer; z-index:2;">
-                <div id="vehFileLabel2" style="padding:14px 16px; font-size:14px; color:var(--text-secondary); text-align:center; pointer-events:none; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" data-i18n="scegliFile">Allega file</div>
-              </div>
-            </div>
+            <div class="input-row"><label style="min-width:50px" data-i18n="modello">Modello</label><input type="text" id="vehModel" placeholder="Es. Panda Cross, MT-07..."></div>
+            <div class="input-row"><label style="min-width:50px" data-i18n="anno">Anno</label><input type="number" id="vehYear" placeholder="Es. 2020" min="1900" max="2100" style="flex:1; padding:14px 16px; border:1.5px solid var(--border); border-radius:14px; font-size:16px; background:var(--bg); color:var(--text); font-family:inherit;"></div>
             <button class="btn" onclick="addVehicle()" data-i18n="aggiungi">Aggiungi</button>
             <button class="btn" onclick="clearVehForm()" style="background:var(--text-secondary); margin-top:8px;" data-i18n="pulisci">Pulisci</button>
           </div>
@@ -755,21 +725,13 @@
             <div style="font-size:13px; opacity:0.85; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:4px;" id="vehDetailType">Auto</div>
             <div style="font-size:24px; font-weight:800; letter-spacing:-0.5px; line-height:1.1;" id="vehDetailName">Nome</div>
             <div style="font-size:15px; font-weight:500; opacity:0.9; margin-top:8px; display:flex; flex-wrap:wrap; gap:12px;" id="vehDetailMeta">
-              <span id="vehDetailPrice"></span>
-              <span id="vehDetailNote"></span>
+              <span id="vehDetailModel"></span>
+              <span id="vehDetailYear"></span>
             </div>
           </div>
         </div>
         <div style="padding:18px 22px;">
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-            <div>
-              <div style="font-size:12px; color:var(--text-secondary); font-weight:600; text-transform:uppercase; letter-spacing:0.5px;" data-i18n="scad">Scadenza</div>
-              <div style="font-size:16px; font-weight:700; margin-top:2px;" id="vehDetailExpiry">-</div>
-            </div>
-            <div id="vehDetailStatus" style="padding:6px 14px; border-radius:10px; font-size:12px; font-weight:700;"></div>
-          </div>
-          <div id="vehDetailAttachments" style="margin-top:12px; padding-top:12px; border-top:1.5px solid var(--border);"></div>
-          <div style="display:flex; gap:10px; margin-top:16px;">
+          <div style="display:flex; gap:10px; margin-top:4px;">
             <button class="btn" style="flex:1; margin-top:0; font-size:14px; padding:12px;" onclick="openEditVehicleInline()" data-i18n="modifica">Modifica</button>
             <button class="btn btn-danger" style="flex:1; margin-top:0; font-size:14px; padding:12px;" onclick="deleteVehicleFromDetail()" data-i18n="elimina">Elimina</button>
           </div>
@@ -1032,39 +994,8 @@
             <option value="Altro">Altro</option>
           </select>
         </div>
-        <div class="input-row veh-price-note-row" style="gap:8px; display:grid; grid-template-columns:1fr 1fr;">
-          <div style="display:flex; align-items:center; gap:8px; min-width:0;">
-            <label style="min-width:50px; font-size:clamp(13px, 3vw, 15px); font-weight:600; color:var(--text-secondary); flex-shrink:0;" data-i18n="prezzo">Prezzo</label>
-            <div style="flex:1; position:relative; min-width:0;">
-              <span style="position:absolute; left:14px; top:50%; transform:translateY(-50%); font-size:16px; font-weight:600; color:var(--text-secondary); pointer-events:none;">€</span>
-              <input type="text" id="editVehPrice" style="width:100%; padding:14px 16px 14px 32px; border:1.5px solid var(--border); border-radius:14px; font-size:16px; background:var(--bg); color:var(--text); font-family:inherit;">
-            </div>
-          </div>
-          <div style="display:flex; align-items:center; gap:8px; min-width:0;">
-            <label style="min-width:50px; font-size:clamp(13px, 3vw, 15px); font-weight:600; color:var(--text-secondary); flex-shrink:0;" data-i18n="nota">Nota</label>
-            <input type="text" id="editVehNote" style="flex:1; padding:14px 16px; border:1.5px solid var(--border); border-radius:14px; font-size:16px; background:var(--bg); color:var(--text); font-family:inherit; min-width:0;">
-          </div>
-        </div>
-        <div class="input-row"><label style="min-width:50px" data-i18n="scad">Scad.</label><input type="date" id="editVehExpiry"></div>
-        <div class="input-row" style="justify-content:flex-start; gap:12px; padding:4px 0;">
-          <label class="switch"><input type="checkbox" id="editVehNoExpiry" onchange="toggleNoExpiry('veh')"><span class="slider"></span></label>
-          <span style="font-size:14px; font-weight:600; color:var(--text-secondary);" data-i18n="senzaScadenza">Senza scadenza</span>
-        </div>
-        <div id="editVehAttachmentsArea"></div>
-        <div class="input-row" id="editVehFileNewRow">
-              <label style="min-width:50px" data-i18n="nuovoAllegato">Nuovo</label>
-              <div style="flex:1; position:relative; overflow:hidden; border:1.5px solid var(--border); border-radius:14px; background:var(--bg);">
-                <input type="file" id="editVehFile" accept="image/*,application/pdf" onchange="updateEditVehFileLabel(this)" style="position:absolute; top:0; left:0; width:100%; height:100%; opacity:0; cursor:pointer; z-index:2;">
-                <div id="editVehFileLabel" style="padding:14px 16px; font-size:14px; color:var(--text-secondary); text-align:center; pointer-events:none; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" data-i18n="scegliFile">Allega file</div>
-              </div>
-            </div>
-            <div class="input-row" id="editVehFileNewRow2">
-              <label style="min-width:50px" data-i18n="nuovoAllegato">Nuovo</label>
-              <div style="flex:1; position:relative; overflow:hidden; border:1.5px solid var(--border); border-radius:14px; background:var(--bg);">
-                <input type="file" id="editVehFile2" accept="image/*,application/pdf" onchange="updateEditVehFileLabel2(this)" style="position:absolute; top:0; left:0; width:100%; height:100%; opacity:0; cursor:pointer; z-index:2;">
-                <div id="editVehFileLabel2" style="padding:14px 16px; font-size:14px; color:var(--text-secondary); text-align:center; pointer-events:none; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" data-i18n="scegliFile">Allega file</div>
-              </div>
-            </div>
+        <div class="input-row"><label style="min-width:50px" data-i18n="modello">Modello</label><input type="text" id="editVehModel"></div>
+        <div class="input-row"><label style="min-width:50px" data-i18n="anno">Anno</label><input type="number" id="editVehYear" min="1900" max="2100" style="flex:1; padding:14px 16px; border:1.5px solid var(--border); border-radius:14px; font-size:16px; background:var(--bg); color:var(--text); font-family:inherit;"></div>
       </div>
 
       <div class="modal-actions">
@@ -1209,8 +1140,8 @@
         tra: 'tra', ggFa: 'gg fa', gg: 'gg', scaduto: 'Scaduto', inScadenzaLabel: 'In scadenza',
         valido: 'Valido', periodoDefault: 'Periodo', anno: 'Anno',
         veicoli: 'Veicoli', documenti: 'Documenti',
-        aggiungiVeicolo: 'Aggiungi Documento Veicoli', aggiungiDocumento: 'Aggiungi documento',
-        prezzo: 'Prezzo', nota: 'Nota',
+        aggiungiVeicolo: 'Aggiungi veicolo', aggiungiDocumento: 'Aggiungi documento',
+        modello: 'Modello', anno: 'Anno',
         modificaVeicolo: 'Modifica veicolo', modificaDocumento: 'Modifica documento',
         veicoliSalvati: 'Veicoli salvati', documentiSalvati: 'Documenti salvati',
         riepilogoVeh: 'Riepilogo veicoli', riepilogoDoc: 'Riepilogo documenti',
@@ -1266,8 +1197,8 @@
         tra: 'in', ggFa: 'days ago', gg: 'days', scaduto: 'Expired', inScadenzaLabel: 'Expiring',
         valido: 'Valid', periodoDefault: 'Period', anno: 'Year',
         veicoli: 'Vehicles', documenti: 'Documents',
-        aggiungiVeicolo: 'Add Vehicle Document', aggiungiDocumento: 'Add document',
-        prezzo: 'Price', nota: 'Note',
+        aggiungiVeicolo: 'Add vehicle', aggiungiDocumento: 'Add document',
+        modello: 'Model', anno: 'Year',
         modificaVeicolo: 'Edit vehicle', modificaDocumento: 'Edit document',
         veicoliSalvati: 'Saved vehicles', documentiSalvati: 'Saved documents',
         riepilogoVeh: 'Vehicles summary', riepilogoDoc: 'Documents summary',
@@ -1355,6 +1286,8 @@ const VEHICLE_KEY = 'daycounter_vehicles';
     let editingDocAttachmentsRemoved = [];
     let vehScrollTarget = null;
     let docScrollTarget = null;
+    let editingVehDocs = [];
+    let editingVehDocId = null;
 
     // ===== INDEXEDDB ATTACHMENTS =====
     const ATTACHMENT_DB = 'daycounter_attachments';
@@ -1678,20 +1611,13 @@ const VEHICLE_KEY = 'daycounter_vehicles';
       const donutYearWrap = document.getElementById('donutYearWrap');
       donutYearWrap.style.display = periods.length > 0 ? 'block' : 'none';
 
-      // === Contatori per stati ===
+      // === Contatori per stati (certificati, documenti e documenti veicolo) ===
       let cValid = 0, cWarn = 0, cExp = 0;
       certs.forEach(c => {
         const s = getCertStatus(c.expiry, c.noExpiry);
         if (s.class === 'valid') cValid++;
         else if (s.class === 'warning') cWarn++;
         else cExp++;
-      });
-      let vValid = 0, vWarn = 0, vExp = 0;
-      vehs.forEach(c => {
-        const s = getVehStatus(c.expiry, c.noExpiry);
-        if (s.class === 'valid') vValid++;
-        else if (s.class === 'warning') vWarn++;
-        else vExp++;
       });
       let dValid = 0, dWarn = 0, dExp = 0;
       docs.forEach(c => {
@@ -1700,10 +1626,19 @@ const VEHICLE_KEY = 'daycounter_vehicles';
         else if (s.class === 'warning') dWarn++;
         else dExp++;
       });
+      let vdValid = 0, vdWarn = 0, vdExp = 0;
+      vehs.forEach(v => {
+        (v.documents || []).forEach(d => {
+          const s = getDocStatus(d.expiry, d.noExpiry);
+          if (s.class === 'valid') vdValid++;
+          else if (s.class === 'warning') vdWarn++;
+          else vdExp++;
+        });
+      });
 
-      const totValid = cValid + vValid + dValid;
-      const totWarn  = cWarn + vWarn + dWarn;
-      const totExp   = cExp + vExp + dExp;
+      const totValid = cValid + dValid + vdValid;
+      const totWarn  = cWarn + dWarn + vdWarn;
+      const totExp   = cExp + dExp + vdExp;
       const grandTot = totValid + totWarn + totExp;
       const CIRC = 502.65; // 2 * PI * 80
 
@@ -2303,52 +2238,20 @@ const VEHICLE_KEY = 'daycounter_vehicles';
     function addVehicle() {
       const name = document.getElementById('vehName').value.trim();
       const type = document.getElementById('vehType').value;
-      const price = document.getElementById('vehPrice').value.trim();
-      const note = document.getElementById('vehNote').value.trim();
-      const noExpiry = document.getElementById('vehNoExpiry').checked;
-      const expiry = noExpiry ? '' : document.getElementById('vehExpiry').value;
-      if (!name && !noExpiry && !expiry) { toast(t('compilaTutti')); return; }
-      async function doSave(attachments) {
-        const items = getVehicles();
-        const newId = Date.now();
-        const attMeta = attachments.map(a => ({ name: a.name, type: a.type }));
-        items.push({ id: newId, name, type, price, note, expiry, noExpiry, attachments: attMeta, documents: [] });
-        saveVehicles(items);
-        if (attachments.length > 0) {
-          try { await saveAttachment(newId, attachments); }
-          catch(err) { toast(t('erroreSalvataggio')); }
-        }
-        document.getElementById('vehName').value = '';
-        document.getElementById('vehType').value = 'Auto';
-        document.getElementById('vehPrice').value = '';
-        document.getElementById('vehNote').value = '';
-        document.getElementById('vehExpiry').value = '';
-        document.getElementById('vehFile1').value = '';
-        const label = document.getElementById('vehFileLabel');
-        label.textContent = t('scegliFile');
-        label.style.color = 'var(--text-secondary)';
-        renderVehicles();
-        renderDashboard();
-        toast(t('veicoloAggiunto'));
-      }
-      const files = [];
-      const f1 = document.getElementById('vehFile1').files?.[0];
-      const f2 = document.getElementById('vehFile2').files?.[0];
-      if (f1) files.push(f1);
-      if (f2) files.push(f2);
-      if (files.length === 0) { doSave([]); return; }
-      const attachments = [];
-      let loaded = 0;
-      files.forEach(file => {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          attachments.push({ name: file.name, type: file.type, data: e.target.result });
-          loaded++;
-          if (loaded === files.length) doSave(attachments);
-        };
-        reader.onerror = function() { toast(t('erroreSalvataggio')); };
-        reader.readAsDataURL(file);
-      });
+      const model = document.getElementById('vehModel').value.trim();
+      const year = document.getElementById('vehYear').value.trim();
+      if (!name) { toast(t('compilaTutti')); return; }
+      const items = getVehicles();
+      const newId = Date.now();
+      items.push({ id: newId, name, type, model, year, documents: [] });
+      saveVehicles(items);
+      document.getElementById('vehName').value = '';
+      document.getElementById('vehType').value = 'Auto';
+      document.getElementById('vehModel').value = '';
+      document.getElementById('vehYear').value = '';
+      renderVehicles();
+      renderDashboard();
+      toast(t('veicoloAggiunto'));
     }
     function renderVehicles() {
       const items = getVehicles();
@@ -2367,44 +2270,34 @@ const VEHICLE_KEY = 'daycounter_vehicles';
         return;
       }
       const sorted = items.slice().sort((a, b) => {
-        const da = a.expiry ? new Date(a.expiry) : new Date('2099-12-31');
-        const db = b.expiry ? new Date(b.expiry) : new Date('2099-12-31');
-        return da - db;
+        const na = (a.name || '').toLowerCase();
+        const nb = (b.name || '').toLowerCase();
+        return na.localeCompare(nb);
       });
       const typeIcons = { Auto: '&#128663;', Moto: '&#127949;', Barca: '&#128758;', Camper: '&#128665;', Camion: '&#128666;', Altro: '&#128739;' };
       sorted.forEach(c => {
-        const s = getVehStatus(c.expiry, c.noExpiry);
         const card = document.createElement('div');
         card.className = 'card';
         card.style.cssText = 'padding:0; overflow:hidden; cursor:pointer; transition:var(--transition);';
         card.onmouseover = () => { card.style.transform = 'translateY(-4px) scale(1.01)'; card.style.boxShadow = 'var(--shadow-lg)'; };
         card.onmouseout = () => { card.style.transform = ''; card.style.boxShadow = ''; };
         card.onclick = () => openVehicleDetail(c.id);
-        const daysText = s.days === Infinity ? '∞' : (s.days >= 0 ? `${s.days} ${t('gg')}` : `${Math.abs(s.days)} ${t('ggFa')}`);
         const docCount = (c.documents && c.documents.length) || 0;
         const docBadge = docCount > 0 ? `<span style="font-size:10px; font-weight:700; padding:2px 7px; border-radius:6px; background:var(--accent-light); color:var(--accent);">${docCount} doc</span>` : '';
-        const attCount = (c.attachments && c.attachments.length) || (c.hasAttachment ? 1 : 0);
-        const attachBadge = attCount > 0 ? `<span style="font-size:10px; font-weight:700; padding:2px 7px; border-radius:6px; background:rgba(245,158,11,0.12); color:var(--warning);">&#128206; ${attCount}</span>` : '';
-        const statusColor = s.class === 'valid' ? 'var(--positive)' : s.class === 'warning' ? 'var(--warning)' : 'var(--danger)';
-        const statusBg = s.class === 'valid' ? 'rgba(34,197,94,0.12)' : s.class === 'warning' ? 'rgba(245,158,11,0.12)' : 'rgba(239,68,68,0.12)';
         card.innerHTML = `
           <div style="padding:20px;">
             <div style="display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:14px;">
               <div style="font-size:36px; line-height:1;">${typeIcons[c.type] || typeIcons.Altro}</div>
-              <div style="display:flex; gap:6px; flex-wrap:wrap; justify-content:flex-end;">${docBadge}${attachBadge}</div>
+              <div style="display:flex; gap:6px; flex-wrap:wrap; justify-content:flex-end;">${docBadge}</div>
             </div>
             <div style="font-size:18px; font-weight:700; letter-spacing:-0.3px; margin-bottom:6px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${escapeHtml(c.name || '')}</div>
-            <div style="font-size:13px; color:var(--text-secondary); font-weight:500; margin-bottom:12px;">${escapeHtml(c.type || 'Auto')}${c.price ? ' &middot; €' + escapeHtml(c.price) : ''}${c.note ? ' &middot; ' + escapeHtml(c.note) : ''}</div>
+            <div style="font-size:13px; color:var(--text-secondary); font-weight:500; margin-bottom:12px;">${escapeHtml(c.type || 'Auto')}${c.model ? ' &middot; ' + escapeHtml(c.model) : ''}${c.year ? ' &middot; ' + escapeHtml(c.year) : ''}</div>
             <div style="display:flex; align-items:center; justify-content:space-between; padding-top:12px; border-top:1.5px solid var(--border);">
-              <div style="display:flex; align-items:center; gap:6px;">
-                <span style="width:8px; height:8px; border-radius:50%; background:${statusColor}; display:inline-block;"></span>
-                <span style="font-size:12px; font-weight:700; color:${statusColor};">${s.label}</span>
-              </div>
-              <div style="font-size:14px; font-weight:700; color:var(--text-secondary);">${c.expiry ? formatDateIT(c.expiry) : t('senzaScadenza')}</div>
+              <div style="font-size:12px; font-weight:700; color:var(--text-secondary); text-transform:uppercase; letter-spacing:0.3px;">${c.year || ''}</div>
+              <div style="font-size:12px; font-weight:600; color:var(--accent);">${c.model || ''}</div>
             </div>
-            <div style="margin-top:8px; font-size:13px; font-weight:600; color:${statusColor}; text-align:right;">${daysText}</div>
           </div>
-          <div style="height:4px; background:${statusColor}; opacity:0.6;"></div>
+          <div style="height:4px; background:var(--accent); opacity:0.6;"></div>
         `;
         grid.appendChild(card);
       });
@@ -2414,44 +2307,18 @@ const VEHICLE_KEY = 'daycounter_vehicles';
       const c = items.find(x => x.id === id);
       if (!c) return;
       editingVehId = id;
-      editingVehAttachments = [];
-      editingVehAttachmentsRemoved = [];
-      try {
-        const stored = await getAttachment(id);
-        if (Array.isArray(stored)) editingVehAttachments = stored;
-        else if (stored) editingVehAttachments = [stored];
-      } catch(e) {}
-      if (editingVehAttachments.length === 0 && c.hasAttachment && c.attachmentName) {
-        editingVehAttachments = [{ name: c.attachmentName, type: 'application/octet-stream', data: null }];
-      }
+      editingVehDocs = c.documents ? JSON.parse(JSON.stringify(c.documents)) : [];
+      editingVehDocId = null;
       document.getElementById('editVehName').value = c.name;
       document.getElementById('editVehType').value = c.type || 'Auto';
-      document.getElementById('editVehPrice').value = c.price || '';
-      document.getElementById('editVehNote').value = c.note || '';
-      document.getElementById('editVehExpiry').value = c.expiry || '';
-      document.getElementById('editVehNoExpiry').checked = !!c.noExpiry;
-      toggleNoExpiry('veh');
-      document.getElementById('editVehFile').value = '';
-      document.getElementById('editVehFile2').value = '';
-      const lbl1 = document.getElementById('editVehFileLabel');
-      if (lbl1) { lbl1.textContent = t('scegliFile'); lbl1.style.color = 'var(--text-secondary)'; }
-      const lbl2 = document.getElementById('editVehFileLabel2');
-      if (lbl2) { lbl2.textContent = t('scegliFile'); lbl2.style.color = 'var(--text-secondary)'; }
-      renderEditVehAttachments();
+      document.getElementById('editVehModel').value = c.model || '';
+      document.getElementById('editVehYear').value = c.year || '';
       document.getElementById('vehicleModal').classList.add('show');
     }
     function closeVehModal(e) {
       if (e && e.target !== e.currentTarget) return;
       document.getElementById('vehicleModal').classList.remove('show');
       editingVehId = null;
-      editingVehAttachments = [];
-      editingVehAttachmentsRemoved = [];
-      document.getElementById('editVehFile').value = '';
-      document.getElementById('editVehFile2').value = '';
-      const lbl1 = document.getElementById('editVehFileLabel');
-      if (lbl1) { lbl1.textContent = t('scegliFile'); lbl1.style.color = 'var(--text-secondary)'; }
-      const lbl2 = document.getElementById('editVehFileLabel2');
-      if (lbl2) { lbl2.textContent = t('scegliFile'); lbl2.style.color = 'var(--text-secondary)'; }
     }
     async function saveEditVeh() {
       if (!editingVehId) return;
@@ -2460,45 +2327,10 @@ const VEHICLE_KEY = 'daycounter_vehicles';
       if (idx === -1) return;
       const name = document.getElementById('editVehName').value.trim();
       const type = document.getElementById('editVehType').value;
-      const price = document.getElementById('editVehPrice').value.trim();
-      const note = document.getElementById('editVehNote').value.trim();
-      const noExpiry = document.getElementById('editVehNoExpiry').checked;
-      const expiry = noExpiry ? '' : document.getElementById('editVehExpiry').value;
-      if (!name && !noExpiry && !expiry) { toast(t('compilaTutti')); return; }
-      let attachments = editingVehAttachments.filter((_, i) => !editingVehAttachmentsRemoved.includes(i));
-      const newFiles = [];
-      const fileInput1 = document.getElementById('editVehFile');
-      const fileInput2 = document.getElementById('editVehFile2');
-      if (fileInput1.files && fileInput1.files[0]) newFiles.push(fileInput1.files[0]);
-      if (fileInput2.files && fileInput2.files[0]) newFiles.push(fileInput2.files[0]);
-
-      if (newFiles.length > 0) {
-        const readFiles = newFiles.map(file => new Promise((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onload = e => resolve({ name: file.name, type: file.type, data: e.target.result });
-          reader.onerror = reject;
-          reader.readAsDataURL(file);
-        }));
-        Promise.all(readFiles).then(async (fileData) => {
-          attachments.push(...fileData);
-          if (attachments.length > 2) attachments = attachments.slice(-2);
-          try { await saveAttachment(editingVehId, attachments); } catch(err) { toast(t('erroreSalvataggio')); }
-          const attMeta = attachments.map(a => ({ name: a.name, type: a.type }));
-          items[idx] = { ...items[idx], name, type, price, note, expiry, noExpiry, attachments: attMeta, hasAttachment: attMeta.length > 0, attachmentName: attMeta[0]?.name || '', documents: editingVehDocs };
-          saveVehicles(items);
-          closeVehModal(); renderVehicles(); renderDashboard(); toast(t('veicoloAggiornato'));
-          if (currentVehicleId === editingVehId) {
-            const updated = getVehicles().find(x => x.id === editingVehId);
-            if (updated) renderVehicleDetail(updated);
-          }
-        }).catch(() => toast(t('erroreSalvataggio')));
-        return;
-      }
-      if (editingVehAttachmentsRemoved.length > 0) {
-        try { await saveAttachment(editingVehId, attachments); } catch(e) {}
-      }
-      const attMeta = attachments.map(a => ({ name: a.name, type: a.type }));
-      items[idx] = { ...items[idx], name, type, price, note, expiry, noExpiry, attachments: attMeta, hasAttachment: attMeta.length > 0, attachmentName: attMeta[0]?.name || '', documents: editingVehDocs };
+      const model = document.getElementById('editVehModel').value.trim();
+      const year = document.getElementById('editVehYear').value.trim();
+      if (!name) { toast(t('compilaTutti')); return; }
+      items[idx] = { ...items[idx], name, type, model, year, documents: editingVehDocs };
       saveVehicles(items);
       closeVehModal(); renderVehicles(); renderDashboard(); toast(t('veicoloAggiornato'));
       if (currentVehicleId === editingVehId) {
@@ -2511,8 +2343,12 @@ const VEHICLE_KEY = 'daycounter_vehicles';
       if (!confirm(t('eliminaVeicolo'))) return;
       const items = getVehicles();
       const item = items.find(x => x.id === editingVehId);
-      if (item && ((item.attachments && item.attachments.length > 0) || item.hasAttachment)) {
-        try { await deleteAttachment(editingVehId); } catch(e) {}
+      if (item && item.documents) {
+        for (const d of item.documents) {
+          if ((d.attachments && d.attachments.length > 0) || d.hasAttachment) {
+            try { await deleteAttachment('vehdoc_' + editingVehId + '_' + d.id); } catch(e) {}
+          }
+        }
       }
       const filtered = items.filter(x => x.id !== editingVehId);
       saveVehicles(filtered);
@@ -2523,79 +2359,13 @@ const VEHICLE_KEY = 'daycounter_vehicles';
       }
       renderVehicles(); renderDashboard(); toast(t('veicoloEliminato'));
     }
-    function renderEditVehAttachments() {
-      const area = document.getElementById('editVehAttachmentsArea');
-      area.innerHTML = '';
-      editingVehAttachments.forEach((att, idx) => {
-        if (editingVehAttachmentsRemoved.includes(idx)) return;
-        const row = document.createElement('div');
-        row.className = 'input-row';
-        row.style.marginBottom = '8px';
-        row.innerHTML = `<label style="min-width:50px">${att.name ? escapeHtml(att.name.substring(0,12)) : 'File'}</label>
-          <div style="flex:1; display:flex; align-items:center; gap:8px;">
-            <span style="font-size:13px; color:var(--text-secondary); flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${escapeHtml(att.name || '')}</span>
-            <button type="button" class="btn" style="flex:0 0 auto; width:auto; padding:6px 12px; font-size:12px; margin-top:0;" onclick="downloadEditVehAttachmentByIdx(${idx})">${t('scarica')}</button>
-            <button type="button" class="btn btn-danger" style="flex:0 0 auto; width:auto; padding:6px 12px; font-size:12px; margin-top:0;" onclick="removeEditVehAttachmentByIdx(${idx})">${t('rimuovi')}</button>
-          </div>`;
-        area.appendChild(row);
-      });
-      const remainingVeh = 2 - (editingVehAttachments.length - editingVehAttachmentsRemoved.length);
-      const newRow1 = document.getElementById('editVehFileNewRow');
-      const newRow2 = document.getElementById('editVehFileNewRow2');
-      if (newRow1) newRow1.style.display = remainingVeh >= 1 ? 'flex' : 'none';
-      if (newRow2) newRow2.style.display = remainingVeh >= 2 ? 'flex' : 'none';
-      document.getElementById('editVehFile').value = '';
-      const lbl1 = document.getElementById('editVehFileLabel');
-      if (lbl1) { lbl1.textContent = t('scegliFile'); lbl1.style.color = 'var(--text-secondary)'; }
-      document.getElementById('editVehFile2').value = '';
-      const lbl2 = document.getElementById('editVehFileLabel2');
-      if (lbl2) { lbl2.textContent = t('scegliFile'); lbl2.style.color = 'var(--text-secondary)'; }
-    }
-    async function downloadEditVehAttachmentByIdx(idx) {
-      let att = editingVehAttachments[idx];
-      if (!att || !att.data) {
-        const stored = await getAttachment(editingVehId);
-        const arr = Array.isArray(stored) ? stored : (stored ? [stored] : []);
-        att = arr[idx];
-        if (att) editingVehAttachments[idx] = att;
-      }
-      if (att && att.data) openAttachment(att.data, att.name);
-    }
-    function removeEditVehAttachmentByIdx(idx) {
-      editingVehAttachmentsRemoved.push(idx);
-      renderEditVehAttachments();
-    }
-    function updateVehFileLabel(input) {
-      const label = document.getElementById('vehFileLabel');
-      if (input.files && input.files[0]) { label.textContent = input.files[0].name; label.style.color = 'var(--text)'; }
-      else { label.textContent = t('scegliFile'); label.style.color = 'var(--text-secondary)'; }
-    }
-    function updateVehFileLabel2(input) {
-      const label = document.getElementById('vehFileLabel2');
-      if (input.files && input.files[0]) { label.textContent = input.files[0].name; label.style.color = 'var(--text)'; }
-      else { label.textContent = t('scegliFile'); label.style.color = 'var(--text-secondary)'; }
-    }
-    function updateEditVehFileLabel(input) {
-      const label = document.getElementById('editVehFileLabel');
-      if (input.files && input.files[0]) { label.textContent = input.files[0].name; label.style.color = 'var(--text)'; }
-      else { label.textContent = t('scegliFile'); label.style.color = 'var(--text-secondary)'; }
-    }
-    function updateEditVehFileLabel2(input) {
-      const label = document.getElementById('editVehFileLabel2');
-      if (input.files && input.files[0]) { label.textContent = input.files[0].name; label.style.color = 'var(--text)'; }
-      else { label.textContent = t('scegliFile'); label.style.color = 'var(--text-secondary)'; }
-    }
+    
+    
     function clearVehForm() {
       document.getElementById('vehName').value = '';
-      document.getElementById('vehPrice').value = '';
-      document.getElementById('vehNote').value = '';
-      document.getElementById('vehExpiry').value = '';
-      document.getElementById('vehNoExpiry').checked = false;
-      toggleNoExpiryAdd('veh');
-      document.getElementById('vehFile1').value = '';
-      const label = document.getElementById('vehFileLabel');
-      label.textContent = t('scegliFile');
-      label.style.color = 'var(--text-secondary)';
+      document.getElementById('vehType').value = 'Auto';
+      document.getElementById('vehModel').value = '';
+      document.getElementById('vehYear').value = '';
       toast(t('campiResettati'));
     }
     function toggleVehForm() {
@@ -2604,8 +2374,7 @@ const VEHICLE_KEY = 'daycounter_vehicles';
       body.classList.toggle('hidden');
       icon.style.transform = body.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(45deg)';
     }
-    function goToVehicles(filter) {
-      vehScrollTarget = filter;
+    function goToVehicles() {
       showPage('vehicles');
     }
 
@@ -2627,7 +2396,6 @@ const VEHICLE_KEY = 'daycounter_vehicles';
     }
 
     function renderVehicleDetail(v) {
-      const s = getVehStatus(v.expiry, v.noExpiry);
       const typeIcons = { Auto: '&#128663;', Moto: '&#127949;', Barca: '&#128758;', Camper: '&#128665;', Camion: '&#128666;', Altro: '&#128739;' };
 
       document.getElementById('vehDetailTitle').textContent = v.name || 'Veicolo';
@@ -2635,30 +2403,9 @@ const VEHICLE_KEY = 'daycounter_vehicles';
       document.getElementById('vehDetailName').textContent = v.name || '';
 
       const metaHtml = [];
-      if (v.price) metaHtml.push(`<span>€${escapeHtml(v.price)}</span>`);
-      if (v.note) metaHtml.push(`<span>${escapeHtml(v.note)}</span>`);
+      if (v.model) metaHtml.push(`<span>${escapeHtml(v.model)}</span>`);
+      if (v.year) metaHtml.push(`<span>${escapeHtml(v.year)}</span>`);
       document.getElementById('vehDetailMeta').innerHTML = metaHtml.join(' <span style="opacity:0.5">|</span> ');
-
-      document.getElementById('vehDetailExpiry').textContent = v.expiry ? formatDateIT(v.expiry) : t('senzaScadenza');
-      const statusEl = document.getElementById('vehDetailStatus');
-      statusEl.textContent = s.label;
-      statusEl.style.background = s.class === 'valid' ? 'rgba(34,197,94,0.12)' : s.class === 'warning' ? 'rgba(245,158,11,0.12)' : 'rgba(239,68,68,0.12)';
-      statusEl.style.color = s.class === 'valid' ? 'var(--positive)' : s.class === 'warning' ? 'var(--warning)' : 'var(--danger)';
-
-      const attArea = document.getElementById('vehDetailAttachments');
-      const attCount = (v.attachments && v.attachments.length) || (v.hasAttachment ? 1 : 0);
-      if (attCount > 0) {
-        let attHtml = '<div style="font-size:12px; font-weight:700; color:var(--text-secondary); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px;">' + t('allegato') + '</div><div style="display:flex; flex-wrap:wrap; gap:8px;">';
-        (v.attachments || []).forEach((att, idx) => {
-          attHtml += `<button class="btn" style="flex:0 0 auto; width:auto; padding:8px 14px; font-size:12px; margin-top:0; background:var(--bg); color:var(--text); border:1.5px solid var(--border);" onclick="downloadVehAttachment(${v.id}, ${idx})">&#128206; ${escapeHtml(att.name || 'File')}</button>`;
-        });
-        attHtml += '</div>';
-        attArea.innerHTML = attHtml;
-        attArea.style.display = '';
-      } else {
-        attArea.innerHTML = '';
-        attArea.style.display = 'none';
-      }
 
       // Documenti
       editingVehDocs = v.documents ? JSON.parse(JSON.stringify(v.documents)) : [];
@@ -2668,31 +2415,24 @@ const VEHICLE_KEY = 'daycounter_vehicles';
       resetVehDocForm();
     }
 
-    async function downloadVehAttachment(vehId, idx) {
-      const items = getVehicles();
-      const v = items.find(x => x.id === vehId);
-      if (!v || !v.attachments || !v.attachments[idx]) return;
-      let att = v.attachments[idx];
-      if (!att.data) {
-        const stored = await getAttachment(vehId);
-        const arr = Array.isArray(stored) ? stored : (stored ? [stored] : []);
-        att = arr[idx];
-      }
-      if (att && att.data) openAttachment(att.data, att.name);
-    }
+    
 
     function openEditVehicleInline() {
       if (!currentVehicleId) return;
       openVehicleModal(currentVehicleId);
     }
 
-    function deleteVehicleFromDetail() {
+    async function deleteVehicleFromDetail() {
       if (!currentVehicleId) return;
       if (!confirm(t('eliminaVeicolo'))) return;
       const items = getVehicles();
       const v = items.find(x => x.id === currentVehicleId);
-      if (v && ((v.attachments && v.attachments.length > 0) || v.hasAttachment)) {
-        try { deleteAttachment(currentVehicleId); } catch(e) {}
+      if (v && v.documents) {
+        for (const d of v.documents) {
+          if ((d.attachments && d.attachments.length > 0) || d.hasAttachment) {
+            try { await deleteAttachment('vehdoc_' + currentVehicleId + '_' + d.id); } catch(e) {}
+          }
+        }
       }
       const filtered = items.filter(x => x.id !== currentVehicleId);
       saveVehicles(filtered);
@@ -3119,10 +2859,6 @@ const VEHICLE_KEY = 'daycounter_vehicles';
           const s = getCertStatus(c.expiry, c.noExpiry);
           if (s.class === 'valid') cV++; else if (s.class === 'warning') cW++; else cE++;
         });
-        vehs.forEach(c => {
-          const s = getVehStatus(c.expiry, c.noExpiry);
-          if (s.class === 'valid') vV++; else if (s.class === 'warning') vW++; else vE++;
-        });
         docs.forEach(c => {
           const s = getDocStatus(c.expiry, c.noExpiry);
           if (s.class === 'valid') dV++; else if (s.class === 'warning') dW++; else dE++;
@@ -3261,31 +2997,29 @@ const VEHICLE_KEY = 'daycounter_vehicles';
           cursorY += 10;
         } else {
           const sorted = vehs.slice().sort((a, b) => {
-            const da = a.expiry ? new Date(a.expiry) : new Date('2099-12-31');
-            const db = b.expiry ? new Date(b.expiry) : new Date('2099-12-31');
-            return da - db;
+            const na = (a.name || '').toLowerCase();
+            const nb = (b.name || '').toLowerCase();
+            return na.localeCompare(nb);
           });
           const body = sorted.map(c => {
-            const s = getVehStatus(c.expiry, c.noExpiry);
-            const attCount = (c.attachments && c.attachments.length) || (c.hasAttachment ? 1 : 0);
+            const docCount = (c.documents && c.documents.length) || 0;
             return [
               c.name,
-              c.price || '-',
-              c.note || '-',
-              c.expiry ? formatDateIT(c.expiry) : (isEn ? 'No expiry' : 'Senza scadenza'),
-              s.label,
-              attCount > 0 ? (isEn ? 'Yes' : 'Si') : (isEn ? 'No' : 'No')
+              c.type || '-',
+              c.model || '-',
+              c.year || '-',
+              docCount > 0 ? String(docCount) : '-'
             ];
           });
           doc.autoTable({
             startY: cursorY,
-            head: [[isEn ? 'Name' : 'Nome', isEn ? 'Price' : 'Prezzo', isEn ? 'Note' : 'Nota', isEn ? 'Expiry' : 'Scadenza', isEn ? 'Status' : 'Stato', isEn ? 'Attach.' : 'Alleg.']],
+            head: [[isEn ? 'Name' : 'Nome', isEn ? 'Type' : 'Tipo', isEn ? 'Model' : 'Modello', isEn ? 'Year' : 'Anno', isEn ? 'Docs' : 'Doc.']],
             body: body,
             theme: 'plain',
             styles: { fontSize: 9, cellPadding: 3, font: 'helvetica', textColor: 30 },
             headStyles: { fillColor: primary, textColor: 255, fontStyle: 'bold', fontSize: 9, cellPadding: 4 },
             alternateRowStyles: { fillColor: lightGray },
-            columnStyles: { 0: { cellWidth: 40 }, 4: { cellWidth: 32 } },
+            columnStyles: { 0: { cellWidth: 50 } },
             margin: { left: m, right: m, top: 24, bottom: 18 },
             didDrawPage: drawPageFrame
           });
@@ -3504,20 +3238,22 @@ const VEHICLE_KEY = 'daycounter_vehicles';
     }
     function renderStatusList(status) {
       const certs = getCertificates();
-      const vehs = getVehicles();
       const docs = getDocuments();
+      const vehs = getVehicles();
       const items = [];
       certs.forEach(c => {
         const s = getCertStatus(c.expiry, c.noExpiry);
         if (s.class === status) items.push({ ...c, type: 'cert', statusObj: s });
       });
-      vehs.forEach(c => {
-        const s = getVehStatus(c.expiry, c.noExpiry);
-        if (s.class === status) items.push({ ...c, type: 'veh', statusObj: s });
-      });
       docs.forEach(c => {
         const s = getDocStatus(c.expiry, c.noExpiry);
         if (s.class === status) items.push({ ...c, type: 'doc', statusObj: s });
+      });
+      vehs.forEach(v => {
+        (v.documents || []).forEach(d => {
+          const s = getDocStatus(d.expiry, d.noExpiry);
+          if (s.class === status) items.push({ ...d, type: 'vehdoc', vehicleId: v.id, vehicleName: v.name, statusObj: s });
+        });
       });
       items.sort((a, b) => {
         const da = a.expiry ? new Date(a.expiry) : new Date('2099-12-31');
@@ -3536,11 +3272,11 @@ const VEHICLE_KEY = 'daycounter_vehicles';
           : (item.statusObj.days >= 0
             ? `${t('tra')} ${item.statusObj.days} ${t('gg')}`
             : `${Math.abs(item.statusObj.days)} ${t('ggFa')}`);
-        const typeIcon = item.type === 'cert' ? '&#128220;' : item.type === 'veh' ? '&#128663;' : '&#128193;';
-        const typeLabel = item.type === 'cert' ? t('certificati') : item.type === 'veh' ? t('veicoli') : t('documenti');
+        const typeIcon = item.type === 'cert' ? '&#128220;' : item.type === 'vehdoc' ? '&#128663;' : '&#128193;';
+        const typeLabel = item.type === 'cert' ? t('certificati') : item.type === 'vehdoc' ? (item.vehicleName || t('veicoli')) : t('documenti');
         const codeLine = item.code ? escapeHtml(item.code) + ' &mdash; ' : '';
         const expiryLine = item.expiry ? `${t('scad')}: ${formatDateIT(item.expiry)}` : '';
-        htmlList += `<div class="status-list-item" onclick="openItemFromDashboard('${item.type}', ${item.id})" style="display:flex; justify-content:space-between; align-items:center; padding:14px 0; border-bottom:1px solid var(--border); cursor:pointer; transition:var(--transition);" onmouseover="this.style.paddingLeft='8px'" onmouseout="this.style.paddingLeft='0'">
+        htmlList += `<div class="status-list-item" onclick="openItemFromDashboard('${item.type}', ${item.id}${item.vehicleId ? ', ' + item.vehicleId : ''})" style="display:flex; justify-content:space-between; align-items:center; padding:14px 0; border-bottom:1px solid var(--border); cursor:pointer; transition:var(--transition);" onmouseover="this.style.paddingLeft='8px'" onmouseout="this.style.paddingLeft='0'">
           <div style="flex:1; min-width:0;">
             <div style="font-size:14px; font-weight:600; display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
               <span style="font-size:16px;">${typeIcon}</span>
@@ -3554,9 +3290,9 @@ const VEHICLE_KEY = 'daycounter_vehicles';
       });
       container.innerHTML = htmlList;
     }
-    function openItemFromDashboard(type, id) {
+    function openItemFromDashboard(type, id, vehicleId) {
       if (type === 'cert') { certScrollTarget = null; showPage('certificates'); setTimeout(() => openCertModal(id), 400); }
-      else if (type === 'veh') { vehScrollTarget = null; showPage('vehicles'); setTimeout(() => openVehicleModal(id), 400); }
+      else if (type === 'vehdoc') { currentVehicleId = vehicleId; showPage('vehicle-detail'); const v = getVehicles().find(x => x.id === vehicleId); if (v) setTimeout(() => renderVehicleDetail(v), 300); }
       else { docScrollTarget = null; showPage('documents'); setTimeout(() => openDocumentModal(id), 400); }
     }
 
@@ -3577,6 +3313,206 @@ const VEHICLE_KEY = 'daycounter_vehicles';
     initNotifToggles();
     initWarningDays();
     initTheme();
+
+
+    function updateVehDocFileLabel(input) {
+      const label = document.getElementById('vehDocFileLabel');
+      if (input.files && input.files[0]) { label.textContent = input.files[0].name; label.style.color = 'var(--text)'; }
+      else { label.textContent = t('scegliFile'); label.style.color = 'var(--text-secondary)'; }
+    }
+    function updateVehDocFileLabel2(input) {
+      const label = document.getElementById('vehDocFileLabel2');
+      if (input.files && input.files[0]) { label.textContent = input.files[0].name; label.style.color = 'var(--text)'; }
+      else { label.textContent = t('scegliFile'); label.style.color = 'var(--text-secondary)'; }
+    }
+    function resetVehDocForm() {
+      document.getElementById('vehDocName').value = '';
+      document.getElementById('vehDocCode').value = '';
+      document.getElementById('vehDocExpiry').value = '';
+      document.getElementById('vehDocNoExpiry').checked = false;
+      toggleNoExpiryAdd('vehdoc');
+      document.getElementById('vehDocFile1').value = '';
+      document.getElementById('vehDocFileLabel').textContent = t('scegliFile');
+      document.getElementById('vehDocFileLabel').style.color = 'var(--text-secondary)';
+      document.getElementById('vehDocFile2').value = '';
+      document.getElementById('vehDocFileLabel2').textContent = t('scegliFile');
+      document.getElementById('vehDocFileLabel2').style.color = 'var(--text-secondary)';
+      editingVehDocId = null;
+      document.getElementById('vehDocSaveBtn').textContent = t('aggiungi');
+      document.getElementById('vehDocCancelBtn').style.display = 'none';
+    }
+    function renderVehDocList() {
+      const list = document.getElementById('vehDocList');
+      if (!list) return;
+      if (!editingVehDocs || editingVehDocs.length === 0) {
+        list.innerHTML = `<div class="empty-state" style="padding:20px 0;"><p style="font-size:13px">${t('nessunDocumento')}</p></div>`;
+        return;
+      }
+      list.innerHTML = '';
+      const sorted = editingVehDocs.slice().sort((a, b) => {
+        const da = a.expiry ? new Date(a.expiry) : new Date('2099-12-31');
+        const db = b.expiry ? new Date(b.expiry) : new Date('2099-12-31');
+        return da - db;
+      });
+      sorted.forEach(d => {
+        const s = getDocStatus(d.expiry, d.noExpiry);
+        const div = document.createElement('div');
+        div.className = 'cert-item ' + s.class;
+        div.style.marginBottom = '10px';
+        const daysText = s.days === Infinity ? '∞' : (s.days >= 0 ? `${t('tra')} ${s.days} ${t('gg')}` : `${Math.abs(s.days)} ${t('ggFa')}`);
+        const attCount = (d.attachments && d.attachments.length) || (d.hasAttachment ? 1 : 0);
+        const attachIcon = attCount > 0 ? `<span style="margin-left:6px;opacity:0.6;font-size:12px;">&#128206;${attCount > 1 ? '×' + attCount : ''}</span>` : '';
+        let attButtons = '';
+        if (attCount > 0) {
+          attButtons = '<div style="display:flex; gap:4px; margin-top:4px; flex-wrap:wrap;">';
+          (d.attachments || []).forEach((att, aidx) => {
+            attButtons += `<button type="button" class="btn" style="width:auto; padding:4px 8px; font-size:11px; margin-top:0; background:var(--bg); color:var(--text); border:1.5px solid var(--border);" onclick="event.stopPropagation(); downloadVehDocAttachment(${currentVehicleId}, ${d.id}, ${aidx})">&#128206; ${escapeHtml(att.name || 'File')}</button>`;
+          });
+          attButtons += '</div>';
+        }
+        div.innerHTML = `<div class="cert-info" style="flex:1; min-width:0; cursor:pointer;" onclick="openVehDocEdit(${d.id})">
+          <div class="cert-name">${escapeHtml(d.name || '')}${attachIcon} <span class="cert-status ${s.class}">${s.label}</span></div>
+          <div class="cert-code">${d.code ? escapeHtml(d.code) + ' &mdash; ' : ''}${d.expiry ? t('scad') + ': ' + formatDateIT(d.expiry) : t('senzaScadenza')}</div>
+          ${attButtons}
+        </div>
+        <div style="display:flex; align-items:center; gap:8px; flex-shrink:0; margin-left:10px;">
+          <div class="cert-days ${s.class}">${daysText}</div>
+          <button type="button" class="btn btn-danger" style="width:auto; padding:6px 10px; font-size:12px; margin-top:0;" onclick="event.stopPropagation(); deleteVehDoc(${d.id})">&#128465;</button>
+        </div>`;
+        list.appendChild(div);
+      });
+    }
+    async function saveVehDoc() {
+      if (!currentVehicleId) return;
+      const name = document.getElementById('vehDocName').value.trim();
+      const code = document.getElementById('vehDocCode').value.trim();
+      const noExpiry = document.getElementById('vehDocNoExpiry').checked;
+      const expiry = noExpiry ? '' : document.getElementById('vehDocExpiry').value;
+      if (!name && !noExpiry && !expiry) { toast(t('compilaTutti')); return; }
+
+      const items = getVehicles();
+      const idx = items.findIndex(x => x.id === currentVehicleId);
+      if (idx === -1) return;
+      const vehicle = items[idx];
+      if (!vehicle.documents) vehicle.documents = [];
+
+      const files = [];
+      const f1 = document.getElementById('vehDocFile1').files?.[0];
+      const f2 = document.getElementById('vehDocFile2').files?.[0];
+      if (f1) files.push(f1);
+      if (f2) files.push(f2);
+
+      const processSave = async (attachments) => {
+        const attMeta = attachments.map(a => ({ name: a.name, type: a.type }));
+        if (editingVehDocId) {
+          const dIdx = vehicle.documents.findIndex(d => d.id === editingVehDocId);
+          if (dIdx !== -1) {
+            const oldDoc = vehicle.documents[dIdx];
+            const existingAtts = oldDoc.attachments || [];
+            const newAtts = [...existingAtts, ...attMeta];
+            if (newAtts.length > 2) newAtts.splice(0, newAtts.length - 2);
+            vehicle.documents[dIdx] = { ...oldDoc, name, code, expiry, noExpiry, attachments: newAtts, hasAttachment: newAtts.length > 0, attachmentName: newAtts[0]?.name || '' };
+            if (attachments.length > 0) {
+              try {
+                const existing = await getAttachment('vehdoc_' + currentVehicleId + '_' + editingVehDocId) || [];
+                const merged = Array.isArray(existing) ? [...existing, ...attachments] : [...(existing ? [existing] : []), ...attachments];
+                if (merged.length > 2) merged.splice(0, merged.length - 2);
+                await saveAttachment('vehdoc_' + currentVehicleId + '_' + editingVehDocId, merged);
+              } catch(err) { toast(t('erroreSalvataggio')); }
+            }
+            toast(t('docVeicoloAggiornato'));
+          }
+        } else {
+          const newId = Date.now();
+          vehicle.documents.push({ id: newId, name, code, expiry, noExpiry, attachments: attMeta, hasAttachment: attMeta.length > 0, attachmentName: attMeta[0]?.name || '' });
+          if (attachments.length > 0) {
+            try { await saveAttachment('vehdoc_' + currentVehicleId + '_' + newId, attachments); }
+            catch(err) { toast(t('erroreSalvataggio')); }
+          }
+          toast(t('docVeicoloAggiunto'));
+        }
+        items[idx] = vehicle;
+        saveVehicles(items);
+        editingVehDocs = vehicle.documents ? JSON.parse(JSON.stringify(vehicle.documents)) : [];
+        resetVehDocForm();
+        renderVehDocList();
+        document.getElementById('vehDocCountBadge').textContent = editingVehDocs.length;
+        renderDashboard();
+      };
+
+      if (files.length === 0) {
+        await processSave([]);
+        return;
+      }
+      const attachments = [];
+      let loaded = 0;
+      files.forEach(file => {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          attachments.push({ name: file.name, type: file.type, data: e.target.result });
+          loaded++;
+          if (loaded === files.length) processSave(attachments);
+        };
+        reader.onerror = function() { toast(t('erroreSalvataggio')); };
+        reader.readAsDataURL(file);
+      });
+    }
+    function openVehDocEdit(id) {
+      if (!currentVehicleId) return;
+      const doc = editingVehDocs.find(d => d.id === id);
+      if (!doc) return;
+      editingVehDocId = id;
+      document.getElementById('vehDocName').value = doc.name || '';
+      document.getElementById('vehDocCode').value = doc.code || '';
+      document.getElementById('vehDocExpiry').value = doc.expiry || '';
+      document.getElementById('vehDocNoExpiry').checked = !!doc.noExpiry;
+      toggleNoExpiryAdd('vehdoc');
+      document.getElementById('vehDocSaveBtn').textContent = t('salva');
+      document.getElementById('vehDocCancelBtn').style.display = '';
+      const formSection = document.getElementById('vehDocFormSection');
+      if (formSection.classList.contains('hidden')) {
+        toggleVehDocFormSection();
+      }
+      formSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+    function cancelVehDocEdit() {
+      editingVehDocId = null;
+      resetVehDocForm();
+    }
+    async function deleteVehDoc(id) {
+      if (!currentVehicleId) return;
+      if (!confirm(t('eliminaDocumento'))) return;
+      const items = getVehicles();
+      const idx = items.findIndex(x => x.id === currentVehicleId);
+      if (idx === -1) return;
+      const vehicle = items[idx];
+      const doc = vehicle.documents?.find(d => d.id === id);
+      if (doc && ((doc.attachments && doc.attachments.length > 0) || doc.hasAttachment)) {
+        try { await deleteAttachment('vehdoc_' + currentVehicleId + '_' + id); } catch(e) {}
+      }
+      vehicle.documents = (vehicle.documents || []).filter(d => d.id !== id);
+      items[idx] = vehicle;
+      saveVehicles(items);
+      editingVehDocs = vehicle.documents ? JSON.parse(JSON.stringify(vehicle.documents)) : [];
+      renderVehDocList();
+      document.getElementById('vehDocCountBadge').textContent = editingVehDocs.length;
+      toast(t('docVeicoloEliminato'));
+      renderDashboard();
+    }
+    async function downloadVehDocAttachment(vehId, docId, idx) {
+      const items = getVehicles();
+      const v = items.find(x => x.id === vehId);
+      if (!v || !v.documents) return;
+      const d = v.documents.find(x => x.id === docId);
+      if (!d || !d.attachments || !d.attachments[idx]) return;
+      let att = d.attachments[idx];
+      if (!att.data) {
+        const stored = await getAttachment('vehdoc_' + vehId + '_' + docId);
+        const arr = Array.isArray(stored) ? stored : (stored ? [stored] : []);
+        att = arr[idx];
+      }
+      if (att && att.data) openAttachment(att.data, att.name);
+    }
 
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('sw.js').then(reg => {
