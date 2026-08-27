@@ -625,7 +625,20 @@
           <div class="input-group">
             <div class="input-row"><label style="min-width:50px" data-i18n="nome">Nome</label><input type="text" id="certName" placeholder="Es. Brevetto nautico..."></div>
             <div class="input-row"><label style="min-width:50px" data-i18n="codice">Codice</label><input type="text" id="certCode" placeholder="Es. ABC-12345"></div>
-            <div class="input-row"><label style="min-width:50px" data-i18n="scad">Scad.</label><input type="date" id="certExpiry"></div>
+            <div class="input-row" style="align-items:flex-start;">
+              <label style="min-width:50px; padding-top:14px;" data-i18n="scad">Scad.</label>
+              <div style="flex:1; display:flex; flex-direction:column; gap:6px; min-width:0;">
+                <select id="certQuickExpiry" onchange="setQuickExpiry('cert', this.value)" style="padding:10px 14px; border:1.5px solid var(--border); border-radius:12px; font-size:14px; background:var(--bg); color:var(--text); font-family:inherit; cursor:pointer;">
+                  <option value="">Manuale</option>
+                  <option value="1">1 anno</option>
+                  <option value="2">2 anni</option>
+                  <option value="3">3 anni</option>
+                  <option value="4">4 anni</option>
+                  <option value="5">5 anni</option>
+                </select>
+                <input type="date" id="certExpiry" style="width:100%;">
+              </div>
+            </div>
             <div class="input-row" style="justify-content:flex-start; gap:12px; padding:4px 0;">
               <label class="switch"><input type="checkbox" id="certNoExpiry" onchange="toggleNoExpiryAdd('cert')"><span class="slider"></span></label>
               <span style="font-size:14px; font-weight:600; color:var(--text-secondary);" data-i18n="senzaScadenza">Senza scadenza</span>
@@ -751,8 +764,20 @@
         <div id="vehDocFormSection" class="hidden" style="padding:0 22px 22px;">
           <div class="input-group" style="gap:10px;">
             <div class="input-row"><label style="min-width:50px" data-i18n="nome">Nome</label><input type="text" id="vehDocName" placeholder="Es. Assicurazione, Bollo..."></div>
-            <div class="input-row"><label style="min-width:50px" data-i18n="codice">Codice</label><input type="text" id="vehDocCode" placeholder="Es. POL-12345"></div>
-            <div class="input-row"><label style="min-width:50px" data-i18n="scad">Scad.</label><input type="date" id="vehDocExpiry"></div>
+            <div class="input-row" style="align-items:flex-start;">
+              <label style="min-width:50px; padding-top:14px;" data-i18n="scad">Scad.</label>
+              <div style="flex:1; display:flex; flex-direction:column; gap:6px; min-width:0;">
+                <select id="vehDocQuickExpiry" onchange="setQuickExpiry('vehDoc', this.value)" style="padding:10px 14px; border:1.5px solid var(--border); border-radius:12px; font-size:14px; background:var(--bg); color:var(--text); font-family:inherit; cursor:pointer;">
+                  <option value="">Manuale</option>
+                  <option value="1">1 anno</option>
+                  <option value="2">2 anni</option>
+                  <option value="3">3 anni</option>
+                  <option value="4">4 anni</option>
+                  <option value="5">5 anni</option>
+                </select>
+                <input type="date" id="vehDocExpiry" style="width:100%;">
+              </div>
+            </div>
             <div class="input-row" style="justify-content:flex-start; gap:12px; padding:4px 0;">
               <label class="switch"><input type="checkbox" id="vehDocNoExpiry" onchange="toggleNoExpiryAdd('vehdoc')"><span class="slider"></span></label>
               <span style="font-size:14px; font-weight:600; color:var(--text-secondary);" data-i18n="senzaScadenza">Senza scadenza</span>
@@ -795,7 +820,20 @@
           <div class="input-group">
             <div class="input-row"><label style="min-width:50px" data-i18n="nome">Nome</label><input type="text" id="docName" placeholder="Es. Passaporto, Patente..."></div>
             <div class="input-row"><label style="min-width:50px" data-i18n="codice">Codice</label><input type="text" id="docCode" placeholder="Es. XX123456"></div>
-            <div class="input-row"><label style="min-width:50px" data-i18n="scad">Scad.</label><input type="date" id="docExpiry"></div>
+            <div class="input-row" style="align-items:flex-start;">
+              <label style="min-width:50px; padding-top:14px;" data-i18n="scad">Scad.</label>
+              <div style="flex:1; display:flex; flex-direction:column; gap:6px; min-width:0;">
+                <select id="docQuickExpiry" onchange="setQuickExpiry('doc', this.value)" style="padding:10px 14px; border:1.5px solid var(--border); border-radius:12px; font-size:14px; background:var(--bg); color:var(--text); font-family:inherit; cursor:pointer;">
+                  <option value="">Manuale</option>
+                  <option value="1">1 anno</option>
+                  <option value="2">2 anni</option>
+                  <option value="3">3 anni</option>
+                  <option value="4">4 anni</option>
+                  <option value="5">5 anni</option>
+                </select>
+                <input type="date" id="docExpiry" style="width:100%;">
+              </div>
+            </div>
             <div class="input-row" style="justify-content:flex-start; gap:12px; padding:4px 0;">
               <label class="switch"><input type="checkbox" id="docNoExpiry" onchange="toggleNoExpiryAdd('doc')"><span class="slider"></span></label>
               <span style="font-size:14px; font-weight:600; color:var(--text-secondary);" data-i18n="senzaScadenza">Senza scadenza</span>
@@ -1015,7 +1053,20 @@
       <div class="input-group">
         <div class="input-row"><label style="min-width:50px" data-i18n="nome">Nome</label><input type="text" id="editDocName"></div>
         <div class="input-row"><label style="min-width:50px" data-i18n="codice">Codice</label><input type="text" id="editDocCode"></div>
-        <div class="input-row"><label style="min-width:50px" data-i18n="scad">Scad.</label><input type="date" id="editDocExpiry"></div>
+        <div class="input-row" style="align-items:flex-start;">
+          <label style="min-width:50px; padding-top:14px;" data-i18n="scad">Scad.</label>
+          <div style="flex:1; display:flex; flex-direction:column; gap:6px; min-width:0;">
+            <select id="editDocQuickExpiry" onchange="setQuickExpiry('editDoc', this.value)" style="padding:10px 14px; border:1.5px solid var(--border); border-radius:12px; font-size:14px; background:var(--bg); color:var(--text); font-family:inherit; cursor:pointer;">
+              <option value="">Manuale</option>
+              <option value="1">1 anno</option>
+              <option value="2">2 anni</option>
+              <option value="3">3 anni</option>
+              <option value="4">4 anni</option>
+              <option value="5">5 anni</option>
+            </select>
+            <input type="date" id="editDocExpiry" style="width:100%;">
+          </div>
+        </div>
         <div class="input-row" style="justify-content:flex-start; gap:12px; padding:4px 0;">
           <label class="switch"><input type="checkbox" id="editDocNoExpiry" onchange="toggleNoExpiry('doc')"><span class="slider"></span></label>
           <span style="font-size:14px; font-weight:600; color:var(--text-secondary);" data-i18n="senzaScadenza">Senza scadenza</span>
@@ -1070,7 +1121,20 @@
       <div class="input-group">
         <div class="input-row"><label style="min-width:50px" data-i18n="nome">Nome</label><input type="text" id="editCertName"></div>
         <div class="input-row"><label style="min-width:50px" data-i18n="codice">Codice</label><input type="text" id="editCertCode"></div>
-        <div class="input-row"><label style="min-width:50px" data-i18n="scad">Scad.</label><input type="date" id="editCertExpiry"></div>
+        <div class="input-row" style="align-items:flex-start;">
+          <label style="min-width:50px; padding-top:14px;" data-i18n="scad">Scad.</label>
+          <div style="flex:1; display:flex; flex-direction:column; gap:6px; min-width:0;">
+            <select id="editCertQuickExpiry" onchange="setQuickExpiry('editCert', this.value)" style="padding:10px 14px; border:1.5px solid var(--border); border-radius:12px; font-size:14px; background:var(--bg); color:var(--text); font-family:inherit; cursor:pointer;">
+              <option value="">Manuale</option>
+              <option value="1">1 anno</option>
+              <option value="2">2 anni</option>
+              <option value="3">3 anni</option>
+              <option value="4">4 anni</option>
+              <option value="5">5 anni</option>
+            </select>
+            <input type="date" id="editCertExpiry" style="width:100%;">
+          </div>
+        </div>
         <div class="input-row" style="justify-content:flex-start; gap:12px; padding:4px 0;">
           <label class="switch"><input type="checkbox" id="editCertNoExpiry" onchange="toggleNoExpiry('cert')"><span class="slider"></span></label>
           <span style="font-size:14px; font-weight:600; color:var(--text-secondary);" data-i18n="senzaScadenza">Senza scadenza</span>
@@ -1162,6 +1226,7 @@
         tipo: 'Tipo', documentiVeicolo: 'Documenti del veicolo', annulla: 'Annulla', docVeicoloAggiunto: 'Documento veicolo aggiunto',
         docVeicoloAggiornato: 'Documento veicolo aggiornato', docVeicoloEliminato: 'Documento veicolo eliminato', emailPlaceholder: 'esempio@email.com', menu: 'Menu', pdf: 'PDF',
         resetTuttoConferma: 'Conferma reset totale',
+        scadenzaManuale: 'Manuale', anni: 'anni',
       },
       en: {
         dashboard: 'Dashboard', calcola: 'Calculate', giorni: 'Days', certificati: 'Certificates', menu: 'Menu',
@@ -1246,6 +1311,7 @@
       const lang = getLang();
       document.documentElement.lang = lang;
       document.getElementById('langSelect').value = lang;
+      populateQuickExpirySelects();
       document.querySelectorAll('[data-i18n]').forEach(el => {
         const key = el.getAttribute('data-i18n');
         const val = t(key);
@@ -1535,6 +1601,7 @@ const VEHICLE_KEY = 'daycounter_vehicles';
       document.getElementById('certName').value = '';
       document.getElementById('certCode').value = '';
       document.getElementById('certExpiry').value = '';
+      document.getElementById('certQuickExpiry').value = '';
       document.getElementById('certNoExpiry').checked = false;
       toggleNoExpiryAdd('cert');
       document.getElementById('certFile1').value = '';
@@ -1675,7 +1742,7 @@ const VEHICLE_KEY = 'daycounter_vehicles';
       const code = document.getElementById('certCode').value.trim();
       const noExpiry = document.getElementById('certNoExpiry').checked;
       const expiry = noExpiry ? '' : document.getElementById('certExpiry').value;
-      if (!name && !noExpiry && !expiry) { toast(t('compilaTutti')); return; }
+      if (!name) { toast(t('compilaTutti')); return; }
 
       async function doSave(attachments) {
         const certs = getCertificates();
@@ -1810,6 +1877,7 @@ const VEHICLE_KEY = 'daycounter_vehicles';
       document.getElementById('editCertName').value = c.name;
       document.getElementById('editCertCode').value = c.code;
       document.getElementById('editCertExpiry').value = c.expiry || '';
+      document.getElementById('editCertQuickExpiry').value = '';
       document.getElementById('editCertNoExpiry').checked = !!c.noExpiry;
       toggleNoExpiry('cert');
       document.getElementById('editCertFile').value = '';
@@ -1838,7 +1906,7 @@ const VEHICLE_KEY = 'daycounter_vehicles';
       const code = document.getElementById('editCertCode').value.trim();
       const noExpiry = document.getElementById('editCertNoExpiry').checked;
       const expiry = noExpiry ? '' : document.getElementById('editCertExpiry').value;
-      if (!name && !noExpiry && !expiry) { toast(t('compilaTutti')); return; }
+      if (!name) { toast(t('compilaTutti')); return; }
 
       let attachments = editingCertAttachments.filter((_, i) => !editingCertAttachmentsRemoved.includes(i));
       const newFiles = [];
@@ -2471,7 +2539,7 @@ const VEHICLE_KEY = 'daycounter_vehicles';
       const code = document.getElementById('docCode').value.trim();
       const noExpiry = document.getElementById('docNoExpiry').checked;
       const expiry = noExpiry ? '' : document.getElementById('docExpiry').value;
-      if (!name && !noExpiry && !expiry) { toast(t('compilaTutti')); return; }
+      if (!name) { toast(t('compilaTutti')); return; }
       async function doSave(attachments) {
         const items = getDocuments();
         const newId = Date.now();
@@ -2587,6 +2655,7 @@ const VEHICLE_KEY = 'daycounter_vehicles';
       document.getElementById('editDocName').value = c.name;
       document.getElementById('editDocCode').value = c.code;
       document.getElementById('editDocExpiry').value = c.expiry || '';
+      document.getElementById('editDocQuickExpiry').value = '';
       document.getElementById('editDocNoExpiry').checked = !!c.noExpiry;
       toggleNoExpiry('doc');
       document.getElementById('editDocFile').value = '';
@@ -2615,7 +2684,7 @@ const VEHICLE_KEY = 'daycounter_vehicles';
       const code = document.getElementById('editDocCode').value.trim();
       const noExpiry = document.getElementById('editDocNoExpiry').checked;
       const expiry = noExpiry ? '' : document.getElementById('editDocExpiry').value;
-      if (!name && !noExpiry && !expiry) { toast(t('compilaTutti')); return; }
+      if (!name) { toast(t('compilaTutti')); return; }
       let attachments = editingDocAttachments.filter((_, i) => !editingDocAttachmentsRemoved.includes(i));
       const newFiles = [];
       const fileInput1 = document.getElementById('editDocFile');
@@ -2727,6 +2796,7 @@ const VEHICLE_KEY = 'daycounter_vehicles';
       document.getElementById('docName').value = '';
       document.getElementById('docCode').value = '';
       document.getElementById('docExpiry').value = '';
+      document.getElementById('docQuickExpiry').value = '';
       document.getElementById('docNoExpiry').checked = false;
       toggleNoExpiryAdd('doc');
       document.getElementById('docFile1').value = '';
@@ -3038,14 +3108,13 @@ const VEHICLE_KEY = 'daycounter_vehicles';
               const s = getDocStatus(d.expiry, d.noExpiry);
               return [
                 d.name,
-                d.code || '-',
                 d.expiry ? formatDateIT(d.expiry) : (isEn ? 'No expiry' : 'Senza scadenza'),
                 s.label
               ];
             });
             doc.autoTable({
               startY: cursorY,
-              head: [[isEn ? 'Name' : 'Nome', isEn ? 'Code' : 'Codice', isEn ? 'Expiry' : 'Scadenza', isEn ? 'Status' : 'Stato']],
+              head: [[isEn ? 'Name' : 'Nome', isEn ? 'Expiry' : 'Scadenza', isEn ? 'Status' : 'Stato']],
               body: vDocBody,
               theme: 'plain',
               styles: { fontSize: 8, cellPadding: 2, font: 'helvetica', textColor: 30 },
@@ -3133,6 +3202,41 @@ const VEHICLE_KEY = 'daycounter_vehicles';
       const moon = document.getElementById('themeIconMoon');
       if (sun) sun.classList.toggle('active', mode === 'light');
       if (moon) moon.classList.toggle('active', mode === 'dark');
+    }
+
+    function setQuickExpiry(prefix, years) {
+      if (!years) return;
+      const input = document.getElementById(prefix + 'Expiry');
+      if (!input) return;
+      const today = new Date();
+      today.setFullYear(today.getFullYear() + parseInt(years));
+      const yyyy = today.getFullYear();
+      const mm = String(today.getMonth() + 1).padStart(2, '0');
+      const dd = String(today.getDate()).padStart(2, '0');
+      input.value = `${yyyy}-${mm}-${dd}`;
+    }
+    function populateQuickExpirySelects() {
+      const options = [
+        { value: '', label: t('scadenzaManuale') },
+        { value: '1', label: '1 ' + t('anno') },
+        { value: '2', label: '2 ' + t('anni') },
+        { value: '3', label: '3 ' + t('anni') },
+        { value: '4', label: '4 ' + t('anni') },
+        { value: '5', label: '5 ' + t('anni') },
+      ];
+      ['certQuickExpiry', 'editCertQuickExpiry', 'docQuickExpiry', 'editDocQuickExpiry', 'vehDocQuickExpiry'].forEach(id => {
+        const sel = document.getElementById(id);
+        if (!sel) return;
+        const oldVal = sel.value;
+        sel.innerHTML = '';
+        options.forEach(opt => {
+          const option = document.createElement('option');
+          option.value = opt.value;
+          option.textContent = opt.label;
+          sel.appendChild(option);
+        });
+        sel.value = oldVal;
+      });
     }
     function initTheme() {
       const mode = getTheme();
@@ -3327,8 +3431,8 @@ const VEHICLE_KEY = 'daycounter_vehicles';
     }
     function resetVehDocForm() {
       document.getElementById('vehDocName').value = '';
-      document.getElementById('vehDocCode').value = '';
       document.getElementById('vehDocExpiry').value = '';
+      document.getElementById('vehDocQuickExpiry').value = '';
       document.getElementById('vehDocNoExpiry').checked = false;
       toggleNoExpiryAdd('vehdoc');
       document.getElementById('vehDocFile1').value = '';
@@ -3372,7 +3476,7 @@ const VEHICLE_KEY = 'daycounter_vehicles';
         }
         div.innerHTML = `<div class="cert-info" style="flex:1; min-width:0; cursor:pointer;" onclick="openVehDocEdit(${d.id})">
           <div class="cert-name">${escapeHtml(d.name || '')}${attachIcon} <span class="cert-status ${s.class}">${s.label}</span></div>
-          <div class="cert-code">${d.code ? escapeHtml(d.code) + ' &mdash; ' : ''}${d.expiry ? t('scad') + ': ' + formatDateIT(d.expiry) : t('senzaScadenza')}</div>
+          <div class="cert-code">${d.expiry ? t('scad') + ': ' + formatDateIT(d.expiry) : t('senzaScadenza')}</div>
           ${attButtons}
         </div>
         <div style="display:flex; align-items:center; gap:8px; flex-shrink:0; margin-left:10px;">
@@ -3385,10 +3489,9 @@ const VEHICLE_KEY = 'daycounter_vehicles';
     async function saveVehDoc() {
       if (!currentVehicleId) return;
       const name = document.getElementById('vehDocName').value.trim();
-      const code = document.getElementById('vehDocCode').value.trim();
       const noExpiry = document.getElementById('vehDocNoExpiry').checked;
       const expiry = noExpiry ? '' : document.getElementById('vehDocExpiry').value;
-      if (!name && !noExpiry && !expiry) { toast(t('compilaTutti')); return; }
+      if (!name) { toast(t('compilaTutti')); return; }
 
       const items = getVehicles();
       const idx = items.findIndex(x => x.id === currentVehicleId);
@@ -3463,8 +3566,8 @@ const VEHICLE_KEY = 'daycounter_vehicles';
       if (!doc) return;
       editingVehDocId = id;
       document.getElementById('vehDocName').value = doc.name || '';
-      document.getElementById('vehDocCode').value = doc.code || '';
       document.getElementById('vehDocExpiry').value = doc.expiry || '';
+      document.getElementById('vehDocQuickExpiry').value = '';
       document.getElementById('vehDocNoExpiry').checked = !!doc.noExpiry;
       toggleNoExpiryAdd('vehdoc');
       document.getElementById('vehDocSaveBtn').textContent = t('salva');
