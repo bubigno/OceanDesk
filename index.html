@@ -438,6 +438,78 @@
     input:checked + .slider { background-color: var(--accent); }
     input:checked + .slider:before { transform: translateX(20px); }
 
+    /* ── Calendar grid ── */
+    #calGrid { gap: clamp(2px, 0.7vw, 5px) !important; }
+    #calGrid .cal-day {
+      cursor:pointer;
+      border-radius: clamp(6px,1.8vw,12px);
+      border:1.5px solid var(--border);
+      background:var(--bg);
+      color:var(--text);
+      aspect-ratio:1;
+      padding: clamp(3px,1vw,7px) clamp(2px,0.6vw,5px);
+      display:flex; flex-direction:column; align-items:center; justify-content:space-between;
+      gap:1px; transition:var(--transition);
+      min-width:0; overflow:hidden;
+    }
+    #calGrid .cal-day:hover { background:var(--accent-light); }
+    #calGrid .cal-day.cal-today { background:var(--accent); color:#fff; border:none; }
+    #calGrid .cal-day.cal-selected { outline:2.5px solid var(--accent); outline-offset:1px; }
+    #calGrid .cal-daynum { font-size:clamp(10px,2.8vw,15px); font-weight:700; line-height:1; }
+    #calGrid .cal-icons { font-size:clamp(8px,2.2vw,12px); line-height:1; white-space:nowrap; overflow:hidden; text-overflow:clip; max-width:100%; text-align:center; }
+    #calGrid .cal-hdr { font-size:clamp(8px,2vw,11px); font-weight:700; color:var(--text-secondary); padding:clamp(2px,0.6vw,5px) 0; text-align:center; text-transform:uppercase; letter-spacing:0.3px; }
+    /* ── Cal expand panel ── */
+    /* ── Giorni hub: 2 card sempre affiancate, responsive ── */
+    .giorni-hub-grid { display:grid; grid-template-columns:1fr 1fr; gap:clamp(10px,3vw,20px); }
+    @media (min-width:640px) {
+      .giorni-hub-grid .card { min-height:clamp(140px,18vw,200px) !important; }
+    }
+    /* ── Pagina calendario: occupa tutto lo schermo senza scroll ── */
+    #page-calendario { display:flex; flex-direction:column; }
+    #page-calendario > .container { flex:1; display:flex; flex-direction:column; min-height:0; }
+    #page-calendario .cal-main-card {
+      flex:1; display:flex; flex-direction:column; min-height:0;
+    }
+    #calGrid {
+      flex:1; min-height:0;
+      display:grid !important;
+      grid-template-columns:repeat(7,1fr);
+      gap: clamp(2px, 0.7vw, 4px) !important;
+      align-content:start;
+    }
+    /* ── Espansione inline giorno ── */
+    #calDayExpand {
+      margin-top:10px;
+      border-radius:14px;
+      border:1.5px solid var(--border);
+      background:var(--bg);
+      overflow:hidden;
+      max-height:0;
+      opacity:0;
+      transition: max-height .32s cubic-bezier(.22,1,.36,1), opacity .22s ease, margin-top .22s ease;
+      flex-shrink:0;
+    }
+    #calDayExpand.cal-open {
+      max-height:clamp(180px,30vh,280px);
+      opacity:1;
+      animation: slideDown 0.28s ease;
+    }
+    #calDayExpand .cal-exp-header {
+      display:flex; justify-content:space-between; align-items:center;
+      padding:10px 14px 8px;
+      border-bottom:1px solid var(--border);
+    }
+    #calDayExpand .cal-exp-body {
+      overflow-y:auto;
+      max-height:clamp(90px,15vh,140px);
+      padding:0 14px;
+      -webkit-overflow-scrolling:touch;
+    }
+    #calDayExpand .cal-exp-footer {
+      display:flex; gap:8px; align-items:center;
+      padding:8px 14px;
+      border-top:1px solid var(--border);
+    }
   </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
@@ -569,10 +641,31 @@
       </div>
     </div>
 
+    <!-- ══ Giorni hub ══ -->
     <div id="page-calculator" class="hidden">
       <div class="page-header">
         <button class="back-btn" onclick="showPage('dashboard')">&#8592;</button>
         <h1 data-i18n="giorni">Giorni</h1>
+      </div>
+      <div class="giorni-hub-grid">
+        <div class="card action-card" onclick="showPage('seatime')" style="cursor:pointer; text-align:center; padding:clamp(20px,5vw,32px) clamp(10px,3vw,16px); position:relative; overflow:hidden; display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:clamp(110px, 22vw, 150px);">
+          <div style="font-size:clamp(30px,7vw,44px); margin-bottom:8px; line-height:1;">&#9973;</div>
+          <div style="font-size:clamp(13px,3vw,16px); font-weight:700;" data-i18n="seaTime">Sea Time</div>
+          <div style="position:absolute; top:0; right:0; width:50px; height:50px; background:var(--accent-light); border-radius:0 0 0 50px; opacity:0.5;"></div>
+        </div>
+        <div class="card action-card" onclick="showPage('calendario')" style="cursor:pointer; text-align:center; padding:clamp(20px,5vw,32px) clamp(10px,3vw,16px); position:relative; overflow:hidden; display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:clamp(110px, 22vw, 150px);">
+          <div style="font-size:clamp(30px,7vw,44px); margin-bottom:8px; line-height:1;">&#128197;</div>
+          <div style="font-size:clamp(13px,3vw,16px); font-weight:700;" data-i18n="calendario">Calendario</div>
+          <div style="position:absolute; top:0; right:0; width:50px; height:50px; background:rgba(59,130,246,0.08); border-radius:0 0 0 50px; opacity:0.5;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ Sea Time ══ -->
+    <div id="page-seatime" class="hidden">
+      <div class="page-header">
+        <button class="back-btn" onclick="showPage('calculator')">&#8592;</button>
+        <h1>Sea Time</h1>
       </div>
       <div class="target-box">
         <label data-i18n="giorniTarget">Giorni target</label>
@@ -594,7 +687,6 @@
           </div>
         </div>
       </div>
-
       <div class="card" id="calcYearCard" style="display:none;">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
           <div class="card-title" data-i18n="ripartizioneGlobale" style="margin-bottom:0;">Ripartizione annuale globale</div>
@@ -608,6 +700,45 @@
       <div class="card" id="calcSavedCard" style="display:none;">
         <div class="section-title" data-i18n="periodiSalvati">Periodi salvati</div>
         <div id="calcSavedPeriodsList"></div>
+      </div>
+    </div>
+
+    <!-- ══ Calendario ══ -->
+    <div id="page-calendario" class="hidden">
+      <div class="page-header">
+        <button class="back-btn" onclick="showPage('calculator')">&#8592;</button>
+        <h1 data-i18n="calendario">Calendario</h1>
+      </div>
+      <div class="card cal-main-card" style="padding:14px 12px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+          <button onclick="calPrevMonth()" style="width:34px;height:34px;border-radius:10px;border:1.5px solid var(--border);background:var(--bg);color:var(--text);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;">&#8592;</button>
+          <div id="calMonthLabel" style="font-size:16px; font-weight:800; color:var(--text);"></div>
+          <button onclick="calNextMonth()" style="width:34px;height:34px;border-radius:10px;border:1.5px solid var(--border);background:var(--bg);color:var(--text);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;">&#8594;</button>
+        </div>
+        <div style="display:flex; gap:clamp(6px,2vw,14px); flex-wrap:wrap; margin-bottom:8px; padding:0 2px; align-items:center;">
+          <div style="display:flex;align-items:center;gap:3px;"><span style="font-size:13px;line-height:1;">&#128220;</span><span style="font-size:clamp(9px,2.2vw,11px);color:var(--text-secondary);" data-i18n="certificati">Certificati</span></div>
+          <div style="display:flex;align-items:center;gap:3px;"><span style="font-size:13px;line-height:1;">&#128193;</span><span style="font-size:clamp(9px,2.2vw,11px);color:var(--text-secondary);" data-i18n="documenti">Documenti</span></div>
+          <div style="display:flex;align-items:center;gap:3px;"><span style="font-size:13px;line-height:1;">&#128663;</span><span style="font-size:clamp(9px,2.2vw,11px);color:var(--text-secondary);" data-i18n="documentiVeicolo">Doc. veicolo</span></div>
+          <div style="display:flex;align-items:center;gap:3px;"><span style="font-size:13px;line-height:1;">&#128221;</span><span style="font-size:clamp(9px,2.2vw,11px);color:var(--text-secondary);" data-i18n="appunti">Appunti</span></div>
+        </div>
+        <div id="calGrid"></div>
+
+        <!-- Espansione inline giorno selezionato -->
+        <div id="calDayExpand">
+          <div class="cal-exp-header">
+            <span id="calDayExpandTitle" style="font-size:14px; font-weight:800; color:var(--text);"></span>
+            <button onclick="closeCalDay()" style="background:none;border:none;font-size:18px;cursor:pointer;color:var(--text-secondary);line-height:1;padding:0 2px;">&#x2715;</button>
+          </div>
+          <div class="cal-exp-body">
+            <div id="calDayEventsList"></div>
+          </div>
+          <div class="cal-exp-footer">
+            <input type="text" id="calNoteInput" placeholder=""
+              style="flex:1; padding:9px 12px; border:1.5px solid var(--border); border-radius:10px; font-size:13px; background:var(--bg); color:var(--text); font-family:inherit;"
+              onkeydown="if(event.key==='Enter') addCalNote()">
+            <button class="btn" onclick="addCalNote()" style="padding:0 14px; margin-top:0; flex-shrink:0; font-size:13px;" data-i18n="aggiungi">+</button>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -625,37 +756,46 @@
           <div class="input-group">
             <div class="input-row"><label style="min-width:50px" data-i18n="nome">Nome</label><input type="text" id="certName" placeholder="Es. Brevetto nautico..."></div>
             <div class="input-row"><label style="min-width:50px" data-i18n="codice">Codice</label><input type="text" id="certCode" placeholder="Es. ABC-12345"></div>
-            <div class="input-row" style="align-items:flex-start;">
-              <label style="min-width:50px; padding-top:14px;" data-i18n="scad">Scad.</label>
-              <div style="flex:1; display:flex; flex-direction:column; gap:6px; min-width:0;">
-                <select id="certQuickExpiry" onchange="setQuickExpiry('cert', this.value)" style="padding:10px 14px; border:1.5px solid var(--border); border-radius:12px; font-size:14px; background:var(--bg); color:var(--text); font-family:inherit; cursor:pointer;">
-                  <option value="">Manuale</option>
-                  <option value="1">1 anno</option>
-                  <option value="2">2 anni</option>
-                  <option value="3">3 anni</option>
-                  <option value="4">4 anni</option>
-                  <option value="5">5 anni</option>
-                </select>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+              <div style="display:flex; flex-direction:column; gap:6px;">
+                <label style="font-size:12px; font-weight:600; color:var(--text-secondary); padding-left:2px;" data-i18n="rilascio">Rilascio</label>
+                <input type="date" id="certIssueDate" style="width:100%;">
+              </div>
+              <div style="display:flex; flex-direction:column; gap:6px;">
+                <label style="font-size:12px; font-weight:600; color:var(--text-secondary); padding-left:2px;" data-i18n="scadenza">Scadenza</label>
                 <input type="date" id="certExpiry" style="width:100%;">
               </div>
+            </div>
+            <div class="input-row">
+              <label style="min-width:50px;" data-i18n="scad">Scad.</label>
+              <select id="certQuickExpiry" onchange="setQuickExpiry('cert', this.value)" style="flex:1; padding:10px 14px; border:1.5px solid var(--border); border-radius:12px; font-size:14px; background:var(--bg); color:var(--text); font-family:inherit; cursor:pointer;">
+                <option value="">Manuale</option>
+                <option value="1">1 anno</option>
+                <option value="2">2 anni</option>
+                <option value="3">3 anni</option>
+                <option value="4">4 anni</option>
+                <option value="5">5 anni</option>
+              </select>
             </div>
             <div class="input-row" style="justify-content:flex-start; gap:12px; padding:4px 0;">
               <label class="switch"><input type="checkbox" id="certNoExpiry" onchange="toggleNoExpiryAdd('cert')"><span class="slider"></span></label>
               <span style="font-size:14px; font-weight:600; color:var(--text-secondary);" data-i18n="senzaScadenza">Senza scadenza</span>
             </div>
-            <div class="input-row">
-              <label style="min-width:50px" data-i18n="allegato">Allegato</label>
-              <div style="flex:1; position:relative; overflow:hidden; border:1.5px solid var(--border); border-radius:14px; background:var(--bg);">
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+            <div style="display:flex; flex-direction:column; gap:4px;">
+              <label style="font-size:11px; font-weight:600; color:var(--text-secondary); text-align:center;" data-i18n="allegato">Allegato 1</label>
+              <div style="position:relative; overflow:hidden; border:1.5px solid var(--border); border-radius:14px; background:var(--bg);">
                 <input type="file" id="certFile1" accept="image/*,application/pdf" onchange="updateCertFileLabel(this)" style="position:absolute; top:0; left:0; width:100%; height:100%; opacity:0; cursor:pointer; z-index:2;">
-                <div id="certFileLabel" style="padding:14px 16px; font-size:14px; color:var(--text-secondary); text-align:center; pointer-events:none; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" data-i18n="scegliFile">Allega file</div>
+                <div id="certFileLabel" style="padding:12px 8px; font-size:12px; color:var(--text-secondary); text-align:center; pointer-events:none; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" data-i18n="scegliFile">Allega file</div>
               </div>
             </div>
-            <div class="input-row">
-              <label style="min-width:50px" data-i18n="allegato">Allegato 2</label>
-              <div style="flex:1; position:relative; overflow:hidden; border:1.5px solid var(--border); border-radius:14px; background:var(--bg);">
+            <div style="display:flex; flex-direction:column; gap:4px;">
+              <label style="font-size:11px; font-weight:600; color:var(--text-secondary); text-align:center;" data-i18n="allegato">Allegato 2</label>
+              <div style="position:relative; overflow:hidden; border:1.5px solid var(--border); border-radius:14px; background:var(--bg);">
                 <input type="file" id="certFile2" accept="image/*,application/pdf" onchange="updateCertFileLabel2(this)" style="position:absolute; top:0; left:0; width:100%; height:100%; opacity:0; cursor:pointer; z-index:2;">
-                <div id="certFileLabel2" style="padding:14px 16px; font-size:14px; color:var(--text-secondary); text-align:center; pointer-events:none; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" data-i18n="scegliFile">Allega file</div>
+                <div id="certFileLabel2" style="padding:12px 8px; font-size:12px; color:var(--text-secondary); text-align:center; pointer-events:none; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" data-i18n="scegliFile">Allega file</div>
               </div>
+            </div>
             </div>
             <button class="btn" onclick="addCertificate()" data-i18n="aggiungi">Aggiungi</button>
             <button class="btn" onclick="clearCertForm()" style="background:var(--text-secondary); margin-top:8px;" data-i18n="pulisci">Pulisci</button>
@@ -712,6 +852,7 @@
               </select>
             </div>
             <div class="input-row"><label style="min-width:50px" data-i18n="modello">Modello</label><input type="text" id="vehModel" placeholder="Es. Panda Cross, MT-07..."></div>
+            <div class="input-row"><label style="min-width:50px" data-i18n="targa">Targa</label><input type="text" id="vehPlate" placeholder="Es. AA123BB" style="text-transform:uppercase;"></div>
             <div class="input-row"><label style="min-width:50px" data-i18n="anno">Anno</label><input type="number" id="vehYear" placeholder="Es. 2020" min="1900" max="2100" style="flex:1; padding:14px 16px; border:1.5px solid var(--border); border-radius:14px; font-size:16px; background:var(--bg); color:var(--text); font-family:inherit;"></div>
             <button class="btn" onclick="addVehicle()" data-i18n="aggiungi">Aggiungi</button>
             <button class="btn" onclick="clearVehForm()" style="background:var(--text-secondary); margin-top:8px;" data-i18n="pulisci">Pulisci</button>
@@ -764,37 +905,46 @@
         <div id="vehDocFormSection" class="hidden" style="padding:0 22px 22px;">
           <div class="input-group" style="gap:10px;">
             <div class="input-row"><label style="min-width:50px" data-i18n="nome">Nome</label><input type="text" id="vehDocName" placeholder="Es. Assicurazione, Bollo..."></div>
-            <div class="input-row" style="align-items:flex-start;">
-              <label style="min-width:50px; padding-top:14px;" data-i18n="scad">Scad.</label>
-              <div style="flex:1; display:flex; flex-direction:column; gap:6px; min-width:0;">
-                <select id="vehDocQuickExpiry" onchange="setQuickExpiry('vehDoc', this.value)" style="padding:10px 14px; border:1.5px solid var(--border); border-radius:12px; font-size:14px; background:var(--bg); color:var(--text); font-family:inherit; cursor:pointer;">
-                  <option value="">Manuale</option>
-                  <option value="1">1 anno</option>
-                  <option value="2">2 anni</option>
-                  <option value="3">3 anni</option>
-                  <option value="4">4 anni</option>
-                  <option value="5">5 anni</option>
-                </select>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+              <div style="display:flex; flex-direction:column; gap:6px;">
+                <label style="font-size:12px; font-weight:600; color:var(--text-secondary); padding-left:2px;" data-i18n="rilascio">Rilascio</label>
+                <input type="date" id="vehDocIssueDate" style="width:100%;">
+              </div>
+              <div style="display:flex; flex-direction:column; gap:6px;">
+                <label style="font-size:12px; font-weight:600; color:var(--text-secondary); padding-left:2px;" data-i18n="scadenza">Scadenza</label>
                 <input type="date" id="vehDocExpiry" style="width:100%;">
               </div>
+            </div>
+            <div class="input-row">
+              <label style="min-width:50px;" data-i18n="scad">Scad.</label>
+              <select id="vehDocQuickExpiry" onchange="setQuickExpiry('vehDoc', this.value)" style="flex:1; padding:10px 14px; border:1.5px solid var(--border); border-radius:12px; font-size:14px; background:var(--bg); color:var(--text); font-family:inherit; cursor:pointer;">
+                <option value="">Manuale</option>
+                <option value="1">1 anno</option>
+                <option value="2">2 anni</option>
+                <option value="3">3 anni</option>
+                <option value="4">4 anni</option>
+                <option value="5">5 anni</option>
+              </select>
             </div>
             <div class="input-row" style="justify-content:flex-start; gap:12px; padding:4px 0;">
               <label class="switch"><input type="checkbox" id="vehDocNoExpiry" onchange="toggleNoExpiryAdd('vehdoc')"><span class="slider"></span></label>
               <span style="font-size:14px; font-weight:600; color:var(--text-secondary);" data-i18n="senzaScadenza">Senza scadenza</span>
             </div>
-            <div class="input-row">
-              <label style="min-width:50px" data-i18n="allegato">Allegato</label>
-              <div style="flex:1; position:relative; overflow:hidden; border:1.5px solid var(--border); border-radius:14px; background:var(--bg);">
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+            <div style="display:flex; flex-direction:column; gap:4px;">
+              <label style="font-size:11px; font-weight:600; color:var(--text-secondary); text-align:center;" data-i18n="allegato">Allegato 1</label>
+              <div style="position:relative; overflow:hidden; border:1.5px solid var(--border); border-radius:14px; background:var(--bg);">
                 <input type="file" id="vehDocFile1" accept="image/*,application/pdf" onchange="updateVehDocFileLabel(this)" style="position:absolute; top:0; left:0; width:100%; height:100%; opacity:0; cursor:pointer; z-index:2;">
-                <div id="vehDocFileLabel" style="padding:14px 16px; font-size:14px; color:var(--text-secondary); text-align:center; pointer-events:none; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" data-i18n="scegliFile">Allega file</div>
+                <div id="vehDocFileLabel" style="padding:12px 8px; font-size:12px; color:var(--text-secondary); text-align:center; pointer-events:none; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" data-i18n="scegliFile">Allega file</div>
               </div>
             </div>
-            <div class="input-row">
-              <label style="min-width:50px" data-i18n="allegato">Allegato 2</label>
-              <div style="flex:1; position:relative; overflow:hidden; border:1.5px solid var(--border); border-radius:14px; background:var(--bg);">
+            <div style="display:flex; flex-direction:column; gap:4px;">
+              <label style="font-size:11px; font-weight:600; color:var(--text-secondary); text-align:center;" data-i18n="allegato">Allegato 2</label>
+              <div style="position:relative; overflow:hidden; border:1.5px solid var(--border); border-radius:14px; background:var(--bg);">
                 <input type="file" id="vehDocFile2" accept="image/*,application/pdf" onchange="updateVehDocFileLabel2(this)" style="position:absolute; top:0; left:0; width:100%; height:100%; opacity:0; cursor:pointer; z-index:2;">
-                <div id="vehDocFileLabel2" style="padding:14px 16px; font-size:14px; color:var(--text-secondary); text-align:center; pointer-events:none; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" data-i18n="scegliFile">Allega file</div>
+                <div id="vehDocFileLabel2" style="padding:12px 8px; font-size:12px; color:var(--text-secondary); text-align:center; pointer-events:none; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" data-i18n="scegliFile">Allega file</div>
               </div>
+            </div>
             </div>
             <div style="display:flex; gap:10px;">
               <button type="button" class="btn" style="flex:1; margin-top:0;" onclick="saveVehDoc()" id="vehDocSaveBtn" data-i18n="aggiungi">Aggiungi</button>
@@ -820,37 +970,46 @@
           <div class="input-group">
             <div class="input-row"><label style="min-width:50px" data-i18n="nome">Nome</label><input type="text" id="docName" placeholder="Es. Passaporto, Patente..."></div>
             <div class="input-row"><label style="min-width:50px" data-i18n="codice">Codice</label><input type="text" id="docCode" placeholder="Es. XX123456"></div>
-            <div class="input-row" style="align-items:flex-start;">
-              <label style="min-width:50px; padding-top:14px;" data-i18n="scad">Scad.</label>
-              <div style="flex:1; display:flex; flex-direction:column; gap:6px; min-width:0;">
-                <select id="docQuickExpiry" onchange="setQuickExpiry('doc', this.value)" style="padding:10px 14px; border:1.5px solid var(--border); border-radius:12px; font-size:14px; background:var(--bg); color:var(--text); font-family:inherit; cursor:pointer;">
-                  <option value="">Manuale</option>
-                  <option value="1">1 anno</option>
-                  <option value="2">2 anni</option>
-                  <option value="3">3 anni</option>
-                  <option value="4">4 anni</option>
-                  <option value="5">5 anni</option>
-                </select>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+              <div style="display:flex; flex-direction:column; gap:6px;">
+                <label style="font-size:12px; font-weight:600; color:var(--text-secondary); padding-left:2px;" data-i18n="rilascio">Rilascio</label>
+                <input type="date" id="docIssueDate" style="width:100%;">
+              </div>
+              <div style="display:flex; flex-direction:column; gap:6px;">
+                <label style="font-size:12px; font-weight:600; color:var(--text-secondary); padding-left:2px;" data-i18n="scadenza">Scadenza</label>
                 <input type="date" id="docExpiry" style="width:100%;">
               </div>
+            </div>
+            <div class="input-row">
+              <label style="min-width:50px;" data-i18n="scad">Scad.</label>
+              <select id="docQuickExpiry" onchange="setQuickExpiry('doc', this.value)" style="flex:1; padding:10px 14px; border:1.5px solid var(--border); border-radius:12px; font-size:14px; background:var(--bg); color:var(--text); font-family:inherit; cursor:pointer;">
+                <option value="">Manuale</option>
+                <option value="1">1 anno</option>
+                <option value="2">2 anni</option>
+                <option value="3">3 anni</option>
+                <option value="4">4 anni</option>
+                <option value="5">5 anni</option>
+              </select>
             </div>
             <div class="input-row" style="justify-content:flex-start; gap:12px; padding:4px 0;">
               <label class="switch"><input type="checkbox" id="docNoExpiry" onchange="toggleNoExpiryAdd('doc')"><span class="slider"></span></label>
               <span style="font-size:14px; font-weight:600; color:var(--text-secondary);" data-i18n="senzaScadenza">Senza scadenza</span>
             </div>
-            <div class="input-row">
-              <label style="min-width:50px" data-i18n="allegato">Allegato</label>
-              <div style="flex:1; position:relative; overflow:hidden; border:1.5px solid var(--border); border-radius:14px; background:var(--bg);">
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+            <div style="display:flex; flex-direction:column; gap:4px;">
+              <label style="font-size:11px; font-weight:600; color:var(--text-secondary); text-align:center;" data-i18n="allegato">Allegato 1</label>
+              <div style="position:relative; overflow:hidden; border:1.5px solid var(--border); border-radius:14px; background:var(--bg);">
                 <input type="file" id="docFile1" accept="image/*,application/pdf" onchange="updateDocFileLabel(this)" style="position:absolute; top:0; left:0; width:100%; height:100%; opacity:0; cursor:pointer; z-index:2;">
-                <div id="docFileLabel" style="padding:14px 16px; font-size:14px; color:var(--text-secondary); text-align:center; pointer-events:none; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" data-i18n="scegliFile">Allega file</div>
+                <div id="docFileLabel" style="padding:12px 8px; font-size:12px; color:var(--text-secondary); text-align:center; pointer-events:none; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" data-i18n="scegliFile">Allega file</div>
               </div>
             </div>
-            <div class="input-row">
-              <label style="min-width:50px" data-i18n="allegato">Allegato 2</label>
-              <div style="flex:1; position:relative; overflow:hidden; border:1.5px solid var(--border); border-radius:14px; background:var(--bg);">
+            <div style="display:flex; flex-direction:column; gap:4px;">
+              <label style="font-size:11px; font-weight:600; color:var(--text-secondary); text-align:center;" data-i18n="allegato">Allegato 2</label>
+              <div style="position:relative; overflow:hidden; border:1.5px solid var(--border); border-radius:14px; background:var(--bg);">
                 <input type="file" id="docFile2" accept="image/*,application/pdf" onchange="updateDocFileLabel2(this)" style="position:absolute; top:0; left:0; width:100%; height:100%; opacity:0; cursor:pointer; z-index:2;">
-                <div id="docFileLabel2" style="padding:14px 16px; font-size:14px; color:var(--text-secondary); text-align:center; pointer-events:none; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" data-i18n="scegliFile">Allega file</div>
+                <div id="docFileLabel2" style="padding:12px 8px; font-size:12px; color:var(--text-secondary); text-align:center; pointer-events:none; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" data-i18n="scegliFile">Allega file</div>
               </div>
+            </div>
             </div>
             <button class="btn" onclick="addDocument()" data-i18n="aggiungi">Aggiungi</button>
             <button class="btn" onclick="clearDocForm()" style="background:var(--text-secondary); margin-top:8px;" data-i18n="pulisci">Pulisci</button>
@@ -1033,6 +1192,7 @@
           </select>
         </div>
         <div class="input-row"><label style="min-width:50px" data-i18n="modello">Modello</label><input type="text" id="editVehModel"></div>
+        <div class="input-row"><label style="min-width:50px" data-i18n="targa">Targa</label><input type="text" id="editVehPlate" placeholder="Es. AA123BB" style="text-transform:uppercase;"></div>
         <div class="input-row"><label style="min-width:50px" data-i18n="anno">Anno</label><input type="number" id="editVehYear" min="1900" max="2100" style="flex:1; padding:14px 16px; border:1.5px solid var(--border); border-radius:14px; font-size:16px; background:var(--bg); color:var(--text); font-family:inherit;"></div>
       </div>
 
@@ -1053,39 +1213,48 @@
       <div class="input-group">
         <div class="input-row"><label style="min-width:50px" data-i18n="nome">Nome</label><input type="text" id="editDocName"></div>
         <div class="input-row"><label style="min-width:50px" data-i18n="codice">Codice</label><input type="text" id="editDocCode"></div>
-        <div class="input-row" style="align-items:flex-start;">
-          <label style="min-width:50px; padding-top:14px;" data-i18n="scad">Scad.</label>
-          <div style="flex:1; display:flex; flex-direction:column; gap:6px; min-width:0;">
-            <select id="editDocQuickExpiry" onchange="setQuickExpiry('editDoc', this.value)" style="padding:10px 14px; border:1.5px solid var(--border); border-radius:12px; font-size:14px; background:var(--bg); color:var(--text); font-family:inherit; cursor:pointer;">
-              <option value="">Manuale</option>
-              <option value="1">1 anno</option>
-              <option value="2">2 anni</option>
-              <option value="3">3 anni</option>
-              <option value="4">4 anni</option>
-              <option value="5">5 anni</option>
-            </select>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+          <div style="display:flex; flex-direction:column; gap:6px;">
+            <label style="font-size:12px; font-weight:600; color:var(--text-secondary); padding-left:2px;" data-i18n="rilascio">Rilascio</label>
+            <input type="date" id="editDocIssueDate" style="width:100%;">
+          </div>
+          <div style="display:flex; flex-direction:column; gap:6px;">
+            <label style="font-size:12px; font-weight:600; color:var(--text-secondary); padding-left:2px;" data-i18n="scadenza">Scadenza</label>
             <input type="date" id="editDocExpiry" style="width:100%;">
           </div>
+        </div>
+        <div class="input-row">
+          <label style="min-width:50px;" data-i18n="scad">Scad.</label>
+          <select id="editDocQuickExpiry" onchange="setQuickExpiry('editDoc', this.value)" style="flex:1; padding:10px 14px; border:1.5px solid var(--border); border-radius:12px; font-size:14px; background:var(--bg); color:var(--text); font-family:inherit; cursor:pointer;">
+            <option value="">Manuale</option>
+            <option value="1">1 anno</option>
+            <option value="2">2 anni</option>
+            <option value="3">3 anni</option>
+            <option value="4">4 anni</option>
+            <option value="5">5 anni</option>
+          </select>
         </div>
         <div class="input-row" style="justify-content:flex-start; gap:12px; padding:4px 0;">
           <label class="switch"><input type="checkbox" id="editDocNoExpiry" onchange="toggleNoExpiry('doc')"><span class="slider"></span></label>
           <span style="font-size:14px; font-weight:600; color:var(--text-secondary);" data-i18n="senzaScadenza">Senza scadenza</span>
         </div>
         <div id="editDocAttachmentsArea"></div>
-        <div class="input-row" id="editDocFileNewRow">
-              <label style="min-width:50px" data-i18n="nuovoAllegato">Nuovo</label>
-              <div style="flex:1; position:relative; overflow:hidden; border:1.5px solid var(--border); border-radius:14px; background:var(--bg);">
-                <input type="file" id="editDocFile" accept="image/*,application/pdf" onchange="updateEditDocFileLabel(this)" style="position:absolute; top:0; left:0; width:100%; height:100%; opacity:0; cursor:pointer; z-index:2;">
-                <div id="editDocFileLabel" style="padding:14px 16px; font-size:14px; color:var(--text-secondary); text-align:center; pointer-events:none; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" data-i18n="scegliFile">Allega file</div>
-              </div>
-            </div>
-            <div class="input-row" id="editDocFileNewRow2">
-              <label style="min-width:50px" data-i18n="nuovoAllegato">Nuovo</label>
-              <div style="flex:1; position:relative; overflow:hidden; border:1.5px solid var(--border); border-radius:14px; background:var(--bg);">
-                <input type="file" id="editDocFile2" accept="image/*,application/pdf" onchange="updateEditDocFileLabel2(this)" style="position:absolute; top:0; left:0; width:100%; height:100%; opacity:0; cursor:pointer; z-index:2;">
-                <div id="editDocFileLabel2" style="padding:14px 16px; font-size:14px; color:var(--text-secondary); text-align:center; pointer-events:none; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" data-i18n="scegliFile">Allega file</div>
-              </div>
-            </div>
+        <div id="editDocFilesRow" style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+        <div id="editDocFileNewRow" style="display:flex; flex-direction:column; gap:4px;">
+          <label style="font-size:11px; font-weight:600; color:var(--text-secondary); text-align:center;" data-i18n="nuovoAllegato">Allegato 1</label>
+          <div style="position:relative; overflow:hidden; border:1.5px solid var(--border); border-radius:14px; background:var(--bg);">
+            <input type="file" id="editDocFile" accept="image/*,application/pdf" onchange="updateEditDocFileLabel(this)" style="position:absolute; top:0; left:0; width:100%; height:100%; opacity:0; cursor:pointer; z-index:2;">
+            <div id="editDocFileLabel" style="padding:12px 8px; font-size:12px; color:var(--text-secondary); text-align:center; pointer-events:none; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" data-i18n="scegliFile">Allega file</div>
+          </div>
+        </div>
+        <div id="editDocFileNewRow2" style="display:flex; flex-direction:column; gap:4px;">
+          <label style="font-size:11px; font-weight:600; color:var(--text-secondary); text-align:center;" data-i18n="nuovoAllegato">Allegato 2</label>
+          <div style="position:relative; overflow:hidden; border:1.5px solid var(--border); border-radius:14px; background:var(--bg);">
+            <input type="file" id="editDocFile2" accept="image/*,application/pdf" onchange="updateEditDocFileLabel2(this)" style="position:absolute; top:0; left:0; width:100%; height:100%; opacity:0; cursor:pointer; z-index:2;">
+            <div id="editDocFileLabel2" style="padding:12px 8px; font-size:12px; color:var(--text-secondary); text-align:center; pointer-events:none; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" data-i18n="scegliFile">Allega file</div>
+          </div>
+        </div>
+        </div>
       </div>
       <div class="modal-actions">
         <button class="btn btn-danger" onclick="deleteEditDoc()" data-i18n="elimina">Elimina</button>
@@ -1121,39 +1290,48 @@
       <div class="input-group">
         <div class="input-row"><label style="min-width:50px" data-i18n="nome">Nome</label><input type="text" id="editCertName"></div>
         <div class="input-row"><label style="min-width:50px" data-i18n="codice">Codice</label><input type="text" id="editCertCode"></div>
-        <div class="input-row" style="align-items:flex-start;">
-          <label style="min-width:50px; padding-top:14px;" data-i18n="scad">Scad.</label>
-          <div style="flex:1; display:flex; flex-direction:column; gap:6px; min-width:0;">
-            <select id="editCertQuickExpiry" onchange="setQuickExpiry('editCert', this.value)" style="padding:10px 14px; border:1.5px solid var(--border); border-radius:12px; font-size:14px; background:var(--bg); color:var(--text); font-family:inherit; cursor:pointer;">
-              <option value="">Manuale</option>
-              <option value="1">1 anno</option>
-              <option value="2">2 anni</option>
-              <option value="3">3 anni</option>
-              <option value="4">4 anni</option>
-              <option value="5">5 anni</option>
-            </select>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+          <div style="display:flex; flex-direction:column; gap:6px;">
+            <label style="font-size:12px; font-weight:600; color:var(--text-secondary); padding-left:2px;" data-i18n="rilascio">Rilascio</label>
+            <input type="date" id="editCertIssueDate" style="width:100%;">
+          </div>
+          <div style="display:flex; flex-direction:column; gap:6px;">
+            <label style="font-size:12px; font-weight:600; color:var(--text-secondary); padding-left:2px;" data-i18n="scadenza">Scadenza</label>
             <input type="date" id="editCertExpiry" style="width:100%;">
           </div>
+        </div>
+        <div class="input-row">
+          <label style="min-width:50px;" data-i18n="scad">Scad.</label>
+          <select id="editCertQuickExpiry" onchange="setQuickExpiry('editCert', this.value)" style="flex:1; padding:10px 14px; border:1.5px solid var(--border); border-radius:12px; font-size:14px; background:var(--bg); color:var(--text); font-family:inherit; cursor:pointer;">
+            <option value="">Manuale</option>
+            <option value="1">1 anno</option>
+            <option value="2">2 anni</option>
+            <option value="3">3 anni</option>
+            <option value="4">4 anni</option>
+            <option value="5">5 anni</option>
+          </select>
         </div>
         <div class="input-row" style="justify-content:flex-start; gap:12px; padding:4px 0;">
           <label class="switch"><input type="checkbox" id="editCertNoExpiry" onchange="toggleNoExpiry('cert')"><span class="slider"></span></label>
           <span style="font-size:14px; font-weight:600; color:var(--text-secondary);" data-i18n="senzaScadenza">Senza scadenza</span>
         </div>
         <div id="editAttachmentsArea"></div>
-        <div class="input-row" id="editCertFileNewRow">
-              <label style="min-width:50px" data-i18n="nuovoAllegato">Nuovo</label>
-              <div style="flex:1; position:relative; overflow:hidden; border:1.5px solid var(--border); border-radius:14px; background:var(--bg);">
-                <input type="file" id="editCertFile" accept="image/*,application/pdf" onchange="updateEditCertFileLabel(this)" style="position:absolute; top:0; left:0; width:100%; height:100%; opacity:0; cursor:pointer; z-index:2;">
-                <div id="editCertFileLabel" style="padding:14px 16px; font-size:14px; color:var(--text-secondary); text-align:center; pointer-events:none; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" data-i18n="scegliFile">Allega file</div>
-              </div>
-            </div>
-            <div class="input-row" id="editCertFileNewRow2">
-              <label style="min-width:50px" data-i18n="nuovoAllegato">Nuovo</label>
-              <div style="flex:1; position:relative; overflow:hidden; border:1.5px solid var(--border); border-radius:14px; background:var(--bg);">
-                <input type="file" id="editCertFile2" accept="image/*,application/pdf" onchange="updateEditCertFileLabel2(this)" style="position:absolute; top:0; left:0; width:100%; height:100%; opacity:0; cursor:pointer; z-index:2;">
-                <div id="editCertFileLabel2" style="padding:14px 16px; font-size:14px; color:var(--text-secondary); text-align:center; pointer-events:none; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" data-i18n="scegliFile">Allega file</div>
-              </div>
-            </div>
+        <div id="editCertFilesRow" style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+        <div id="editCertFileNewRow" style="display:flex; flex-direction:column; gap:4px;">
+          <label style="font-size:11px; font-weight:600; color:var(--text-secondary); text-align:center;" data-i18n="nuovoAllegato">Allegato 1</label>
+          <div style="position:relative; overflow:hidden; border:1.5px solid var(--border); border-radius:14px; background:var(--bg);">
+            <input type="file" id="editCertFile" accept="image/*,application/pdf" onchange="updateEditCertFileLabel(this)" style="position:absolute; top:0; left:0; width:100%; height:100%; opacity:0; cursor:pointer; z-index:2;">
+            <div id="editCertFileLabel" style="padding:12px 8px; font-size:12px; color:var(--text-secondary); text-align:center; pointer-events:none; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" data-i18n="scegliFile">Allega file</div>
+          </div>
+        </div>
+        <div id="editCertFileNewRow2" style="display:flex; flex-direction:column; gap:4px;">
+          <label style="font-size:11px; font-weight:600; color:var(--text-secondary); text-align:center;" data-i18n="nuovoAllegato">Allegato 2</label>
+          <div style="position:relative; overflow:hidden; border:1.5px solid var(--border); border-radius:14px; background:var(--bg);">
+            <input type="file" id="editCertFile2" accept="image/*,application/pdf" onchange="updateEditCertFileLabel2(this)" style="position:absolute; top:0; left:0; width:100%; height:100%; opacity:0; cursor:pointer; z-index:2;">
+            <div id="editCertFileLabel2" style="padding:12px 8px; font-size:12px; color:var(--text-secondary); text-align:center; pointer-events:none; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" data-i18n="scegliFile">Allega file</div>
+          </div>
+        </div>
+        </div>
       </div>
       <div class="modal-actions">
         <button class="btn btn-danger" onclick="deleteEditCert()" data-i18n="elimina">Elimina</button>
@@ -1177,7 +1355,7 @@
         giorniTarget: 'Giorni target', selezionaPeriodo: 'Seleziona il periodo',
         da: 'Da', a: 'A', nome: 'Nome', calcolaSalva: 'Calcola e salva', reset: 'Reset',
         ripartizioneGlobale: 'Ripartizione annuale globale', periodiSalvati: 'Periodi salvati',
-        aggiungiCert: 'Aggiungi certificato', codice: 'Codice', scad: 'Scad.',
+        aggiungiCert: 'Aggiungi certificato', codice: 'Codice', scad: 'Scad.', rilascio: 'Rilascio', scadenza: 'Scadenza',
         aggiungi: 'Aggiungi', certificatiSalvati: 'Certificati salvati',
         modificaPeriodo: 'Modifica periodo', modificaCert: 'Modifica certificato',
         elimina: 'Elimina', salva: 'Salva',
@@ -1205,7 +1383,7 @@
         valido: 'Valido', periodoDefault: 'Periodo', anno: 'Anno',
         veicoli: 'Veicoli', documenti: 'Documenti',
         aggiungiVeicolo: 'Aggiungi veicolo', aggiungiDocumento: 'Aggiungi documento',
-        modello: 'Modello', anno: 'Anno',
+        modello: 'Modello', targa: 'Targa', anno: 'Anno',
         modificaVeicolo: 'Modifica veicolo', modificaDocumento: 'Modifica documento',
         veicoliSalvati: 'Veicoli salvati', documentiSalvati: 'Documenti salvati',
         riepilogoVeh: 'Riepilogo veicoli', riepilogoDoc: 'Riepilogo documenti',
@@ -1227,6 +1405,11 @@
         docVeicoloAggiornato: 'Documento veicolo aggiornato', docVeicoloEliminato: 'Documento veicolo eliminato', emailPlaceholder: 'esempio@email.com', menu: 'Menu', pdf: 'PDF',
         resetTuttoConferma: 'Conferma reset totale',
         scadenzaManuale: 'Manuale', anni: 'anni',
+        seaTime: 'Sea Time', calendario: 'Calendario',
+        appunti: 'Appunti', aggiungiAppunto: 'Aggiungi appunto...',
+        nessunEvento: 'Nessun evento in questo giorno',
+        notaAggiunta: 'Appunto aggiunto', notaEliminata: 'Appunto eliminato',
+        scadeIl: 'scade il',
       },
       en: {
         dashboard: 'Dashboard', calcola: 'Calculate', giorni: 'Days', certificati: 'Certificates', menu: 'Menu',
@@ -1235,7 +1418,7 @@
         giorniTarget: 'Target days', selezionaPeriodo: 'Select period',
         da: 'From', a: 'To', nome: 'Name', calcolaSalva: 'Calculate & save', reset: 'Reset',
         ripartizioneGlobale: 'Global yearly breakdown', periodiSalvati: 'Saved periods',
-        aggiungiCert: 'Add certificate', codice: 'Code', scad: 'Exp.',
+        aggiungiCert: 'Add certificate', codice: 'Code', scad: 'Exp.', rilascio: 'Issued', scadenza: 'Expiry',
         aggiungi: 'Add', certificatiSalvati: 'Saved certificates',
         modificaPeriodo: 'Edit period', modificaCert: 'Edit certificate',
         elimina: 'Delete', salva: 'Save',
@@ -1263,7 +1446,7 @@
         valido: 'Valid', periodoDefault: 'Period', anno: 'Year',
         veicoli: 'Vehicles', documenti: 'Documents',
         aggiungiVeicolo: 'Add vehicle', aggiungiDocumento: 'Add document',
-        modello: 'Model', anno: 'Year',
+        modello: 'Model', targa: 'Plate', anno: 'Year',
         modificaVeicolo: 'Edit vehicle', modificaDocumento: 'Edit document',
         veicoliSalvati: 'Saved vehicles', documentiSalvati: 'Saved documents',
         riepilogoVeh: 'Vehicles summary', riepilogoDoc: 'Documents summary',
@@ -1282,6 +1465,11 @@
         confermaReset: 'Are you sure you want to delete', confermaResetTutto: 'All data will be deleted. This action cannot be undone.',
         emailPlaceholder: 'example@email.com', menu: 'Menu', pdf: 'PDF',
         resetTuttoConferma: 'Confirm total reset', scegliFile: 'Attach file',
+        seaTime: 'Sea Time', calendario: 'Calendar',
+        appunti: 'Notes', aggiungiAppunto: 'Add note...',
+        nessunEvento: 'No events on this day',
+        notaAggiunta: 'Note added', notaEliminata: 'Note deleted',
+        scadeIl: 'expires on',
         tipo: 'Type', documentiVeicolo: 'Vehicle documents', annulla: 'Cancel', docVeicoloAggiunto: 'Vehicle document added',
         docVeicoloAggiornato: 'Vehicle document updated', docVeicoloEliminato: 'Vehicle document deleted',
       }
@@ -1312,6 +1500,12 @@
       document.documentElement.lang = lang;
       document.getElementById('langSelect').value = lang;
       populateQuickExpirySelects();
+      // Init issue date fields with today's date
+      const _today = getTodayStr();
+      ['certIssueDate','docIssueDate','vehDocIssueDate'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el && !el.value) el.value = _today;
+      });
       document.querySelectorAll('[data-i18n]').forEach(el => {
         const key = el.getAttribute('data-i18n');
         const val = t(key);
@@ -1504,14 +1698,15 @@ const VEHICLE_KEY = 'daycounter_vehicles';
     function showPage(page) {
       closeMenu();
       window.scrollTo({ top: 0, behavior: 'smooth' });
-      ['dashboard','calculator','certificates','vehicles','vehicle-detail','documents'].forEach(p => {
+      ['dashboard','calculator','seatime','calendario','certificates','vehicles','vehicle-detail','documents'].forEach(p => {
         const el = document.getElementById('page-' + p);
         if (el) { el.classList.add('hidden'); el.classList.remove('fade-in'); }
       });
       const activeEl = document.getElementById('page-' + page);
       if (activeEl) { activeEl.classList.remove('hidden'); activeEl.classList.add('fade-in'); }
       if (page === 'dashboard') renderDashboard();
-      if (page === 'calculator') renderCalcData();
+      if (page === 'seatime') renderCalcData();
+      if (page === 'calendario') renderCalendar();
       if (page === 'certificates') renderCertificates();
       if (page === 'vehicles') renderVehicles();
       if (page === 'documents') renderDocuments();
@@ -1600,6 +1795,7 @@ const VEHICLE_KEY = 'daycounter_vehicles';
     function clearCertForm() {
       document.getElementById('certName').value = '';
       document.getElementById('certCode').value = '';
+      document.getElementById('certIssueDate').value = getTodayStr();
       document.getElementById('certExpiry').value = '';
       document.getElementById('certQuickExpiry').value = '';
       document.getElementById('certNoExpiry').checked = false;
@@ -1737,18 +1933,22 @@ const VEHICLE_KEY = 'daycounter_vehicles';
       if (pillExpired) anim(pillExpired, totExp, 500);
     }
 
+    function getTodayStr() {
+      return new Date().toISOString().split('T')[0];
+    }
     function addCertificate() {
       const name = document.getElementById('certName').value.trim();
       const code = document.getElementById('certCode').value.trim();
       const noExpiry = document.getElementById('certNoExpiry').checked;
       const expiry = noExpiry ? '' : document.getElementById('certExpiry').value;
+      const issueDate = document.getElementById('certIssueDate').value;
       if (!name) { toast(t('compilaTutti')); return; }
 
       async function doSave(attachments) {
         const certs = getCertificates();
         const newId = Date.now();
         const attMeta = attachments.map(a => ({ name: a.name, type: a.type }));
-        certs.push({ id: newId, name, code, expiry, noExpiry, attachments: attMeta });
+        certs.push({ id: newId, name, code, issueDate, expiry, noExpiry, attachments: attMeta });
         saveCertificates(certs);
         if (attachments.length > 0) {
           try { await saveAttachment(newId, attachments); }
@@ -1756,6 +1956,7 @@ const VEHICLE_KEY = 'daycounter_vehicles';
         }
         document.getElementById('certName').value = '';
         document.getElementById('certCode').value = '';
+        document.getElementById('certIssueDate').value = getTodayStr();
         document.getElementById('certExpiry').value = '';
         document.getElementById('certFile1').value = '';
         const certFileLabel = document.getElementById('certFileLabel');
@@ -1876,6 +2077,7 @@ const VEHICLE_KEY = 'daycounter_vehicles';
       }
       document.getElementById('editCertName').value = c.name;
       document.getElementById('editCertCode').value = c.code;
+      document.getElementById('editCertIssueDate').value = c.issueDate || '';
       document.getElementById('editCertExpiry').value = c.expiry || '';
       document.getElementById('editCertQuickExpiry').value = '';
       document.getElementById('editCertNoExpiry').checked = !!c.noExpiry;
@@ -1906,6 +2108,7 @@ const VEHICLE_KEY = 'daycounter_vehicles';
       const code = document.getElementById('editCertCode').value.trim();
       const noExpiry = document.getElementById('editCertNoExpiry').checked;
       const expiry = noExpiry ? '' : document.getElementById('editCertExpiry').value;
+      const issueDate = document.getElementById('editCertIssueDate').value;
       if (!name) { toast(t('compilaTutti')); return; }
 
       let attachments = editingCertAttachments.filter((_, i) => !editingCertAttachmentsRemoved.includes(i));
@@ -1927,7 +2130,7 @@ const VEHICLE_KEY = 'daycounter_vehicles';
           if (attachments.length > 2) attachments = attachments.slice(-2);
           try { await saveAttachment(editingCertId, attachments); } catch(err) { toast(t('erroreSalvataggio')); }
           const attMeta = attachments.map(a => ({ name: a.name, type: a.type }));
-          certs[idx] = { ...certs[idx], name, code, expiry, noExpiry, attachments: attMeta, hasAttachment: attMeta.length > 0, attachmentName: attMeta[0]?.name || '' };
+          certs[idx] = { ...certs[idx], name, code, issueDate, expiry, noExpiry, attachments: attMeta, hasAttachment: attMeta.length > 0, attachmentName: attMeta[0]?.name || '' };
           saveCertificates(certs);
           closeCertModal(); renderCertificates(); renderDashboard(); toast(t('certAggiornato'));
         }).catch(() => toast(t('erroreSalvataggio')));
@@ -1938,7 +2141,7 @@ const VEHICLE_KEY = 'daycounter_vehicles';
         try { await saveAttachment(editingCertId, attachments); } catch(e) {}
       }
       const attMeta = attachments.map(a => ({ name: a.name, type: a.type }));
-      certs[idx] = { ...certs[idx], name, code, expiry, noExpiry, attachments: attMeta, hasAttachment: attMeta.length > 0, attachmentName: attMeta[0]?.name || '' };
+      certs[idx] = { ...certs[idx], name, code, issueDate, expiry, noExpiry, attachments: attMeta, hasAttachment: attMeta.length > 0, attachmentName: attMeta[0]?.name || '' };
       saveCertificates(certs);
       closeCertModal(); renderCertificates(); renderDashboard(); toast(t('certAggiornato'));
     }
@@ -2307,15 +2510,17 @@ const VEHICLE_KEY = 'daycounter_vehicles';
       const name = document.getElementById('vehName').value.trim();
       const type = document.getElementById('vehType').value;
       const model = document.getElementById('vehModel').value.trim();
+      const plate = document.getElementById('vehPlate').value.trim().toUpperCase();
       const year = document.getElementById('vehYear').value.trim();
       if (!name) { toast(t('compilaTutti')); return; }
       const items = getVehicles();
       const newId = Date.now();
-      items.push({ id: newId, name, type, model, year, documents: [] });
+      items.push({ id: newId, name, type, model, plate, year, documents: [] });
       saveVehicles(items);
       document.getElementById('vehName').value = '';
       document.getElementById('vehType').value = 'Auto';
       document.getElementById('vehModel').value = '';
+      document.getElementById('vehPlate').value = '';
       document.getElementById('vehYear').value = '';
       renderVehicles();
       renderDashboard();
@@ -2359,7 +2564,7 @@ const VEHICLE_KEY = 'daycounter_vehicles';
               <div style="display:flex; gap:6px; flex-wrap:wrap; justify-content:flex-end;">${docBadge}</div>
             </div>
             <div style="font-size:18px; font-weight:700; letter-spacing:-0.3px; margin-bottom:6px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${escapeHtml(c.name || '')}</div>
-            <div style="font-size:13px; color:var(--text-secondary); font-weight:500; margin-bottom:12px;">${escapeHtml(c.type || 'Auto')}${c.model ? ' &middot; ' + escapeHtml(c.model) : ''}${c.year ? ' &middot; ' + escapeHtml(c.year) : ''}</div>
+            <div style="font-size:13px; color:var(--text-secondary); font-weight:500; margin-bottom:12px;">${escapeHtml(c.type || 'Auto')}${c.model ? ' &middot; ' + escapeHtml(c.model) : ''}${c.plate ? ' &middot; <span style="font-weight:700; letter-spacing:0.5px;">' + escapeHtml(c.plate) + '</span>' : ''}${c.year ? ' &middot; ' + escapeHtml(c.year) : ''}</div>
             <div style="display:flex; align-items:center; justify-content:space-between; padding-top:12px; border-top:1.5px solid var(--border);">
               <div style="font-size:12px; font-weight:700; color:var(--text-secondary); text-transform:uppercase; letter-spacing:0.3px;">${c.year || ''}</div>
               <div style="font-size:12px; font-weight:600; color:var(--accent);">${c.model || ''}</div>
@@ -2380,6 +2585,7 @@ const VEHICLE_KEY = 'daycounter_vehicles';
       document.getElementById('editVehName').value = c.name;
       document.getElementById('editVehType').value = c.type || 'Auto';
       document.getElementById('editVehModel').value = c.model || '';
+      document.getElementById('editVehPlate').value = c.plate || '';
       document.getElementById('editVehYear').value = c.year || '';
       document.getElementById('vehicleModal').classList.add('show');
     }
@@ -2396,9 +2602,10 @@ const VEHICLE_KEY = 'daycounter_vehicles';
       const name = document.getElementById('editVehName').value.trim();
       const type = document.getElementById('editVehType').value;
       const model = document.getElementById('editVehModel').value.trim();
+      const plate = document.getElementById('editVehPlate').value.trim().toUpperCase();
       const year = document.getElementById('editVehYear').value.trim();
       if (!name) { toast(t('compilaTutti')); return; }
-      items[idx] = { ...items[idx], name, type, model, year, documents: editingVehDocs };
+      items[idx] = { ...items[idx], name, type, model, plate, year, documents: editingVehDocs };
       saveVehicles(items);
       closeVehModal(); renderVehicles(); renderDashboard(); toast(t('veicoloAggiornato'));
       if (currentVehicleId === editingVehId) {
@@ -2433,6 +2640,7 @@ const VEHICLE_KEY = 'daycounter_vehicles';
       document.getElementById('vehName').value = '';
       document.getElementById('vehType').value = 'Auto';
       document.getElementById('vehModel').value = '';
+      document.getElementById('vehPlate').value = '';
       document.getElementById('vehYear').value = '';
       toast(t('campiResettati'));
     }
@@ -2539,12 +2747,13 @@ const VEHICLE_KEY = 'daycounter_vehicles';
       const code = document.getElementById('docCode').value.trim();
       const noExpiry = document.getElementById('docNoExpiry').checked;
       const expiry = noExpiry ? '' : document.getElementById('docExpiry').value;
+      const issueDate = document.getElementById('docIssueDate').value;
       if (!name) { toast(t('compilaTutti')); return; }
       async function doSave(attachments) {
         const items = getDocuments();
         const newId = Date.now();
         const attMeta = attachments.map(a => ({ name: a.name, type: a.type }));
-        items.push({ id: newId, name, code, expiry, noExpiry, attachments: attMeta });
+        items.push({ id: newId, name, code, issueDate, expiry, noExpiry, attachments: attMeta });
         saveDocuments(items);
         if (attachments.length > 0) {
           try { await saveAttachment(newId, attachments); }
@@ -2552,6 +2761,7 @@ const VEHICLE_KEY = 'daycounter_vehicles';
         }
         document.getElementById('docName').value = '';
         document.getElementById('docCode').value = '';
+        document.getElementById('docIssueDate').value = getTodayStr();
         document.getElementById('docExpiry').value = '';
         document.getElementById('docFile1').value = '';
         const label = document.getElementById('docFileLabel');
@@ -2654,6 +2864,7 @@ const VEHICLE_KEY = 'daycounter_vehicles';
       }
       document.getElementById('editDocName').value = c.name;
       document.getElementById('editDocCode').value = c.code;
+      document.getElementById('editDocIssueDate').value = c.issueDate || '';
       document.getElementById('editDocExpiry').value = c.expiry || '';
       document.getElementById('editDocQuickExpiry').value = '';
       document.getElementById('editDocNoExpiry').checked = !!c.noExpiry;
@@ -2684,6 +2895,7 @@ const VEHICLE_KEY = 'daycounter_vehicles';
       const code = document.getElementById('editDocCode').value.trim();
       const noExpiry = document.getElementById('editDocNoExpiry').checked;
       const expiry = noExpiry ? '' : document.getElementById('editDocExpiry').value;
+      const issueDate = document.getElementById('editDocIssueDate').value;
       if (!name) { toast(t('compilaTutti')); return; }
       let attachments = editingDocAttachments.filter((_, i) => !editingDocAttachmentsRemoved.includes(i));
       const newFiles = [];
@@ -2704,7 +2916,7 @@ const VEHICLE_KEY = 'daycounter_vehicles';
           if (attachments.length > 2) attachments = attachments.slice(-2);
           try { await saveAttachment(editingDocId, attachments); } catch(err) { toast(t('erroreSalvataggio')); }
           const attMeta = attachments.map(a => ({ name: a.name, type: a.type }));
-          items[idx] = { ...items[idx], name, code, expiry, noExpiry, attachments: attMeta, hasAttachment: attMeta.length > 0, attachmentName: attMeta[0]?.name || '' };
+          items[idx] = { ...items[idx], name, code, issueDate, expiry, noExpiry, attachments: attMeta, hasAttachment: attMeta.length > 0, attachmentName: attMeta[0]?.name || '' };
           saveDocuments(items);
           closeDocModal(); renderDocuments(); renderDashboard(); toast(t('documentoAggiornato'));
         }).catch(() => toast(t('erroreSalvataggio')));
@@ -2714,7 +2926,7 @@ const VEHICLE_KEY = 'daycounter_vehicles';
         try { await saveAttachment(editingDocId, attachments); } catch(e) {}
       }
       const attMeta = attachments.map(a => ({ name: a.name, type: a.type }));
-      items[idx] = { ...items[idx], name, code, expiry, noExpiry, attachments: attMeta, hasAttachment: attMeta.length > 0, attachmentName: attMeta[0]?.name || '' };
+      items[idx] = { ...items[idx], name, code, issueDate, expiry, noExpiry, attachments: attMeta, hasAttachment: attMeta.length > 0, attachmentName: attMeta[0]?.name || '' };
       saveDocuments(items);
       closeDocModal(); renderDocuments(); renderDashboard(); toast(t('documentoAggiornato'));
     }
@@ -3208,11 +3420,14 @@ const VEHICLE_KEY = 'daycounter_vehicles';
       if (!years) return;
       const input = document.getElementById(prefix + 'Expiry');
       if (!input) return;
-      const today = new Date();
-      today.setFullYear(today.getFullYear() + parseInt(years));
-      const yyyy = today.getFullYear();
-      const mm = String(today.getMonth() + 1).padStart(2, '0');
-      const dd = String(today.getDate()).padStart(2, '0');
+      const issueDateInput = document.getElementById(prefix + 'IssueDate');
+      const base = (issueDateInput && issueDateInput.value)
+        ? new Date(issueDateInput.value + 'T00:00:00')
+        : new Date();
+      base.setFullYear(base.getFullYear() + parseInt(years));
+      const yyyy = base.getFullYear();
+      const mm = String(base.getMonth() + 1).padStart(2, '0');
+      const dd = String(base.getDate()).padStart(2, '0');
       input.value = `${yyyy}-${mm}-${dd}`;
     }
     function populateQuickExpirySelects() {
@@ -3431,6 +3646,7 @@ const VEHICLE_KEY = 'daycounter_vehicles';
     }
     function resetVehDocForm() {
       document.getElementById('vehDocName').value = '';
+      document.getElementById('vehDocIssueDate').value = getTodayStr();
       document.getElementById('vehDocExpiry').value = '';
       document.getElementById('vehDocQuickExpiry').value = '';
       document.getElementById('vehDocNoExpiry').checked = false;
@@ -3491,6 +3707,7 @@ const VEHICLE_KEY = 'daycounter_vehicles';
       const name = document.getElementById('vehDocName').value.trim();
       const noExpiry = document.getElementById('vehDocNoExpiry').checked;
       const expiry = noExpiry ? '' : document.getElementById('vehDocExpiry').value;
+      const issueDate = document.getElementById('vehDocIssueDate').value;
       if (!name) { toast(t('compilaTutti')); return; }
 
       const items = getVehicles();
@@ -3514,7 +3731,7 @@ const VEHICLE_KEY = 'daycounter_vehicles';
             const existingAtts = oldDoc.attachments || [];
             const newAtts = [...existingAtts, ...attMeta];
             if (newAtts.length > 2) newAtts.splice(0, newAtts.length - 2);
-            vehicle.documents[dIdx] = { ...oldDoc, name, code, expiry, noExpiry, attachments: newAtts, hasAttachment: newAtts.length > 0, attachmentName: newAtts[0]?.name || '' };
+            vehicle.documents[dIdx] = { ...oldDoc, name, code, issueDate, expiry, noExpiry, attachments: newAtts, hasAttachment: newAtts.length > 0, attachmentName: newAtts[0]?.name || '' };
             if (attachments.length > 0) {
               try {
                 const existing = await getAttachment('vehdoc_' + currentVehicleId + '_' + editingVehDocId) || [];
@@ -3527,7 +3744,7 @@ const VEHICLE_KEY = 'daycounter_vehicles';
           }
         } else {
           const newId = Date.now();
-          vehicle.documents.push({ id: newId, name, code, expiry, noExpiry, attachments: attMeta, hasAttachment: attMeta.length > 0, attachmentName: attMeta[0]?.name || '' });
+          vehicle.documents.push({ id: newId, name, code, issueDate, expiry, noExpiry, attachments: attMeta, hasAttachment: attMeta.length > 0, attachmentName: attMeta[0]?.name || '' });
           if (attachments.length > 0) {
             try { await saveAttachment('vehdoc_' + currentVehicleId + '_' + newId, attachments); }
             catch(err) { toast(t('erroreSalvataggio')); }
@@ -3566,6 +3783,7 @@ const VEHICLE_KEY = 'daycounter_vehicles';
       if (!doc) return;
       editingVehDocId = id;
       document.getElementById('vehDocName').value = doc.name || '';
+      document.getElementById('vehDocIssueDate').value = doc.issueDate || '';
       document.getElementById('vehDocExpiry').value = doc.expiry || '';
       document.getElementById('vehDocQuickExpiry').value = '';
       document.getElementById('vehDocNoExpiry').checked = !!doc.noExpiry;
@@ -3629,6 +3847,198 @@ const VEHICLE_KEY = 'daycounter_vehicles';
         });
       }).catch(() => {});
     }
+    // ══════════════════════════════════════════════════════════
+    // CALENDARIO
+    // ══════════════════════════════════════════════════════════
+    const CALENDAR_KEY = 'daycounter_calendar_notes';
+    let calCurrentYear = new Date().getFullYear();
+    let calCurrentMonth = new Date().getMonth();
+    let calSelectedDate = null;
+
+    function getCalNotes() {
+      try { return JSON.parse(localStorage.getItem(CALENDAR_KEY)) || {}; } catch(e) { return {}; }
+    }
+    function saveCalNotes(n) { localStorage.setItem(CALENDAR_KEY, JSON.stringify(n)); }
+
+    function calPrevMonth() {
+      calCurrentMonth--;
+      if (calCurrentMonth < 0) { calCurrentMonth = 11; calCurrentYear--; }
+      closeCalDay();
+      renderCalendar();
+    }
+    function calNextMonth() {
+      calCurrentMonth++;
+      if (calCurrentMonth > 11) { calCurrentMonth = 0; calCurrentYear++; }
+      closeCalDay();
+      renderCalendar();
+    }
+
+    function getCalEventsForDate(dateStr) {
+      const events = [];
+      getCertificates().forEach(c => {
+        if (!c.noExpiry && c.expiry && c.expiry.slice(0,10) === dateStr)
+          events.push({ type:'cert', label:(c.name || 'Certificato'), color:'#ef4444', icon:'📜' });
+      });
+      getDocuments().forEach(d => {
+        if (!d.noExpiry && d.expiry && d.expiry.slice(0,10) === dateStr)
+          events.push({ type:'doc', label:(d.name || 'Documento'), color:'#f59e0b', icon:'📁' });
+      });
+      getVehicles().forEach(v => {
+        (v.documents || []).forEach(d => {
+          if (!d.noExpiry && d.expiry && d.expiry.slice(0,10) === dateStr)
+            events.push({ type:'vehdoc', label:(d.name || 'Doc. veicolo') + (v.name ? ' ('+v.name+')' : ''), color:'#3b82f6', icon:'🚗' });
+        });
+      });
+      return events;
+    }
+
+    function renderCalendar() {
+      const isEn = getLang() === 'en';
+      const monthNames = isEn
+        ? ['January','February','March','April','May','June','July','August','September','October','November','December']
+        : ['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
+      const dayNames = isEn
+        ? ['Mon','Tue','Wed','Thu','Fri','Sat','Sun']
+        : ['Lun','Mar','Mer','Gio','Ven','Sab','Dom'];
+
+      const lbl = document.getElementById('calMonthLabel');
+      if (lbl) lbl.textContent = monthNames[calCurrentMonth] + ' ' + calCurrentYear;
+
+      const grid = document.getElementById('calGrid');
+      if (!grid) return;
+
+      const notes = getCalNotes();
+      const today = new Date(); today.setHours(0,0,0,0);
+      const todayStr = today.getFullYear() + '-' + String(today.getMonth()+1).padStart(2,'0') + '-' + String(today.getDate()).padStart(2,'0');
+
+      const firstDay = new Date(calCurrentYear, calCurrentMonth, 1);
+      let startDow = (firstDay.getDay() + 6) % 7; // 0=Lun
+      const daysInMonth = new Date(calCurrentYear, calCurrentMonth + 1, 0).getDate();
+
+      let html = '';
+      dayNames.forEach(d => {
+        html += `<div class="cal-hdr">${d}</div>`;
+      });
+      for (let i = 0; i < startDow; i++) html += '<div></div>';
+      for (let day = 1; day <= daysInMonth; day++) {
+        const mm = String(calCurrentMonth+1).padStart(2,'0');
+        const dd = String(day).padStart(2,'0');
+        const ds = `${calCurrentYear}-${mm}-${dd}`;
+        const evs = getCalEventsForDate(ds);
+        const dns = notes[ds] || [];
+        const isToday = ds === todayStr;
+        const isSel  = ds === calSelectedDate;
+        let cls = 'cal-day';
+        if (isToday) cls += ' cal-today';
+        if (isSel && !isToday) cls += ' cal-selected';
+        // Costruisci stringa emoji (max 3 + eventuale +)
+        let iconArr = evs.map(e => e.icon);
+        if (dns.length > 0) iconArr.push('📝');
+        const MAX_ICONS = 3;
+        let iconStr = '';
+        if (iconArr.length > 0) {
+          if (iconArr.length <= MAX_ICONS) {
+            iconStr = iconArr.join('');
+          } else {
+            iconStr = iconArr.slice(0, MAX_ICONS).join('') + '+';
+          }
+        }
+        html += `<div class="${cls}" onclick="openCalDay('${ds}')">
+          <span class="cal-daynum">${day}</span>
+          ${iconStr ? `<span class="cal-icons">${iconStr}</span>` : '<span></span>'}
+        </div>`;
+      }
+      grid.innerHTML = html;
+
+      const inp = document.getElementById('calNoteInput');
+      if (inp) inp.placeholder = t('aggiungiAppunto');
+    }
+
+    function openCalDay(dateStr) {
+      // toggle: se clicchi lo stesso giorno, chiudi
+      if (calSelectedDate === dateStr) { closeCalDay(); return; }
+      calSelectedDate = dateStr;
+
+      const [y, m, d] = dateStr.split('-');
+      const isEn = getLang() === 'en';
+      const monthNames = isEn
+        ? ['January','February','March','April','May','June','July','August','September','October','November','December']
+        : ['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
+
+      const titleEl = document.getElementById('calDayExpandTitle');
+      if (titleEl) titleEl.textContent = parseInt(d) + ' ' + monthNames[parseInt(m)-1] + ' ' + y;
+
+      renderCalDayEvents(dateStr);
+
+      const panel = document.getElementById('calDayExpand');
+      if (panel) panel.classList.add('cal-open');
+
+      const inp = document.getElementById('calNoteInput');
+      if (inp) { inp.value = ''; inp.placeholder = t('aggiungiAppunto'); }
+
+      // aggiorna highlight griglia
+      renderCalendar();
+    }
+
+    function closeCalDay() {
+      calSelectedDate = null;
+      const panel = document.getElementById('calDayExpand');
+      if (panel) panel.classList.remove('cal-open');
+      renderCalendar();
+    }
+
+    function renderCalDayEvents(dateStr) {
+      const evs = getCalEventsForDate(dateStr);
+      const notes = getCalNotes();
+      const dns = notes[dateStr] || [];
+      const list = document.getElementById('calDayEventsList');
+      if (!list) return;
+      let html = '';
+      if (evs.length === 0 && dns.length === 0) {
+        html = `<div style="color:var(--text-secondary);font-size:14px;text-align:center;padding:16px 0;">${t('nessunEvento')}</div>`;
+      } else {
+        evs.forEach(e => {
+          html += `<div style="display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--border);">
+            <span style="font-size:20px;line-height:1;flex-shrink:0;">${e.icon}</span>
+            <span style="flex:1;font-size:clamp(13px,3.5vw,15px);color:var(--text);font-weight:600;">${e.label}</span>
+            <span style="color:var(--text-secondary);font-size:11px;font-weight:600;flex-shrink:0;">${dateStr.split('-').reverse().join('/')}</span>
+          </div>`;
+        });
+        dns.forEach(n => {
+          html += `<div style="display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--border);">
+            <span style="font-size:20px;line-height:1;flex-shrink:0;">📝</span>
+            <span style="flex:1;font-size:clamp(13px,3.5vw,15px);color:var(--text);">${n.text}</span>
+            <button onclick="deleteCalNote('${dateStr}','${n.id}')" style="background:none;border:none;color:var(--danger);font-size:20px;cursor:pointer;padding:0 4px;line-height:1;flex-shrink:0;">&#x2715;</button>
+          </div>`;
+        });
+      }
+      list.innerHTML = html;
+    }
+
+    function addCalNote() {
+      const inp = document.getElementById('calNoteInput');
+      const text = inp ? inp.value.trim() : '';
+      if (!text || !calSelectedDate) return;
+      const notes = getCalNotes();
+      if (!notes[calSelectedDate]) notes[calSelectedDate] = [];
+      notes[calSelectedDate].push({ id: Date.now().toString(), text });
+      saveCalNotes(notes);
+      inp.value = '';
+      renderCalDayEvents(calSelectedDate);
+      renderCalendar();
+      toast(t('notaAggiunta'));
+    }
+
+    function deleteCalNote(dateStr, id) {
+      const notes = getCalNotes();
+      if (!notes[dateStr]) return;
+      notes[dateStr] = notes[dateStr].filter(n => n.id !== id);
+      if (notes[dateStr].length === 0) delete notes[dateStr];
+      saveCalNotes(notes);
+      renderCalDayEvents(dateStr);
+      renderCalendar();
+    }
+
   </script>
 </body>
 </html>
