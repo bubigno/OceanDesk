@@ -539,7 +539,7 @@
   <div class="container main-content">
     <div id="page-dashboard" class="fade-in">
       <div class="dashboard-grid" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(130px, 1fr)); gap:12px; margin-bottom:20px;">
-        <div class="card action-card" onclick="showPage('calculator')" style="cursor:pointer; text-align:center; padding:clamp(16px, 4vw, 24px) clamp(10px, 3vw, 16px); position:relative; overflow:hidden; display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:clamp(100px, 20vw, 140px);">
+        <div class="card action-card" onclick="showPage('seatime')" style="cursor:pointer; text-align:center; padding:clamp(16px, 4vw, 24px) clamp(10px, 3vw, 16px); position:relative; overflow:hidden; display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:clamp(100px, 20vw, 140px);">
           <div style="font-size:clamp(28px, 6vw, 40px); margin-bottom:8px; line-height:1;">&#128197;</div>
           <div style="font-size:clamp(12px, 3vw, 15px); font-weight:700;" data-i18n="giorni">Giorni</div>
           <div style="position:absolute; top:0; right:0; width:50px; height:50px; background:var(--accent-light); border-radius:0 0 0 50px; opacity:0.5;"></div>
@@ -561,56 +561,82 @@
         </div>
       </div>
 
-      <div class="card" style="padding:clamp(16px, 4vw, 28px); margin-bottom:16px;">
-        <div style="display:flex; flex-direction:column; align-items:center; gap:clamp(12px, 3vw, 20px);">
-          <div style="position:relative; width:min(260px, 65vw); height:min(260px, 65vw); max-width:320px; max-height:320px;">
-            <svg viewBox="0 0 200 200" style="width:100%; height:100%; transform:rotate(-90deg);">
-              <circle cx="100" cy="100" r="80" fill="none" stroke="var(--border)" stroke-width="18" />
-              <circle id="donutValid" cx="100" cy="100" r="80" fill="none" stroke="#22c55e" stroke-width="18" stroke-dasharray="0 502.65" stroke-linecap="round" />
-              <circle id="donutWarning" cx="100" cy="100" r="80" fill="none" stroke="#f59e0b" stroke-width="18" stroke-dasharray="0 502.65" stroke-linecap="round" />
-              <circle id="donutExpired" cx="100" cy="100" r="80" fill="none" stroke="#ef4444" stroke-width="18" stroke-dasharray="0 502.65" stroke-linecap="round" />
-            </svg>
-            <div style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:52%; height:52%; background:var(--card); border-radius:50%; display:flex; flex-direction:column; align-items:center; justify-content:center; box-shadow:var(--shadow); border:1px solid var(--border); padding:8px;">
-              <div id="donutDaysTotal" style="font-size:clamp(20px, 5vw, 32px); font-weight:800; color:var(--accent); line-height:1; text-align:center;">0</div>
-              <div style="font-size:clamp(9px, 2.2vw, 12px); color:var(--text-secondary); font-weight:600; text-transform:uppercase; letter-spacing:0.4px; text-align:center; margin-top:4px;" id="donutDaysLabel" data-i18n="giorniTotali">giorni totali</div>
-              <div id="donutYearWrap" style="margin-top:6px; display:none; width:100%; text-align:center;">
-                <select id="donutYearSelect" onchange="localStorage.setItem(DASH_YEAR_KEY, this.value); renderDashboard();" style="background:var(--bg); border:1.5px solid var(--border); color:var(--text); font-size:clamp(9px, 2.2vw, 12px); font-weight:700; text-align:center; border-radius:10px; padding:4px 22px 4px 8px; width:auto; min-width:0; max-width:100%; background-image:url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%236e6e78' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E&quot;); background-repeat:no-repeat; background-position:right 6px center; -webkit-appearance:none; appearance:none; cursor:pointer;">
-                  <option value="all" data-i18n="tuttiAnni">Tutti</option>
-                </select>
+      <!-- ── Nuova card grafico a 2 pannelli ── -->
+      <div class="card" style="padding:0; overflow:hidden; margin-bottom:16px;">
+
+        <!-- Pannello 1: Sea Time -->
+        <div id="dashSeaTimePanel" style="padding:clamp(16px,4vw,22px) clamp(16px,4vw,22px) 18px; border-bottom:1.5px solid var(--border);">
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px; margin-bottom:14px;">
+            <div>
+              <div style="display:flex; align-items:center; gap:7px; margin-bottom:6px;">
+                <span style="font-size:15px; line-height:1;">&#9973;</span>
+                <span style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.8px; color:var(--text-secondary);">Sea Time</span>
+              </div>
+              <div style="font-size:clamp(40px,9vw,60px); font-weight:900; color:var(--accent); line-height:1; letter-spacing:-2px;" id="donutDaysTotal">0</div>
+              <div style="font-size:12px; color:var(--text-secondary); font-weight:600; margin-top:5px;" id="donutDaysLabel" data-i18n="giorniTotali">giorni totali</div>
+            </div>
+            <div id="donutYearWrap" style="display:none; margin-top:4px;">
+              <select id="donutYearSelect" onchange="localStorage.setItem(DASH_YEAR_KEY, this.value); renderDashboard();" style="background:var(--bg); border:1.5px solid var(--border); color:var(--text); font-size:12px; font-weight:700; text-align:center; border-radius:10px; padding:6px 28px 6px 10px; background-image:url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%236e6e78' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E&quot;); background-repeat:no-repeat; background-position:right 8px center; -webkit-appearance:none; appearance:none; cursor:pointer; min-width:90px;">
+                <option value="all" data-i18n="tuttiAnni">Tutti</option>
+              </select>
+            </div>
+          </div>
+          <!-- Barre anni -->
+          <div id="dashYearBars" style="display:flex; flex-direction:column; gap:8px;"></div>
+        </div>
+
+        <!-- Pannello 2: Certificati & Documenti -->
+        <div style="padding:clamp(16px,4vw,22px);">
+          <div style="display:flex; align-items:center; gap:7px; margin-bottom:14px;">
+            <span style="font-size:15px; line-height:1;">&#128220;</span>
+            <span style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.8px; color:var(--text-secondary);" data-i18n="riepilogo">Riepilogo</span>
+          </div>
+          <div style="display:flex; gap:clamp(14px,4vw,24px); align-items:center;">
+            <!-- Mini donut -->
+            <div style="position:relative; width:88px; height:88px; flex-shrink:0;">
+              <svg viewBox="0 0 100 100" style="width:100%; height:100%; transform:rotate(-90deg);">
+                <circle cx="50" cy="50" r="40" fill="none" stroke="var(--border)" stroke-width="14"/>
+                <circle id="donutValid"   cx="50" cy="50" r="40" fill="none" stroke="#22c55e" stroke-width="14" stroke-dasharray="0 251.33" stroke-linecap="round"/>
+                <circle id="donutWarning" cx="50" cy="50" r="40" fill="none" stroke="#f59e0b" stroke-width="14" stroke-dasharray="0 251.33" stroke-linecap="round"/>
+                <circle id="donutExpired" cx="50" cy="50" r="40" fill="none" stroke="#ef4444" stroke-width="14" stroke-dasharray="0 251.33" stroke-linecap="round"/>
+              </svg>
+              <div style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); text-align:center; pointer-events:none;">
+                <div style="font-size:20px; font-weight:900; color:var(--text); line-height:1;" id="donutTotalCount">0</div>
+                <div style="font-size:8px; color:var(--text-secondary); font-weight:700; text-transform:uppercase; letter-spacing:0.3px; margin-top:2px;">tot.</div>
+              </div>
+            </div>
+            <!-- Legenda cliccabile -->
+            <div style="flex:1; display:flex; flex-direction:column; gap:0;">
+              <div style="display:flex; align-items:center; justify-content:space-between; padding:7px 0; cursor:pointer;" onclick="toggleStatusAccordion('valid');">
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <span style="width:9px; height:9px; border-radius:50%; background:var(--positive); flex-shrink:0; box-shadow:0 0 6px rgba(34,197,94,0.5);"></span>
+                  <span style="font-size:13px; font-weight:600;" data-i18n="validi">Validi</span>
+                </div>
+                <span style="font-size:20px; font-weight:900; color:var(--positive); line-height:1;" id="pillValid">0</span>
+              </div>
+              <div style="height:1px; background:var(--border);"></div>
+              <div style="display:flex; align-items:center; justify-content:space-between; padding:7px 0; cursor:pointer;" onclick="toggleStatusAccordion('warning');">
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <span style="width:9px; height:9px; border-radius:50%; background:var(--warning); flex-shrink:0; box-shadow:0 0 6px rgba(245,158,11,0.5);"></span>
+                  <span style="font-size:13px; font-weight:600;" data-i18n="inScadenza">In scadenza</span>
+                </div>
+                <span style="font-size:20px; font-weight:900; color:var(--warning); line-height:1;" id="pillWarning">0</span>
+              </div>
+              <div style="height:1px; background:var(--border);"></div>
+              <div style="display:flex; align-items:center; justify-content:space-between; padding:7px 0; cursor:pointer;" onclick="toggleStatusAccordion('expired');">
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <span style="width:9px; height:9px; border-radius:50%; background:var(--danger); flex-shrink:0; box-shadow:0 0 6px rgba(239,68,68,0.5);"></span>
+                  <span style="font-size:13px; font-weight:600;" data-i18n="scaduti">Scaduti</span>
+                </div>
+                <span style="font-size:20px; font-weight:900; color:var(--danger); line-height:1;" id="pillExpired">0</span>
               </div>
             </div>
           </div>
-          <div style="display:flex; flex-wrap:wrap; justify-content:center; gap:clamp(8px, 2vw, 14px) clamp(12px, 3vw, 24px); width:100%;">
-            <div style="display:flex; align-items:center; gap:6px; font-size:clamp(11px, 2.5vw, 13px); font-weight:600; cursor:pointer;" onclick="goToCerts('valid'); goToDocuments('valid');">
-              <span style="width:10px; height:10px; border-radius:50%; background:var(--positive); display:inline-block; flex-shrink:0;"></span> <span data-i18n="validi">Validi</span>
-            </div>
-            <div style="display:flex; align-items:center; gap:6px; font-size:clamp(11px, 2.5vw, 13px); font-weight:600; cursor:pointer;" onclick="goToCerts('warning'); goToDocuments('warning');">
-              <span style="width:10px; height:10px; border-radius:50%; background:var(--warning); display:inline-block; flex-shrink:0;"></span> <span data-i18n="inScadenza">In scadenza</span>
-            </div>
-            <div style="display:flex; align-items:center; gap:6px; font-size:clamp(11px, 2.5vw, 13px); font-weight:600; cursor:pointer;" onclick="goToCerts('expired'); goToDocuments('expired');">
-              <span style="width:10px; height:10px; border-radius:50%; background:var(--danger); display:inline-block; flex-shrink:0;"></span> <span data-i18n="scaduti">Scaduti</span>
-            </div>
-          </div>
         </div>
+
       </div>
 
-      <div class="card" style="padding:clamp(16px, 4vw, 24px); margin-bottom:16px;">
-        <div style="font-size:clamp(13px, 3vw, 15px); font-weight:700; color:var(--text-secondary); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:16px;" data-i18n="riepilogo">Riepilogo scadenze</div>
-        <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:clamp(8px, 2vw, 14px);">
-          <div class="status-pill" onclick="toggleStatusAccordion('valid')" style="cursor:pointer; text-align:center; padding:clamp(14px, 3vw, 20px) clamp(6px, 2vw, 10px); background:rgba(34,197,94,0.08); border:2px solid rgba(34,197,94,0.25); border-radius:16px; transition:var(--transition);" onmouseover="this.style.background='rgba(34,197,94,0.15)'" onmouseout="this.style.background='rgba(34,197,94,0.08)'">
-            <div style="font-size:clamp(24px, 6vw, 36px); font-weight:800; color:var(--positive); line-height:1;" id="pillValid">0</div>
-            <div style="font-size:clamp(10px, 2.2vw, 12px); color:var(--positive); font-weight:700; margin-top:6px; text-transform:uppercase; letter-spacing:0.3px;" data-i18n="validi">Validi</div>
-          </div>
-          <div class="status-pill" onclick="toggleStatusAccordion('warning')" style="cursor:pointer; text-align:center; padding:clamp(14px, 3vw, 20px) clamp(6px, 2vw, 10px); background:rgba(245,158,11,0.08); border:2px solid rgba(245,158,11,0.25); border-radius:16px; transition:var(--transition);" onmouseover="this.style.background='rgba(245,158,11,0.15)'" onmouseout="this.style.background='rgba(245,158,11,0.08)'">
-            <div style="font-size:clamp(24px, 6vw, 36px); font-weight:800; color:var(--warning); line-height:1;" id="pillWarning">0</div>
-            <div style="font-size:clamp(10px, 2.2vw, 12px); color:var(--warning); font-weight:700; margin-top:6px; text-transform:uppercase; letter-spacing:0.3px;" data-i18n="inScadenza">In scadenza</div>
-          </div>
-          <div class="status-pill" onclick="toggleStatusAccordion('expired')" style="cursor:pointer; text-align:center; padding:clamp(14px, 3vw, 20px) clamp(6px, 2vw, 10px); background:rgba(239,68,68,0.08); border:2px solid rgba(239,68,68,0.25); border-radius:16px; transition:var(--transition);" onmouseover="this.style.background='rgba(239,68,68,0.15)'" onmouseout="this.style.background='rgba(239,68,68,0.08)'">
-            <div style="font-size:clamp(24px, 6vw, 36px); font-weight:800; color:var(--danger); line-height:1;" id="pillExpired">0</div>
-            <div style="font-size:clamp(10px, 2.2vw, 12px); color:var(--danger); font-weight:700; margin-top:6px; text-transform:uppercase; letter-spacing:0.3px;" data-i18n="scaduti">Scaduti</div>
-          </div>
-        </div>
-      </div>
+
 
       <div class="card" style="padding:0; overflow:hidden; margin-bottom:16px;">
         <div id="statusAccordionValid" class="status-accordion" style="display:none;">
@@ -653,24 +679,37 @@
           <div style="font-size:clamp(13px,3vw,16px); font-weight:700;" data-i18n="seaTime">Sea Time</div>
           <div style="position:absolute; top:0; right:0; width:50px; height:50px; background:var(--accent-light); border-radius:0 0 0 50px; opacity:0.5;"></div>
         </div>
-        <div class="card action-card" onclick="showPage('calendario')" style="cursor:pointer; text-align:center; padding:clamp(20px,5vw,32px) clamp(10px,3vw,16px); position:relative; overflow:hidden; display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:clamp(110px, 22vw, 150px);">
-          <div style="font-size:clamp(30px,7vw,44px); margin-bottom:8px; line-height:1;">&#128197;</div>
-          <div style="font-size:clamp(13px,3vw,16px); font-weight:700;" data-i18n="calendario">Calendario</div>
-          <div style="position:absolute; top:0; right:0; width:50px; height:50px; background:rgba(59,130,246,0.08); border-radius:0 0 0 50px; opacity:0.5;"></div>
-        </div>
+
       </div>
     </div>
 
     <!-- ══ Sea Time ══ -->
     <div id="page-seatime" class="hidden">
       <div class="page-header">
-        <button class="back-btn" onclick="showPage('calculator')">&#8592;</button>
+        <button class="back-btn" onclick="showPage('dashboard')">&#8592;</button>
         <h1>Sea Time</h1>
       </div>
       <div class="target-box">
         <label data-i18n="giorniTarget">Giorni target</label>
         <input type="number" id="targetDays" placeholder="0" min="0" onchange="saveTarget()">
       </div>
+
+      <!-- Toggle visibilità grafico in home -->
+      <div class="card" style="padding:14px clamp(16px,4vw,22px); margin-bottom:16px; display:flex; align-items:center; justify-content:space-between; gap:12px;">
+        <div>
+          <div style="font-size:14px; font-weight:700; color:var(--text);">Grafico anni in home</div>
+          <div style="font-size:12px; color:var(--text-secondary); margin-top:2px;">Mostra le barre per anno nella schermata principale</div>
+        </div>
+        <label style="position:relative; display:inline-block; width:46px; height:26px; flex-shrink:0; cursor:pointer;">
+          <input type="checkbox" id="toggleDashBars" style="opacity:0; width:0; height:0; position:absolute;"
+            onchange="localStorage.setItem(DASH_BARS_VIS_KEY, this.checked ? '1' : '0'); renderDashboard();">
+          <span style="position:absolute; inset:0; background:var(--border); border-radius:26px; transition:0.3s;"
+            id="toggleDashBarsTrack"></span>
+          <span style="position:absolute; top:3px; left:3px; width:20px; height:20px; background:#fff; border-radius:50%; transition:0.3s; box-shadow:0 1px 3px rgba(0,0,0,0.25);"
+            id="toggleDashBarsThumb"></span>
+        </label>
+      </div>
+
       <div class="card" style="padding:0; overflow:hidden;">
         <div style="display:flex; justify-content:space-between; align-items:center; padding:18px 22px; cursor:pointer;" onclick="toggleCalcForm()">
           <span style="font-size:15px; font-weight:700;" data-i18n="selezionaPeriodo">Seleziona il periodo</span>
@@ -905,6 +944,7 @@
         <div id="vehDocFormSection" class="hidden" style="padding:0 22px 22px;">
           <div class="input-group" style="gap:10px;">
             <div class="input-row"><label style="min-width:50px" data-i18n="nome">Nome</label><input type="text" id="vehDocName" placeholder="Es. Assicurazione, Bollo..."></div>
+            <div class="input-row"><label style="min-width:50px" data-i18n="codice">Codice</label><input type="text" id="vehDocCode" placeholder="Es. Polizza 12345..."></div>
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
               <div style="display:flex; flex-direction:column; gap:6px;">
                 <label style="font-size:12px; font-weight:600; color:var(--text-secondary); padding-left:2px;" data-i18n="rilascio">Rilascio</label>
@@ -930,6 +970,7 @@
               <label class="switch"><input type="checkbox" id="vehDocNoExpiry" onchange="toggleNoExpiryAdd('vehdoc')"><span class="slider"></span></label>
               <span style="font-size:14px; font-weight:600; color:var(--text-secondary);" data-i18n="senzaScadenza">Senza scadenza</span>
             </div>
+            <div id="vehDocAttachmentsArea" style="margin-bottom:8px;"></div>
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
             <div style="display:flex; flex-direction:column; gap:4px;">
               <label style="font-size:11px; font-weight:600; color:var(--text-secondary); text-align:center;" data-i18n="allegato">Allegato 1</label>
@@ -1548,6 +1589,8 @@ const VEHICLE_KEY = 'daycounter_vehicles';
     let docScrollTarget = null;
     let editingVehDocs = [];
     let editingVehDocId = null;
+    let editingVehDocAttachments = [];
+    let editingVehDocAttachmentsRemoved = [];
 
     // ===== INDEXEDDB ATTACHMENTS =====
     const ATTACHMENT_DB = 'daycounter_attachments';
@@ -1602,6 +1645,7 @@ const VEHICLE_KEY = 'daycounter_vehicles';
     const TARGET_KEY = 'daycounter_target';
     const CERT_KEY = 'daycounter_certificates';
     const DASH_YEAR_KEY = 'daycounter_dash_year';
+    const DASH_BARS_VIS_KEY = 'daycounter_dash_bars_vis';
 
     // ===== UTILS =====
     function isLeapYear(year) {
@@ -1903,7 +1947,7 @@ const VEHICLE_KEY = 'daycounter_vehicles';
       const totWarn  = cWarn + dWarn + vdWarn;
       const totExp   = cExp + dExp + vdExp;
       const grandTot = totValid + totWarn + totExp;
-      const CIRC = 502.65; // 2 * PI * 80
+      const CIRC = 251.33; // 2 * PI * 40
 
       function setSegment(id, count) {
         const el = document.getElementById(id);
@@ -1924,13 +1968,58 @@ const VEHICLE_KEY = 'daycounter_vehicles';
       setSegment('donutWarning', totWarn);
       setSegment('donutExpired', totExp);
 
-      // Pill counters
+      // Totale centro mini-donut
+      const donutCountEl = document.getElementById('donutTotalCount');
+      if (donutCountEl) anim(donutCountEl, grandTot, 500);
+
+      // Pill counters (legenda cliccabile)
       const pillValid = document.getElementById('pillValid');
       const pillWarning = document.getElementById('pillWarning');
       const pillExpired = document.getElementById('pillExpired');
       if (pillValid) anim(pillValid, totValid, 500);
       if (pillWarning) anim(pillWarning, totWarn, 500);
       if (pillExpired) anim(pillExpired, totExp, 500);
+
+      // === Pannello Sea Time (visibilità controllata dal toggle) ===
+      const barsVisible = localStorage.getItem(DASH_BARS_VIS_KEY) !== '0'; // default ON
+      // Mostra/nasconde l'intero pannello superiore
+      const seaPanel = document.getElementById('dashSeaTimePanel');
+      if (seaPanel) seaPanel.style.display = barsVisible ? '' : 'none';
+      // Sincronizza il toggle nella pagina seatime
+      const toggleEl = document.getElementById('toggleDashBars');
+      const trackEl  = document.getElementById('toggleDashBarsTrack');
+      const thumbEl  = document.getElementById('toggleDashBarsThumb');
+      if (toggleEl) {
+        toggleEl.checked = barsVisible;
+        if (trackEl) trackEl.style.background = barsVisible ? 'var(--accent)' : 'var(--border)';
+        if (thumbEl) thumbEl.style.left = barsVisible ? '23px' : '3px';
+      }
+      const barEl = document.getElementById('dashYearBars');
+      if (barEl) {
+        if (!barsVisible || years.length === 0) {
+          barEl.innerHTML = '';
+        } else {
+          const yearMap = {};
+          years.forEach(y => { yearMap[y] = 0; });
+          periods.forEach(p => p.years.forEach(y => { if (yearMap[y.year] !== undefined) yearMap[y.year] += y.days; }));
+          const maxDays = Math.max(...Object.values(yearMap), 1);
+          const displayYears = years.slice(-4).reverse();
+          barEl.innerHTML = displayYears.map(y => {
+            const days = yearMap[y];
+            const pct = Math.round((days / maxDays) * 100);
+            return `<div style="display:flex; align-items:center; gap:8px;">
+              <span style="font-size:11px; font-weight:700; color:var(--text-secondary); min-width:36px; text-align:right;">${y}</span>
+              <div style="flex:1; background:var(--bg); border-radius:4px; height:6px; overflow:hidden;">
+                <div class="bar-fill" data-width="${pct}" style="height:100%; background:var(--accent); border-radius:4px; width:0%; transition:width 0.6s cubic-bezier(0.4,0,0.2,1);"></div>
+              </div>
+              <span style="font-size:11px; font-weight:800; color:var(--text); min-width:28px;">${days}d</span>
+            </div>`;
+          }).join('');
+          requestAnimationFrame(() => {
+            barEl.querySelectorAll('.bar-fill').forEach(b => { b.style.width = b.dataset.width + '%'; });
+          });
+        }
+      }
     }
 
     function getTodayStr() {
@@ -2526,74 +2615,42 @@ const VEHICLE_KEY = 'daycounter_vehicles';
       renderDashboard();
       toast(t('veicoloAggiunto'));
     }
-    function renderVehicles() {
-      const items = getVehicles();
-      const gridCard = document.getElementById('vehGridCard');
-      const grid = document.getElementById('vehiclesGrid');
-      gridCard.style.display = items.length > 0 ? '' : 'none';
-      grid.innerHTML = '';
-      if (items.length === 0) {
-        grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1;">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-            <polyline points="14 2 14 8 20 8"></polyline>
-          </svg>
-          <p style="font-size:14px; font-weight:500;">${t('nessunVeicolo')}</p>
-        </div>`;
-        return;
-      }
-      const sorted = items.slice().sort((a, b) => {
-        const na = (a.name || '').toLowerCase();
-        const nb = (b.name || '').toLowerCase();
-        return na.localeCompare(nb);
-      });
-      const typeIcons = { Auto: '&#128663;', Moto: '&#127949;', Barca: '&#128758;', Camper: '&#128665;', Camion: '&#128666;', Altro: '&#128739;' };
-      sorted.forEach(c => {
-        const card = document.createElement('div');
-        card.className = 'card';
-        card.style.cssText = 'padding:0; overflow:hidden; cursor:pointer; transition:var(--transition);';
-        card.onmouseover = () => { card.style.transform = 'translateY(-4px) scale(1.01)'; card.style.boxShadow = 'var(--shadow-lg)'; };
-        card.onmouseout = () => { card.style.transform = ''; card.style.boxShadow = ''; };
-        card.onclick = () => openVehicleDetail(c.id);
-        const docCount = (c.documents && c.documents.length) || 0;
-        const docBadge = docCount > 0 ? `<span style="font-size:10px; font-weight:700; padding:2px 7px; border-radius:6px; background:var(--accent-light); color:var(--accent);">${docCount} doc</span>` : '';
-        card.innerHTML = `
-          <div style="padding:20px;">
-            <div style="display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:14px;">
-              <div style="font-size:36px; line-height:1;">${typeIcons[c.type] || typeIcons.Altro}</div>
-              <div style="display:flex; gap:6px; flex-wrap:wrap; justify-content:flex-end;">${docBadge}</div>
-            </div>
-            <div style="font-size:18px; font-weight:700; letter-spacing:-0.3px; margin-bottom:6px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${escapeHtml(c.name || '')}</div>
-            <div style="font-size:13px; color:var(--text-secondary); font-weight:500; margin-bottom:12px;">${escapeHtml(c.type || 'Auto')}${c.model ? ' &middot; ' + escapeHtml(c.model) : ''}${c.plate ? ' &middot; <span style="font-weight:700; letter-spacing:0.5px;">' + escapeHtml(c.plate) + '</span>' : ''}${c.year ? ' &middot; ' + escapeHtml(c.year) : ''}</div>
-            <div style="display:flex; align-items:center; justify-content:space-between; padding-top:12px; border-top:1.5px solid var(--border);">
-              <div style="font-size:12px; font-weight:700; color:var(--text-secondary); text-transform:uppercase; letter-spacing:0.3px;">${c.year || ''}</div>
-              <div style="font-size:12px; font-weight:600; color:var(--accent);">${c.model || ''}</div>
-            </div>
-          </div>
-          <div style="height:4px; background:var(--accent); opacity:0.6;"></div>
-        `;
-        grid.appendChild(card);
-      });
+
+    function toggleVehForm() {
+      const body = document.getElementById('vehFormBody');
+      const icon = document.getElementById('vehFormToggle');
+      body.classList.toggle('hidden');
+      icon.style.transform = body.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(45deg)';
     }
-    async function openVehicleModal(id) {
+
+    function clearVehForm() {
+      document.getElementById('vehName').value = '';
+      document.getElementById('vehType').value = 'Auto';
+      document.getElementById('vehModel').value = '';
+      document.getElementById('vehPlate').value = '';
+      document.getElementById('vehYear').value = '';
+      toast(t('campiResettati'));
+    }
+
+    function openVehicleModal(id) {
       const items = getVehicles();
-      const c = items.find(x => x.id === id);
-      if (!c) return;
+      const v = items.find(x => x.id === id);
+      if (!v) return;
       editingVehId = id;
-      editingVehDocs = c.documents ? JSON.parse(JSON.stringify(c.documents)) : [];
-      editingVehDocId = null;
-      document.getElementById('editVehName').value = c.name;
-      document.getElementById('editVehType').value = c.type || 'Auto';
-      document.getElementById('editVehModel').value = c.model || '';
-      document.getElementById('editVehPlate').value = c.plate || '';
-      document.getElementById('editVehYear').value = c.year || '';
+      document.getElementById('editVehName').value = v.name || '';
+      document.getElementById('editVehType').value = v.type || 'Auto';
+      document.getElementById('editVehModel').value = v.model || '';
+      document.getElementById('editVehPlate').value = v.plate || '';
+      document.getElementById('editVehYear').value = v.year || '';
       document.getElementById('vehicleModal').classList.add('show');
     }
+
     function closeVehModal(e) {
       if (e && e.target !== e.currentTarget) return;
       document.getElementById('vehicleModal').classList.remove('show');
       editingVehId = null;
     }
+
     async function saveEditVeh() {
       if (!editingVehId) return;
       const items = getVehicles();
@@ -2605,21 +2662,26 @@ const VEHICLE_KEY = 'daycounter_vehicles';
       const plate = document.getElementById('editVehPlate').value.trim().toUpperCase();
       const year = document.getElementById('editVehYear').value.trim();
       if (!name) { toast(t('compilaTutti')); return; }
-      items[idx] = { ...items[idx], name, type, model, plate, year, documents: editingVehDocs };
+      items[idx] = { ...items[idx], name, type, model, plate, year };
       saveVehicles(items);
-      closeVehModal(); renderVehicles(); renderDashboard(); toast(t('veicoloAggiornato'));
-      if (currentVehicleId === editingVehId) {
-        const updated = getVehicles().find(x => x.id === editingVehId);
+      const savedId = editingVehId;
+      closeVehModal();
+      renderVehicles();
+      renderDashboard();
+      if (currentVehicleId === savedId) {
+        const updated = getVehicles().find(x => x.id === savedId);
         if (updated) renderVehicleDetail(updated);
       }
+      toast(t('veicoloAggiornato'));
     }
+
     async function deleteEditVeh() {
       if (!editingVehId) return;
       if (!confirm(t('eliminaVeicolo'))) return;
       const items = getVehicles();
-      const item = items.find(x => x.id === editingVehId);
-      if (item && item.documents) {
-        for (const d of item.documents) {
+      const v = items.find(x => x.id === editingVehId);
+      if (v && v.documents) {
+        for (const d of v.documents) {
           if ((d.attachments && d.attachments.length > 0) || d.hasAttachment) {
             try { await deleteAttachment('vehdoc_' + editingVehId + '_' + d.id); } catch(e) {}
           }
@@ -2627,42 +2689,76 @@ const VEHICLE_KEY = 'daycounter_vehicles';
       }
       const filtered = items.filter(x => x.id !== editingVehId);
       saveVehicles(filtered);
+      const wasOpen = currentVehicleId;
       closeVehModal();
-      if (currentVehicleId === editingVehId) {
-        currentVehicleId = null;
-        showPage('vehicles');
-      }
-      renderVehicles(); renderDashboard(); toast(t('veicoloEliminato'));
-    }
-    
-    
-    function clearVehForm() {
-      document.getElementById('vehName').value = '';
-      document.getElementById('vehType').value = 'Auto';
-      document.getElementById('vehModel').value = '';
-      document.getElementById('vehPlate').value = '';
-      document.getElementById('vehYear').value = '';
-      toast(t('campiResettati'));
-    }
-    function toggleVehForm() {
-      const body = document.getElementById('vehFormBody');
-      const icon = document.getElementById('vehFormToggle');
-      body.classList.toggle('hidden');
-      icon.style.transform = body.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(45deg)';
-    }
-    function goToVehicles() {
-      showPage('vehicles');
+      if (wasOpen) closeVehicleDetail();
+      renderVehicles();
+      renderDashboard();
+      toast(t('veicoloEliminato'));
     }
 
-    let currentVehicleId = null;
-
+                function renderVehicles() {
+              const items = getVehicles();
+              const gridCard = document.getElementById('vehGridCard');
+              const grid = document.getElementById('vehiclesGrid');
+              gridCard.style.display = items.length > 0 ? '' : 'none';
+              grid.innerHTML = '';
+              if (items.length === 0) {
+                grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1;">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:56px;height:56px;margin-bottom:14px;opacity:0.25;">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                  </svg>
+                  <p style="font-size:14px; font-weight:500;">${t('nessunVeicolo')}</p>
+                </div>`;
+                return;
+              }
+              const sorted = items.slice().sort((a, b) => {
+                const na = (a.name || '').toLowerCase();
+                const nb = (b.name || '').toLowerCase();
+                return na.localeCompare(nb);
+              });
+              const typeIcons = { Auto: '&#128663;', Moto: '&#127949;', Barca: '&#128758;', Camper: '&#128665;', Camion: '&#128666;', Altro: '&#128739;' };
+              sorted.forEach(c => {
+                let hasWarning = false, hasExpired = false;
+                (c.documents || []).forEach(d => {
+                  const s = getDocStatus(d.expiry, d.noExpiry);
+                  if (s.class === 'expired') hasExpired = true;
+                  else if (s.class === 'warning') hasWarning = true;
+                });
+                const statusColor = hasExpired ? 'var(--danger)' : hasWarning ? 'var(--warning)' : 'var(--positive)';
+                const statusDot = c.documents && c.documents.length > 0 ? `<span style="width:8px;height:8px;border-radius:50%;background:${statusColor};display:inline-block;box-shadow:0 0 6px ${statusColor};"></span>` : '';
+                const card = document.createElement('div');
+                card.className = 'card veh-card';
+                card.style.cssText = 'padding:0; overflow:hidden; position:relative; transition:var(--transition); touch-action:manipulation; user-select:none; -webkit-user-select:none;';
+                const docCount = (c.documents && c.documents.length) || 0;
+                const docBadge = docCount > 0 ? `<span style="font-size:11px; font-weight:700; padding:3px 10px; border-radius:20px; background:var(--accent-light); color:var(--accent); display:flex; align-items:center; gap:6px; position:relative; z-index:2; pointer-events:none;">${statusDot} ${docCount} doc</span>` : '';
+                card.innerHTML = `
+                  <div style="padding:22px; position:relative; z-index:2; pointer-events:none;">
+                    <div style="display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:16px;">
+                      <div style="width:52px; height:52px; border-radius:14px; background:var(--accent-light); display:flex; align-items:center; justify-content:center; font-size:28px; flex-shrink:0;">${typeIcons[c.type] || typeIcons.Altro}</div>
+                      <div style="display:flex; gap:6px; flex-wrap:wrap; justify-content:flex-end; align-items:flex-start;">${docBadge}</div>
+                    </div>
+                    <div style="font-size:20px; font-weight:800; letter-spacing:-0.4px; margin-bottom:6px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${escapeHtml(c.name || '')}</div>
+                    <div style="font-size:14px; color:var(--text-secondary); font-weight:500; line-height:1.5;">
+                      ${escapeHtml(c.type || 'Auto')}${c.model ? ' &middot; ' + escapeHtml(c.model) : ''}${c.plate ? ' &middot; <span style="font-weight:700; letter-spacing:0.5px; background:var(--bg); padding:2px 8px; border-radius:6px; font-size:12px;">' + escapeHtml(c.plate) + '</span>' : ''}${c.year ? ' &middot; ' + escapeHtml(c.year) : ''}
+                    </div>
+                  </div>
+                  <div style="height:3px; background:var(--accent-gradient); opacity:0.7; position:relative; z-index:2;"></div>
+                  <div class="veh-card-hit" onclick="openVehicleDetail(${c.id})" style="position:absolute; inset:0; z-index:3; cursor:pointer;" role="button" tabindex="0" aria-label="${escapeHtml(c.name || 'Veicolo')}"></div>
+                `;
+                grid.appendChild(card);
+              });
+            }
+                
     function openVehicleDetail(id) {
+      if (!id) { toast('Errore: ID veicolo mancante'); return; }
       currentVehicleId = id;
       const items = getVehicles();
       const v = items.find(x => x.id === id);
-      if (!v) return;
+      if (!v) { toast('Veicolo non trovato'); return; }
       showPage('vehicle-detail');
-      renderVehicleDetail(v);
+      setTimeout(() => renderVehicleDetail(v), 50);
     }
 
     function closeVehicleDetail() {
@@ -2672,28 +2768,28 @@ const VEHICLE_KEY = 'daycounter_vehicles';
     }
 
     function renderVehicleDetail(v) {
-      const typeIcons = { Auto: '&#128663;', Moto: '&#127949;', Barca: '&#128758;', Camper: '&#128665;', Camion: '&#128666;', Altro: '&#128739;' };
-
-      document.getElementById('vehDetailTitle').textContent = v.name || 'Veicolo';
-      document.getElementById('vehDetailType').textContent = (typeIcons[v.type] || typeIcons.Altro) + ' ' + (v.type || 'Auto');
-      document.getElementById('vehDetailName').textContent = v.name || '';
-
-      const metaHtml = [];
-      if (v.model) metaHtml.push(`<span>${escapeHtml(v.model)}</span>`);
-      if (v.year) metaHtml.push(`<span>${escapeHtml(v.year)}</span>`);
-      document.getElementById('vehDetailMeta').innerHTML = metaHtml.join(' <span style="opacity:0.5">|</span> ');
-
-      // Documenti
-      editingVehDocs = v.documents ? JSON.parse(JSON.stringify(v.documents)) : [];
-      editingVehDocId = null;
-      document.getElementById('vehDocCountBadge').textContent = editingVehDocs.length;
-      renderVehDocList();
-      resetVehDocForm();
-    }
-
-    
-
-    function openEditVehicleInline() {
+              if (!v) return;
+              const typeIcons = { Auto: '&#128663;', Moto: '&#127949;', Barca: '&#128758;', Camper: '&#128665;', Camion: '&#128666;', Altro: '&#128739;' };
+              document.getElementById('vehDetailTitle').textContent = v.name || 'Veicolo';
+              document.getElementById('vehDetailType').textContent = (typeIcons[v.type] || typeIcons.Altro) + ' ' + (v.type || 'Auto');
+              document.getElementById('vehDetailName').textContent = v.name || '';
+              const metaHtml = [];
+              if (v.model) metaHtml.push(`<span>${escapeHtml(v.model)}</span>`);
+              if (v.plate) metaHtml.push(`<span style="font-weight:700; letter-spacing:1px; background:rgba(255,255,255,0.15); padding:2px 8px; border-radius:6px;">${escapeHtml(v.plate)}</span>`);
+              if (v.year) metaHtml.push(`<span>${escapeHtml(v.year)}</span>`);
+              document.getElementById('vehDetailMeta').innerHTML = metaHtml.join(' <span style="opacity:0.5">|</span> ');
+              editingVehDocs = v.documents ? JSON.parse(JSON.stringify(v.documents)) : [];
+              editingVehDocId = null;
+              editingVehDocAttachments = [];
+              editingVehDocAttachmentsRemoved = [];
+              const badge = document.getElementById('vehDocCountBadge');
+              if (badge) badge.textContent = editingVehDocs.length;
+              const list = document.getElementById('vehDocList');
+              if (list) list.style.display = '';
+              renderVehDocList();
+              resetVehDocForm();
+            }
+        function openEditVehicleInline() {
       if (!currentVehicleId) return;
       openVehicleModal(currentVehicleId);
     }
@@ -3644,197 +3740,267 @@ const VEHICLE_KEY = 'daycounter_vehicles';
       if (input.files && input.files[0]) { label.textContent = input.files[0].name; label.style.color = 'var(--text)'; }
       else { label.textContent = t('scegliFile'); label.style.color = 'var(--text-secondary)'; }
     }
-    function resetVehDocForm() {
-      document.getElementById('vehDocName').value = '';
-      document.getElementById('vehDocIssueDate').value = getTodayStr();
-      document.getElementById('vehDocExpiry').value = '';
-      document.getElementById('vehDocQuickExpiry').value = '';
-      document.getElementById('vehDocNoExpiry').checked = false;
-      toggleNoExpiryAdd('vehdoc');
-      document.getElementById('vehDocFile1').value = '';
-      document.getElementById('vehDocFileLabel').textContent = t('scegliFile');
-      document.getElementById('vehDocFileLabel').style.color = 'var(--text-secondary)';
-      document.getElementById('vehDocFile2').value = '';
-      document.getElementById('vehDocFileLabel2').textContent = t('scegliFile');
-      document.getElementById('vehDocFileLabel2').style.color = 'var(--text-secondary)';
-      editingVehDocId = null;
-      document.getElementById('vehDocSaveBtn').textContent = t('aggiungi');
-      document.getElementById('vehDocCancelBtn').style.display = 'none';
-    }
-    function renderVehDocList() {
-      const list = document.getElementById('vehDocList');
-      if (!list) return;
-      if (!editingVehDocs || editingVehDocs.length === 0) {
-        list.innerHTML = `<div class="empty-state" style="padding:20px 0;"><p style="font-size:13px">${t('nessunDocumento')}</p></div>`;
-        return;
-      }
-      list.innerHTML = '';
-      const sorted = editingVehDocs.slice().sort((a, b) => {
-        const da = a.expiry ? new Date(a.expiry) : new Date('2099-12-31');
-        const db = b.expiry ? new Date(b.expiry) : new Date('2099-12-31');
-        return da - db;
-      });
-      sorted.forEach(d => {
-        const s = getDocStatus(d.expiry, d.noExpiry);
-        const div = document.createElement('div');
-        div.className = 'cert-item ' + s.class;
-        div.style.marginBottom = '10px';
-        const daysText = s.days === Infinity ? '∞' : (s.days >= 0 ? `${t('tra')} ${s.days} ${t('gg')}` : `${Math.abs(s.days)} ${t('ggFa')}`);
-        const attCount = (d.attachments && d.attachments.length) || (d.hasAttachment ? 1 : 0);
-        const attachIcon = attCount > 0 ? `<span style="margin-left:6px;opacity:0.6;font-size:12px;">&#128206;${attCount > 1 ? '×' + attCount : ''}</span>` : '';
-        let attButtons = '';
-        if (attCount > 0) {
-          attButtons = '<div style="display:flex; gap:4px; margin-top:4px; flex-wrap:wrap;">';
-          (d.attachments || []).forEach((att, aidx) => {
-            attButtons += `<button type="button" class="btn" style="width:auto; padding:4px 8px; font-size:11px; margin-top:0; background:var(--bg); color:var(--text); border:1.5px solid var(--border);" onclick="event.stopPropagation(); downloadVehDocAttachment(${currentVehicleId}, ${d.id}, ${aidx})">&#128206; ${escapeHtml(att.name || 'File')}</button>`;
+        function resetVehDocForm() {
+          document.getElementById('vehDocName').value = '';
+          document.getElementById('vehDocCode').value = '';
+          document.getElementById('vehDocIssueDate').value = getTodayStr();
+          document.getElementById('vehDocExpiry').value = '';
+          document.getElementById('vehDocQuickExpiry').value = '';
+          document.getElementById('vehDocNoExpiry').checked = false;
+          toggleNoExpiryAdd('vehdoc');
+          document.getElementById('vehDocFile1').value = '';
+          document.getElementById('vehDocFileLabel').textContent = t('scegliFile');
+          document.getElementById('vehDocFileLabel').style.color = 'var(--text-secondary)';
+          document.getElementById('vehDocFile2').value = '';
+          document.getElementById('vehDocFileLabel2').textContent = t('scegliFile');
+          document.getElementById('vehDocFileLabel2').style.color = 'var(--text-secondary)';
+          editingVehDocId = null;
+          editingVehDocAttachments = [];
+          editingVehDocAttachmentsRemoved = [];
+          const area = document.getElementById('vehDocAttachmentsArea');
+          if (area) area.innerHTML = '';
+          document.getElementById('vehDocSaveBtn').textContent = t('aggiungi');
+          document.getElementById('vehDocCancelBtn').style.display = 'none';
+        }
+        function renderVehDocList() {
+          const list = document.getElementById('vehDocList');
+          if (!list) return;
+          if (!editingVehDocs || editingVehDocs.length === 0) {
+            list.innerHTML = `<div class="empty-state" style="padding:32px 20px;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:48px;height:48px;margin-bottom:12px;opacity:0.25;">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+              </svg>
+              <p style="font-size:14px; font-weight:500;">${t('nessunDocumento')}</p>
+            </div>`;
+            return;
+          }
+          list.innerHTML = '';
+          const sorted = editingVehDocs.slice().sort((a, b) => {
+            const da = a.expiry ? new Date(a.expiry) : new Date('2099-12-31');
+            const db = b.expiry ? new Date(b.expiry) : new Date('2099-12-31');
+            return da - db;
           });
-          attButtons += '</div>';
-        }
-        div.innerHTML = `<div class="cert-info" style="flex:1; min-width:0; cursor:pointer;" onclick="openVehDocEdit(${d.id})">
-          <div class="cert-name">${escapeHtml(d.name || '')}${attachIcon} <span class="cert-status ${s.class}">${s.label}</span></div>
-          <div class="cert-code">${d.expiry ? t('scad') + ': ' + formatDateIT(d.expiry) : t('senzaScadenza')}</div>
-          ${attButtons}
-        </div>
-        <div style="display:flex; align-items:center; gap:8px; flex-shrink:0; margin-left:10px;">
-          <div class="cert-days ${s.class}">${daysText}</div>
-          <button type="button" class="btn btn-danger" style="width:auto; padding:6px 10px; font-size:12px; margin-top:0;" onclick="event.stopPropagation(); deleteVehDoc(${d.id})">&#128465;</button>
-        </div>`;
-        list.appendChild(div);
-      });
-    }
-    async function saveVehDoc() {
-      if (!currentVehicleId) return;
-      const name = document.getElementById('vehDocName').value.trim();
-      const noExpiry = document.getElementById('vehDocNoExpiry').checked;
-      const expiry = noExpiry ? '' : document.getElementById('vehDocExpiry').value;
-      const issueDate = document.getElementById('vehDocIssueDate').value;
-      if (!name) { toast(t('compilaTutti')); return; }
-
-      const items = getVehicles();
-      const idx = items.findIndex(x => x.id === currentVehicleId);
-      if (idx === -1) return;
-      const vehicle = items[idx];
-      if (!vehicle.documents) vehicle.documents = [];
-
-      const files = [];
-      const f1 = document.getElementById('vehDocFile1').files?.[0];
-      const f2 = document.getElementById('vehDocFile2').files?.[0];
-      if (f1) files.push(f1);
-      if (f2) files.push(f2);
-
-      const processSave = async (attachments) => {
-        const attMeta = attachments.map(a => ({ name: a.name, type: a.type }));
-        if (editingVehDocId) {
-          const dIdx = vehicle.documents.findIndex(d => d.id === editingVehDocId);
-          if (dIdx !== -1) {
-            const oldDoc = vehicle.documents[dIdx];
-            const existingAtts = oldDoc.attachments || [];
-            const newAtts = [...existingAtts, ...attMeta];
-            if (newAtts.length > 2) newAtts.splice(0, newAtts.length - 2);
-            vehicle.documents[dIdx] = { ...oldDoc, name, code, issueDate, expiry, noExpiry, attachments: newAtts, hasAttachment: newAtts.length > 0, attachmentName: newAtts[0]?.name || '' };
-            if (attachments.length > 0) {
-              try {
-                const existing = await getAttachment('vehdoc_' + currentVehicleId + '_' + editingVehDocId) || [];
-                const merged = Array.isArray(existing) ? [...existing, ...attachments] : [...(existing ? [existing] : []), ...attachments];
-                if (merged.length > 2) merged.splice(0, merged.length - 2);
-                await saveAttachment('vehdoc_' + currentVehicleId + '_' + editingVehDocId, merged);
-              } catch(err) { toast(t('erroreSalvataggio')); }
+          sorted.forEach(d => {
+            const s = getDocStatus(d.expiry, d.noExpiry);
+            const div = document.createElement('div');
+            div.className = 'card';
+            div.style.cssText = 'padding:0; overflow:hidden; margin-bottom:12px; border-left:4px solid var(--' + (s.class === 'valid' ? 'positive' : s.class === 'warning' ? 'warning' : 'danger') + ');';
+            const daysText = s.days === Infinity ? '∞' : (s.days >= 0 ? `${t('tra')} ${s.days} ${t('gg')}` : `${Math.abs(s.days)} ${t('ggFa')}`);
+            const attCount = (d.attachments && d.attachments.length) || (d.hasAttachment ? 1 : 0);
+            let attHtml = '';
+            if (attCount > 0) {
+              attHtml = '<div style="display:flex; gap:6px; margin-top:8px; flex-wrap:wrap;">';
+              (d.attachments || []).forEach((att, aidx) => {
+                attHtml += `<button type="button" class="btn" style="width:auto; padding:5px 10px; font-size:11px; margin-top:0; background:var(--bg); color:var(--text); border:1.5px solid var(--border); border-radius:8px;" onclick="event.stopPropagation(); downloadVehDocAttachment(${currentVehicleId}, ${d.id}, ${aidx})">
+                  <span style="margin-right:4px;">&#128206;</span>${escapeHtml(att.name || 'File')}
+                </button>`;
+              });
+              attHtml += '</div>';
             }
-            toast(t('docVeicoloAggiornato'));
-          }
-        } else {
-          const newId = Date.now();
-          vehicle.documents.push({ id: newId, name, code, issueDate, expiry, noExpiry, attachments: attMeta, hasAttachment: attMeta.length > 0, attachmentName: attMeta[0]?.name || '' });
-          if (attachments.length > 0) {
-            try { await saveAttachment('vehdoc_' + currentVehicleId + '_' + newId, attachments); }
-            catch(err) { toast(t('erroreSalvataggio')); }
-          }
-          toast(t('docVeicoloAggiunto'));
+            const codeHtml = d.code ? `<span style="font-size:12px; color:var(--text-secondary); font-weight:600; background:var(--bg); padding:2px 8px; border-radius:6px; margin-left:8px;">${escapeHtml(d.code)}</span>` : '';
+            div.innerHTML = `
+              <div style="padding:16px 18px;">
+                <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px;">
+                  <div style="flex:1; min-width:0;">
+                    <div style="display:flex; align-items:center; flex-wrap:wrap; gap:4px; margin-bottom:4px;">
+                      <span style="font-size:15px; font-weight:700; color:var(--text);">${escapeHtml(d.name || '')}</span>
+                      ${codeHtml}
+                      <span class="cert-status ${s.class}" style="margin-left:auto;">${s.label}</span>
+                    </div>
+                    <div style="font-size:12px; color:var(--text-secondary); font-weight:500;">
+                      ${d.issueDate ? t('rilascio') + ': ' + formatDateIT(d.issueDate) + ' &middot; ' : ''}
+                      ${d.expiry ? t('scadenza') + ': ' + formatDateIT(d.expiry) : t('senzaScadenza')}
+                    </div>
+                    ${attHtml}
+                  </div>
+                  <div style="text-align:right; flex-shrink:0;">
+                    <div style="font-size:22px; font-weight:800; color:var(--${s.class === 'valid' ? 'positive' : s.class === 'warning' ? 'warning' : 'danger'}); line-height:1;">${daysText}</div>
+                  </div>
+                </div>
+                <div style="display:flex; gap:8px; margin-top:14px; padding-top:12px; border-top:1.5px solid var(--border);">
+                  <button type="button" class="btn" style="flex:1; margin-top:0; font-size:13px; padding:10px;" onclick="event.stopPropagation(); openVehDocEdit(${d.id})">${t('modifica')}</button>
+                  <button type="button" class="btn btn-danger" style="flex:1; margin-top:0; font-size:13px; padding:10px;" onclick="event.stopPropagation(); deleteVehDoc(${d.id})">${t('elimina')}</button>
+                </div>
+              </div>
+            `;
+            list.appendChild(div);
+          });
         }
-        items[idx] = vehicle;
-        saveVehicles(items);
-        editingVehDocs = vehicle.documents ? JSON.parse(JSON.stringify(vehicle.documents)) : [];
-        resetVehDocForm();
-        renderVehDocList();
-        document.getElementById('vehDocCountBadge').textContent = editingVehDocs.length;
-        renderDashboard();
-      };
-
-      if (files.length === 0) {
-        await processSave([]);
-        return;
-      }
-      const attachments = [];
-      let loaded = 0;
-      files.forEach(file => {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          attachments.push({ name: file.name, type: file.type, data: e.target.result });
-          loaded++;
-          if (loaded === files.length) processSave(attachments);
-        };
-        reader.onerror = function() { toast(t('erroreSalvataggio')); };
-        reader.readAsDataURL(file);
-      });
-    }
-    function openVehDocEdit(id) {
-      if (!currentVehicleId) return;
-      const doc = editingVehDocs.find(d => d.id === id);
-      if (!doc) return;
-      editingVehDocId = id;
-      document.getElementById('vehDocName').value = doc.name || '';
-      document.getElementById('vehDocIssueDate').value = doc.issueDate || '';
-      document.getElementById('vehDocExpiry').value = doc.expiry || '';
-      document.getElementById('vehDocQuickExpiry').value = '';
-      document.getElementById('vehDocNoExpiry').checked = !!doc.noExpiry;
-      toggleNoExpiryAdd('vehdoc');
-      document.getElementById('vehDocSaveBtn').textContent = t('salva');
-      document.getElementById('vehDocCancelBtn').style.display = '';
-      const formSection = document.getElementById('vehDocFormSection');
-      if (formSection.classList.contains('hidden')) {
-        toggleVehDocFormSection();
-      }
-      formSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    }
-    function cancelVehDocEdit() {
-      editingVehDocId = null;
-      resetVehDocForm();
-    }
-    async function deleteVehDoc(id) {
-      if (!currentVehicleId) return;
-      if (!confirm(t('eliminaDocumento'))) return;
-      const items = getVehicles();
-      const idx = items.findIndex(x => x.id === currentVehicleId);
-      if (idx === -1) return;
-      const vehicle = items[idx];
-      const doc = vehicle.documents?.find(d => d.id === id);
-      if (doc && ((doc.attachments && doc.attachments.length > 0) || doc.hasAttachment)) {
-        try { await deleteAttachment('vehdoc_' + currentVehicleId + '_' + id); } catch(e) {}
-      }
-      vehicle.documents = (vehicle.documents || []).filter(d => d.id !== id);
-      items[idx] = vehicle;
-      saveVehicles(items);
-      editingVehDocs = vehicle.documents ? JSON.parse(JSON.stringify(vehicle.documents)) : [];
-      renderVehDocList();
-      document.getElementById('vehDocCountBadge').textContent = editingVehDocs.length;
-      toast(t('docVeicoloEliminato'));
-      renderDashboard();
-    }
-    async function downloadVehDocAttachment(vehId, docId, idx) {
-      const items = getVehicles();
-      const v = items.find(x => x.id === vehId);
-      if (!v || !v.documents) return;
-      const d = v.documents.find(x => x.id === docId);
-      if (!d || !d.attachments || !d.attachments[idx]) return;
-      let att = d.attachments[idx];
-      if (!att.data) {
-        const stored = await getAttachment('vehdoc_' + vehId + '_' + docId);
-        const arr = Array.isArray(stored) ? stored : (stored ? [stored] : []);
-        att = arr[idx];
-      }
-      if (att && att.data) openAttachment(att.data, att.name);
-    }
-
+        async function saveVehDoc() {
+          if (!currentVehicleId) return;
+          const name = document.getElementById('vehDocName').value.trim();
+          const code = document.getElementById('vehDocCode').value.trim();
+          const noExpiry = document.getElementById('vehDocNoExpiry').checked;
+          const expiry = noExpiry ? '' : document.getElementById('vehDocExpiry').value;
+          const issueDate = document.getElementById('vehDocIssueDate').value;
+          if (!name) { toast(t('compilaTutti')); return; }
+          const items = getVehicles();
+          const idx = items.findIndex(x => x.id === currentVehicleId);
+          if (idx === -1) return;
+          const vehicle = items[idx];
+          if (!vehicle.documents) vehicle.documents = [];
+          const files = [];
+          const f1 = document.getElementById('vehDocFile1').files?.[0];
+          const f2 = document.getElementById('vehDocFile2').files?.[0];
+          if (f1) files.push(f1);
+          if (f2) files.push(f2);
+          const processSave = async (attachments) => {
+            const attMeta = attachments.map(a => ({ name: a.name, type: a.type }));
+            if (editingVehDocId) {
+              const dIdx = vehicle.documents.findIndex(d => d.id === editingVehDocId);
+              if (dIdx !== -1) {
+                const oldDoc = vehicle.documents[dIdx];
+                let existingAtts = (oldDoc.attachments || []).filter((_, i) => !editingVehDocAttachmentsRemoved.includes(i));
+                let newAtts = [...existingAtts, ...attMeta];
+                if (newAtts.length > 2) newAtts = newAtts.slice(-2);
+                vehicle.documents[dIdx] = { ...oldDoc, name, code, issueDate, expiry, noExpiry, attachments: newAtts, hasAttachment: newAtts.length > 0, attachmentName: newAtts[0]?.name || '' };
+                if (attachments.length > 0 || editingVehDocAttachmentsRemoved.length > 0) {
+                  try {
+                    const stored = await getAttachment('vehdoc_' + currentVehicleId + '_' + editingVehDocId) || [];
+                    const existingData = Array.isArray(stored) ? stored : (stored ? [stored] : []);
+                    let merged = existingData.filter((_, i) => !editingVehDocAttachmentsRemoved.includes(i));
+                    merged = [...merged, ...attachments];
+                    if (merged.length > 2) merged = merged.slice(-2);
+                    await saveAttachment('vehdoc_' + currentVehicleId + '_' + editingVehDocId, merged);
+                  } catch(err) { toast(t('erroreSalvataggio')); }
+                }
+                toast(t('docVeicoloAggiornato'));
+              }
+            } else {
+              const newId = Date.now();
+              vehicle.documents.push({ id: newId, name, code, issueDate, expiry, noExpiry, attachments: attMeta, hasAttachment: attMeta.length > 0, attachmentName: attMeta[0]?.name || '' });
+              if (attachments.length > 0) {
+                try { await saveAttachment('vehdoc_' + currentVehicleId + '_' + newId, attachments); }
+                catch(err) { toast(t('erroreSalvataggio')); }
+              }
+              toast(t('docVeicoloAggiunto'));
+            }
+            items[idx] = vehicle;
+            saveVehicles(items);
+            editingVehDocs = vehicle.documents ? JSON.parse(JSON.stringify(vehicle.documents)) : [];
+            resetVehDocForm();
+            renderVehDocList();
+            document.getElementById('vehDocCountBadge').textContent = editingVehDocs.length;
+            renderDashboard();
+          };
+          if (files.length === 0) {
+            await processSave([]);
+            return;
+          }
+          const attachments = [];
+          let loaded = 0;
+          files.forEach(file => {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+              attachments.push({ name: file.name, type: file.type, data: e.target.result });
+              loaded++;
+              if (loaded === files.length) processSave(attachments);
+            };
+            reader.onerror = function() { toast(t('erroreSalvataggio')); };
+            reader.readAsDataURL(file);
+          });
+        }
+        function openVehDocEdit(id) {
+          if (!currentVehicleId) return;
+          const doc = editingVehDocs.find(d => d.id === id);
+          if (!doc) return;
+          editingVehDocId = id;
+          editingVehDocAttachments = [];
+          editingVehDocAttachmentsRemoved = [];
+          if (doc.attachments && doc.attachments.length > 0) {
+            editingVehDocAttachments = doc.attachments.map(a => ({ ...a }));
+          }
+          document.getElementById('vehDocName').value = doc.name || '';
+          document.getElementById('vehDocCode').value = doc.code || '';
+          document.getElementById('vehDocIssueDate').value = doc.issueDate || '';
+          document.getElementById('vehDocExpiry').value = doc.expiry || '';
+          document.getElementById('vehDocQuickExpiry').value = '';
+          document.getElementById('vehDocNoExpiry').checked = !!doc.noExpiry;
+          toggleNoExpiryAdd('vehdoc');
+          document.getElementById('vehDocSaveBtn').textContent = t('salva');
+          document.getElementById('vehDocCancelBtn').style.display = '';
+          renderVehDocEditAttachments();
+          const formSection = document.getElementById('vehDocFormSection');
+          if (formSection.classList.contains('hidden')) {
+            toggleVehDocFormSection();
+          }
+          formSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+        function cancelVehDocEdit() {
+          editingVehDocId = null;
+          editingVehDocAttachments = [];
+          editingVehDocAttachmentsRemoved = [];
+          resetVehDocForm();
+        }
+        async function deleteVehDoc(id) {
+          if (!currentVehicleId) return;
+          if (!confirm(t('eliminaDocumento'))) return;
+          const items = getVehicles();
+          const idx = items.findIndex(x => x.id === currentVehicleId);
+          if (idx === -1) return;
+          const vehicle = items[idx];
+          const doc = vehicle.documents?.find(d => d.id === id);
+          if (doc && ((doc.attachments && doc.attachments.length > 0) || doc.hasAttachment)) {
+            try { await deleteAttachment('vehdoc_' + currentVehicleId + '_' + id); } catch(e) {}
+          }
+          vehicle.documents = (vehicle.documents || []).filter(d => d.id !== id);
+          items[idx] = vehicle;
+          saveVehicles(items);
+          editingVehDocs = vehicle.documents ? JSON.parse(JSON.stringify(vehicle.documents)) : [];
+          renderVehDocList();
+          document.getElementById('vehDocCountBadge').textContent = editingVehDocs.length;
+          toast(t('docVeicoloEliminato'));
+          renderDashboard();
+        }
+        async function downloadVehDocAttachment(vehId, docId, idx) {
+          const items = getVehicles();
+          const v = items.find(x => x.id === vehId);
+          if (!v || !v.documents) return;
+          const d = v.documents.find(x => x.id === docId);
+          if (!d || !d.attachments || !d.attachments[idx]) return;
+          let att = d.attachments[idx];
+          if (!att.data) {
+            try {
+              const stored = await getAttachment('vehdoc_' + vehId + '_' + docId);
+              const arr = Array.isArray(stored) ? stored : (stored ? [stored] : []);
+              att = arr[idx];
+            } catch(e) { return; }
+          }
+          if (att && att.data) openAttachment(att.data, att.name);
+        }
+        function renderVehDocEditAttachments() {
+          const area = document.getElementById('vehDocAttachmentsArea');
+          if (!area) return;
+          area.innerHTML = '';
+          editingVehDocAttachments.forEach((att, idx) => {
+            if (editingVehDocAttachmentsRemoved.includes(idx)) return;
+            const row = document.createElement('div');
+            row.className = 'input-row';
+            row.style.cssText = 'margin-bottom:8px;';
+            row.innerHTML = `<label style="min-width:50px">${att.name ? escapeHtml(att.name.substring(0,12)) : 'File'}</label>
+              <div style="flex:1; display:flex; align-items:center; gap:8px;">
+                <span style="font-size:13px; color:var(--text-secondary); flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${escapeHtml(att.name || '')}</span>
+                <button type="button" class="btn" style="flex:0 0 auto; width:auto; padding:6px 12px; font-size:12px; margin-top:0;" onclick="downloadVehDocEditAttachmentByIdx(${idx})">${t('scarica')}</button>
+                <button type="button" class="btn btn-danger" style="flex:0 0 auto; width:auto; padding:6px 12px; font-size:12px; margin-top:0;" onclick="removeVehDocEditAttachmentByIdx(${idx})">${t('rimuovi')}</button>
+              </div>`;
+            area.appendChild(row);
+          });
+        }
+        async function downloadVehDocEditAttachmentByIdx(idx) {
+          let att = editingVehDocAttachments[idx];
+          if (!att || !att.data) {
+            const stored = await getAttachment('vehdoc_' + currentVehicleId + '_' + editingVehDocId);
+            const arr = Array.isArray(stored) ? stored : (stored ? [stored] : []);
+            att = arr[idx];
+            if (att) editingVehDocAttachments[idx] = att;
+          }
+          if (att && att.data) openAttachment(att.data, att.name);
+        }
+        function removeVehDocEditAttachmentByIdx(idx) {
+          editingVehDocAttachmentsRemoved.push(idx);
+          renderVehDocEditAttachments();
+        }
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('sw.js').then(reg => {
         reg.addEventListener('updatefound', () => {
